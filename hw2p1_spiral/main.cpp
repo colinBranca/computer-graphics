@@ -9,8 +9,15 @@
 
 #include "triangle/triangle.h"
 
+#include <cmath>
+
 Triangle triangle;
 
+double PI = 3.14;
+double FIB_ANGLE = 137.508;
+double ANGLE = PI / 10.0;
+
+char FIBONACCI_SPIRAL = 1;
 
 void Init() {
     // sets background color
@@ -24,7 +31,40 @@ void Display() {
 
     glm::mat4 model = IDENTITY_MATRIX;
     // compute transformations here
-    triangle.Draw(model);
+
+    glm::mat4 R = IDENTITY_MATRIX;
+    R[0][0] = 0.0f;
+    R[1][0] = 1.0f;
+    R[0][1] = -1.0f;
+    R[1][1] = 0.0f;
+
+    glm::mat4 S = IDENTITY_MATRIX;
+    S[0][0] = FIBONACCI_SPIRAL == 0 ? 0.005f : 0.025f;
+    S[1][1] = FIBONACCI_SPIRAL == 0 ? 0.005f : 0.025f;
+
+    glm::mat4 T = IDENTITY_MATRIX;
+
+    double r = 0;
+    double theta = 0;
+    double lim = FIBONACCI_SPIRAL == 0 ? 60 : 400;
+    for (int i = 1; i < lim; ++i) {
+        triangle.Draw(T * R * S);
+        if (FIBONACCI_SPIRAL) {
+                r = 0.05 * sqrt(i);
+                theta = fmod(i * FIB_ANGLE * PI / 180.0, 2*PI);
+       } else {
+                r = 0.04 * theta;
+                S[0][0] += 0.0012;
+                S[1][1] += 0.0012;
+                theta = theta + ANGLE;
+        }
+        R[0][0] = cos(-theta);
+        R[0][1] = -sin(-theta);
+        R[1][0] = sin(-theta);
+        R[1][1] = cos(-theta);
+        T[3][0] = r * cos(theta);
+        T[3][1] = r * sin(theta);
+    }
 }
 
 void ErrorCallback(int error, const char* description) {
