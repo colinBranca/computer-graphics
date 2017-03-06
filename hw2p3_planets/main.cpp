@@ -9,19 +9,63 @@
 
 // Quad stuff1;
 // ...
+Quad Sun;
+Quad Earth;
+Quad Moon;
+
+float SunFactor = 0.25;
+float EarthFactor = 2.0;
+float MoonFactor = 3.4;
+
 
 void Init() {
     // sets background color
     glClearColor(1.0,1.0,1.0 /*white*/, 1.0 /*solid*/);
     // {stuff}.Init(...);
+    Sun.Init("sun.tga");
+    Earth.Init("earth.tga");
+    Moon.Init("moon.tga");
+}
+
+glm::mat4 rotation(float time, float factor) {
+    glm::mat4 result = IDENTITY_MATRIX;
+    float angle = time * factor;
+    result[0][0] = cos(angle);
+    result[1][0] = -sin(angle);
+    result[0][1] = sin(angle);
+    result[1][1] = cos(angle);
+    return result;
 }
 
 void Display() {
     glClear(GL_COLOR_BUFFER_BIT);
     float time_s = glfwGetTime();
 
-    // compute the transformation matrices
-    // {stuff}.Draw({stuff}_modelmatrix);
+    glm::mat4 R_Sun = rotation(time_s, SunFactor);
+    glm::mat4 S_Sun = IDENTITY_MATRIX;
+    S_Sun[0][0] = 0.2;
+    S_Sun[1][1] = 0.2;
+    glm::mat4 T_Sun = IDENTITY_MATRIX;
+    T_Sun[3][0] = 0.25;
+    Sun.Draw(T_Sun * R_Sun * S_Sun);
+
+
+    glm::mat4 R_Earth = rotation(time_s, EarthFactor);
+    glm::mat4 S_Earth = IDENTITY_MATRIX;
+    S_Earth[0][0] = 0.06;
+    S_Earth[1][1] = 0.06;
+    glm::mat4 T_Earth = IDENTITY_MATRIX;
+    T_Earth[3][0] = -0.4;
+    Earth.Draw(T_Earth * R_Earth * S_Earth);
+
+    glm::mat4 R_Moon = rotation(time_s, MoonFactor);
+    glm::mat4 S_Moon = IDENTITY_MATRIX;
+    S_Moon[0][0] = 0.03;
+    S_Moon[1][1] = 0.03;
+    glm::mat4 T_Moon = IDENTITY_MATRIX;
+    T_Moon[3][0] = -0.4;
+    T_Moon[3][1] = 0.2;
+    Moon.Draw(T_Moon * R_Moon * S_Moon);
 }
 
 void ErrorCallback(int error, const char* description) {
