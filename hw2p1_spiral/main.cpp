@@ -51,7 +51,7 @@ void Display() {
         triangle.Draw(T * R * S);
         if (FIBONACCI_SPIRAL) {
                 r = 0.05 * sqrt(i);
-                theta = fmod(i * FIB_ANGLE * PI / 180.0, 2*PI);
+                theta = i * FIB_ANGLE * PI / 180.0;
        } else {
                 r = 0.04 * theta;
                 S[0][0] += 0.0012;
