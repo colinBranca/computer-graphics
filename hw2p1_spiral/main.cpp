@@ -30,7 +30,6 @@ void Display() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     glm::mat4 model = IDENTITY_MATRIX;
-    // compute transformations here
 
     glm::mat4 R = IDENTITY_MATRIX;
     R[0][0] = 0.0f;
@@ -39,31 +38,36 @@ void Display() {
     R[1][1] = 0.0f;
 
     glm::mat4 S = IDENTITY_MATRIX;
-    S[0][0] = FIBONACCI_SPIRAL == 0 ? 0.005f : 0.025f;
-    S[1][1] = FIBONACCI_SPIRAL == 0 ? 0.005f : 0.025f;
+    S[0][0] = FIBONACCI_SPIRAL == 0 ? 0.005f : 0.020f;
+    S[1][1] = FIBONACCI_SPIRAL == 0 ? 0.005f : 0.020f;
 
     glm::mat4 T = IDENTITY_MATRIX;
 
     double r = 0;
     double theta = 0;
-    double lim = FIBONACCI_SPIRAL == 0 ? 60 : 400;
+    double lim = FIBONACCI_SPIRAL == 0 ? 60 : 468;
     for (int i = 1; i < lim; ++i) {
         triangle.Draw(T * R * S);
         if (FIBONACCI_SPIRAL) {
                 r = 0.05 * sqrt(i);
                 theta = i * FIB_ANGLE * PI / 180.0;
+                R[0][0] = cos(theta);
+                R[0][1] = -sin(theta);
+                R[1][0] = sin(theta);
+                R[1][1] = cos(theta);
        } else {
                 r = 0.04 * theta;
                 S[0][0] += 0.0012;
                 S[1][1] += 0.0012;
                 theta = theta + ANGLE;
+                R[0][0] = cos(-theta);
+                R[0][1] = -sin(-theta);
+                R[1][0] = sin(-theta);
+                R[1][1] = cos(-theta);
+
         }
-        R[0][0] = cos(-theta);
-        R[0][1] = -sin(-theta);
-        R[1][0] = sin(-theta);
-        R[1][1] = cos(-theta);
-        T[3][0] = r * cos(theta);
-        T[3][1] = r * sin(theta);
+        T[3][0] = 0.9 * r * cos(theta);
+        T[3][1] = 0.9 * r * sin(theta);
     }
 }
 
