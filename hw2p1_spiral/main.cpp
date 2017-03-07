@@ -51,21 +51,17 @@ void Display() {
         if (FIBONACCI_SPIRAL) {
                 r = 0.0045 * sqrt(theta);
                 theta = i * FIB_ANGLE;
-                R[0][0] = cos(-theta);
-                R[0][1] = -sin(-theta);
-                R[1][0] = sin(-theta);
-                R[1][1] = cos(-theta);
-       } else {
+      } else {
                 r = 0.04 * theta;
                 S[0][0] += 0.0012;
                 S[1][1] += 0.0012;
                 theta = theta + ANGLE;
-                R[0][0] = cos(-theta);
-                R[0][1] = -sin(-theta);
-                R[1][0] = sin(-theta);
-                R[1][1] = cos(-theta);
-
         }
+        R[0][0] = cos(-theta);
+        R[0][1] = -sin(-theta);
+        R[1][0] = sin(-theta);
+        R[1][1] = cos(-theta);
+
         T[3][0] = 0.9 * r * cos(theta);
         T[3][1] = 0.9 * r * sin(theta);
     }
