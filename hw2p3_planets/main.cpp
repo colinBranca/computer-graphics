@@ -40,16 +40,18 @@ void Display() {
     glClear(GL_COLOR_BUFFER_BIT);
     float time_s = glfwGetTime();
 
-    float majorAxis = 0.75;
-    float minorAxis = 0.375;
-    //float sunPosition = sqrt(majorAxis*majorAxis - minorAxis*minorAxis); // Doesn't work
+    float factor = 5;
+    float excentricity = 0.016*factor;
+    float semiMajorAxis = 0.15*factor;
+    float semiMinorAxis = semiMajorAxis*sqrt(1 - excentricity*excentricity);
+    //float sunPosition = sqrt(semiMajorAxis*semiMajorAxis - semiMinorAxis*semiMinorAxis); // Doesn't work
 
     glm::mat4 R_Sun = rotation(time_s, SunFactor);
     glm::mat4 S_Sun = IDENTITY_MATRIX;
     S_Sun[0][0] = 0.15;
     S_Sun[1][1] = 0.15;
     glm::mat4 T_Sun = IDENTITY_MATRIX;
-    T_Sun[3][0] = 0.20;
+    T_Sun[3][0] = excentricity;
     Sun.Draw(T_Sun * R_Sun * S_Sun);
 
     glm::mat4 R_Earth = rotation(time_s, EarthFactor);
@@ -57,8 +59,8 @@ void Display() {
     S_Earth[0][0] = 0.06;
     S_Earth[1][1] = 0.06;
     glm::mat4 T_Earth = IDENTITY_MATRIX;
-    T_Earth[3][0] = majorAxis * cos(time_s);
-    T_Earth[3][1] = minorAxis * sin(time_s);
+    T_Earth[3][0] = semiMajorAxis * cos(time_s);
+    T_Earth[3][1] = semiMinorAxis * sin(time_s);
     Earth.Draw(T_Earth * R_Earth * S_Earth);
 
     glm::mat4 R_Moon = rotation(time_s, MoonFactor);
