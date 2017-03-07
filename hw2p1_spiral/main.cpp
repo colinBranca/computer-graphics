@@ -11,51 +11,59 @@
 
 #include <cmath>
 
+char FERMAT_SPIRAL = 0;
+
 Triangle triangle;
 
-double PI = 3.14;
-double FIB_ANGLE = 137.508;
-double ANGLE = PI / 10.0;
+float PI = 3.14;
+float FERMAT_ANGLE = 137.508;
+float ANGLE = PI / 10.0;
 
-char FIBONACCI_SPIRAL = 1;
+glm::mat4 R;
+glm::mat4 S;
+glm::mat4 T;
+
+float r;
+float theta;
+float num_triangles;
 
 void Init() {
     // sets background color
     glClearColor(0.937, 0.937, 0.937 /*gray*/, 1.0 /*solid*/);
 
+    r = 0;
+    theta = 0;
+    num_triangles = FERMAT_SPIRAL == 0 ? 60 : 400;
+
+    // Initialize triangle
     triangle.Init();
-}
-
-void Display() {
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    glm::mat4 model = IDENTITY_MATRIX;
-
-    glm::mat4 R = IDENTITY_MATRIX;
+    // Initialize R(otation), S(cale) and T(raslation) matrices
+    R = IDENTITY_MATRIX;
     R[0][0] = 0.0f;
     R[1][0] = 1.0f;
     R[0][1] = -1.0f;
     R[1][1] = 0.0f;
 
-    glm::mat4 S = IDENTITY_MATRIX;
-    S[0][0] = FIBONACCI_SPIRAL == 0 ? 0.005f : 0.020f;
-    S[1][1] = FIBONACCI_SPIRAL == 0 ? 0.005f : 0.020f;
+    T = IDENTITY_MATRIX;
+    S = IDENTITY_MATRIX;
+    S[0][0] = FERMAT_SPIRAL == 0 ? 0.005f : 0.020f;
+    S[1][1] = FERMAT_SPIRAL == 0 ? 0.005f : 0.020f;
 
-    glm::mat4 T = IDENTITY_MATRIX;
+}
 
-    double r = 0;
-    double theta = 0;
-    double lim = FIBONACCI_SPIRAL == 0 ? 60 : 400;
-    for (int i = 1; i < lim; ++i) {
+void Display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    for (int i = 1; i < num_triangles; ++i) {
         triangle.Draw(T * R * S);
-        if (FIBONACCI_SPIRAL) {
-                r = 0.0045 * sqrt(theta);
-                theta = i * FIB_ANGLE;
-      } else {
-                r = 0.04 * theta;
-                S[0][0] += 0.0012;
-                S[1][1] += 0.0012;
-                theta = theta + ANGLE;
+        if (FERMAT_SPIRAL) {
+            r = 0.0045 * sqrt(theta);
+            theta = i * FERMAT_ANGLE;
+        } else {
+            r = 0.04 * theta;
+            S[0][0] += 0.0012;
+            S[1][1] += 0.0012;
+            theta = theta + ANGLE;
         }
         R[0][0] = cos(-theta);
         R[0][1] = -sin(-theta);
@@ -65,6 +73,11 @@ void Display() {
         T[3][0] = 0.9 * r * cos(theta);
         T[3][1] = 0.9 * r * sin(theta);
     }
+
+    S[0][0] = FERMAT_SPIRAL == 0 ? 0.005f : 0.020f;
+    S[1][1] = FERMAT_SPIRAL == 0 ? 0.005f : 0.020f;
+    r = 0;
+    theta = 0;
 }
 
 void ErrorCallback(int error, const char* description) {
