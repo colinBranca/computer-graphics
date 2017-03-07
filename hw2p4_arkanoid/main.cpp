@@ -6,7 +6,6 @@
 #include "icg_helper.h"
 
 #include "quad/quad.h"
-float time_s;
 
 Quad topLimit;
 glm::mat4 topM;
@@ -19,21 +18,20 @@ Quad Bar;
 glm::mat4 S_bar;
 glm::mat4 T_bar;
 float barDelta = 0.02;
-float halfBarLength;
 
 Quad Ball;
 glm::mat4 S_ball;
 glm::mat4 T_ball;
-GLfloat velocity[] = {0.0, 0.1};
+GLfloat velocity[2];
 float deltaStart = 0.1;
 bool isMoving = false;
 
 void resetBall() {
     T_ball = IDENTITY_MATRIX;
     T_ball[3][0] = T_bar[3][0];
-    T_ball[3][1] = T_bar[3][1]+S_bar[1][1];
+    T_ball[3][1] = T_bar[3][1] + S_bar[1][1];
     velocity[0] = 0.0;
-    velocity[1] = 0.1;
+    velocity[1] = 0.05;
     isMoving = false;
 }
 
@@ -60,7 +58,6 @@ void Init() {
     T_bar[3][1] = -0.9;
     S_bar[0][0] = 0.15;
     S_bar[1][1] = 0.01;
-    halfBarLength = S_bar[0][0] / 2;
 
     S_ball = IDENTITY_MATRIX;
     Ball.Init();
@@ -71,35 +68,31 @@ void Init() {
 
 bool hitBar() {
     return T_ball[3][1] <= T_bar[3][1] &&
-           (T_ball[3][0] >= T_bar[3][0] - halfBarLength && T_ball[3][0] <= T_bar[3][0] + halfBarLength);
+           (T_ball[3][0] >= T_bar[3][0] - S_bar[0][0] && T_ball[3][0] <= T_bar[3][0] + S_bar[0][0]);
 }
 
-void bounce() {
+void UpdateBall() {
+    if (!isMoving) resetBall();
+
     if (T_ball[3][0] >= 1 || T_ball[3][0] <= -1) {
         velocity[0] = -velocity[0];
     }
+
     if (T_ball[3][1] >= 1) {
         velocity[1] = -velocity[1];
-    }
-    if (hitBar()) {
-        velocity[1] = -velocity[1];
-        printf("Collision with bar\n");
     }
 
     if (T_ball[3][1] <= -1) {
         resetBall();
     }
 
-}
-
-void UpdateBall() {
-    if (!isMoving) return;
-
-    bounce();
-
     if (isMoving) {
         T_ball[3][0] += velocity[0];
         T_ball[3][1] += velocity[1];
+    }
+    if (hitBar()) {
+        velocity[1] = -velocity[1];
+        printf("Collision with bar\n");
     }
 }
 
@@ -109,11 +102,9 @@ void Display() {
     rightLimit.Draw(rightM);
     leftLimit.Draw(leftM);
 
-    time_s = glfwGetTime();
-
     Bar.Draw(T_bar * S_bar);
-    Ball.Draw(T_ball * S_ball);
-
+    if (T_ball[3][1] >= T_bar[3][1])
+        Ball.Draw(T_ball * S_ball);
 }
 
 void ErrorCallback(int error, const char* description) {
