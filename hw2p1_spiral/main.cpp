@@ -45,16 +45,16 @@ void Display() {
 
     double r = 0;
     double theta = 0;
-    double lim = FIBONACCI_SPIRAL == 0 ? 60 : 468;
+    double lim = FIBONACCI_SPIRAL == 0 ? 60 : 400;
     for (int i = 1; i < lim; ++i) {
         triangle.Draw(T * R * S);
         if (FIBONACCI_SPIRAL) {
-                r = 0.05 * sqrt(i);
-                theta = i * FIB_ANGLE * PI / 180.0;
-                R[0][0] = cos(theta);
-                R[0][1] = -sin(theta);
-                R[1][0] = sin(theta);
-                R[1][1] = cos(theta);
+                r = 0.0045 * sqrt(theta);
+                theta = i * FIB_ANGLE;
+                R[0][0] = cos(-theta);
+                R[0][1] = -sin(-theta);
+                R[1][0] = sin(-theta);
+                R[1][1] = cos(-theta);
        } else {
                 r = 0.04 * theta;
                 S[0][0] += 0.0012;
