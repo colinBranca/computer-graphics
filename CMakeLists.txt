@@ -14,3 +14,5 @@ add_subdirectory(lab2_intro_to_glsl)
 add_subdirectory(hw2p1_spiral)
 add_subdirectory(hw2p2_checkerboard)
 add_subdirectory(hw2p3_planets)
+add_subdirectory(hw2p4_arkanoid)
+
