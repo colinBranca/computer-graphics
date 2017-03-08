@@ -51,8 +51,12 @@ Therefore the model matrix was obtained by multiplying the matrices in this orde
 To compute the position of the Moon and of Earth we used the same techniques used in the first exercise: polar coordinates, ellipse equation (and therefore circle equations).
 
 ### Exercice Bonus: Arkanoid
+Controls: **left/right** arrow to move the bar, **space** to throw the ball.
 
-Quads were with different scale factors to generate the walls, the bar and the ball.
+Simple, mono-chromatic quads were used: the code is taken from the Solar System exercise and
+simplified by deleting unnecessary elements (the textures and code taking care of them).
+Different scale factors were used to generate the walls, the bar and the ball.
+
 The norm of the velocity is constant.
 The velocity vector after a collision is computed using the following formula:
 > v2 = v1 - 2 * dot(v1, n) n
