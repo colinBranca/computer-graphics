@@ -48,7 +48,6 @@ void Init() {
     S = IDENTITY_MATRIX;
     S[0][0] = FERMAT_SPIRAL == 0 ? 0.005f : 0.020f;
     S[1][1] = FERMAT_SPIRAL == 0 ? 0.005f : 0.020f;
-
 }
 
 void Display() {
@@ -148,4 +147,3 @@ int main(int argc, char *argv[]) {
     glfwTerminate();
     return EXIT_SUCCESS;
 }
-
