@@ -7,29 +7,31 @@
 
 #include "quad/quad.h"
 
+// Sun variables
 Quad Sun;
-Quad Earth;
-Quad Moon;
-
 float SunFactor = 0.25;
-float EarthFactor = 2.0;
-float MoonFactor = 3.4;
-
-float excentricity = 0.4;
-float semiMajorAxis = 0.75;
-float semiMinorAxis = semiMajorAxis*sqrt(1 - excentricity*excentricity);
-
 glm::mat4 R_Sun;
 glm::mat4 S_Sun;
 glm::mat4 T_Sun;
 
+// Earth variables
+Quad Earth;
+float EarthFactor = 2.0;
 glm::mat4 R_Earth;
 glm::mat4 S_Earth;
 glm::mat4 T_Earth;
 
+// Moon variables
+Quad Moon;
+float MoonFactor = 3.4;
 glm::mat4 R_Moon;
 glm::mat4 S_Moon;
 glm::mat4 T_Moon;
+
+// Some constants
+const float excentricity = 0.4;
+const float semiMajorAxis = 0.75;
+const float semiMinorAxis = semiMajorAxis*sqrt(1 - excentricity*excentricity);
 
 void Init() {
     // sets background color
@@ -55,6 +57,11 @@ void Init() {
     T_Moon = IDENTITY_MATRIX;
 }
 
+/**
+ * Produces rotation matrix.
+ * @param time
+ * @param factor specific to body.
+ */
 glm::mat4 rotation(float time, float factor) {
     glm::mat4 result = IDENTITY_MATRIX;
     float angle = time * factor;
