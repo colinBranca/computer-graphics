@@ -9,6 +9,7 @@
 
 #define NOCOLLISION -9
 
+// Box walls
 Quad topLimit;
 glm::mat4 topM;
 Quad leftLimit;
@@ -16,11 +17,13 @@ glm::mat4 leftM;
 Quad rightLimit;
 glm::mat4 rightM;
 
+// Bar variables
 Quad Bar;
 glm::mat4 S_bar;
 glm::mat4 T_bar;
 float barDelta = 0.02;
 
+// Ball variables
 Quad Ball;
 glm::mat4 S_ball;
 glm::mat4 T_ball;
@@ -29,6 +32,9 @@ float deltaStart = 0.1;
 float speed = 0.02;
 bool isMoving = false;
 
+/**
+ * Reset the game bringing the ball back to the bar.
+ */
 void resetBall() {
     T_ball = IDENTITY_MATRIX;
     T_ball[3][0] = T_bar[3][0];
@@ -42,6 +48,7 @@ void Init() {
     // sets background color
     glClearColor(1.0,1.0,1.0 /*white*/, 1.0 /*solid*/);
 
+    // Initiliaze walls.
     topLimit.Init();
     topM[3][1] = 1;
     topM[1][1] = 0.05;
@@ -55,6 +62,7 @@ void Init() {
     leftM[0][0] = 0.05;
 
 
+    // Initialize bar transformation matrices.
     S_bar = IDENTITY_MATRIX;
     T_bar = IDENTITY_MATRIX;
     Bar.Init();
@@ -62,6 +70,7 @@ void Init() {
     S_bar[0][0] = 0.15;
     S_bar[1][1] = 0.01;
 
+    // Initialize ball transformation matrices.
     S_ball = IDENTITY_MATRIX;
     Ball.Init();
     S_ball[0][0] = 0.01;
@@ -69,6 +78,11 @@ void Init() {
     resetBall();
 }
 
+/**
+ * Returns the horizontal distance (also negative) of the ball
+ * from the center of the bar in case of collision, NOCOLLISION
+ * if no collision occurs.
+ */
 float hitBar() {
     if (T_ball[3][1] <= T_bar[3][1] &&
            (T_ball[3][0] >= T_bar[3][0] - S_bar[0][0] &&
@@ -78,28 +92,37 @@ float hitBar() {
     return NOCOLLISION;
 }
 
+/**
+ * Moves the ball if no collision occurs, modifies the velocity
+ * in case of collision.
+ */
 void updateBall() {
-    if (!isMoving) resetBall();
+    if (!isMoving) resetBall(); // Stay on bar if not thrown
 
+    // Bounce against right or left wall
     if (T_ball[3][0] >= 1 - rightM[0][0] || T_ball[3][0] <= -1 + leftM[0][0]) {
         velocity[0] = -velocity[0];
     }
 
+    // Bounce against top wall
     if (T_ball[3][1] >= 1 - topM[1][1]) {
         velocity[1] = -velocity[1];
     }
 
+    // If the bar misses the ball then game over
     if (T_ball[3][1] <= -1 + leftM[3][0]) {
         resetBall();
     }
 
+    // Move ball
     if (isMoving) {
         T_ball[3][0] += velocity[0];
         T_ball[3][1] += velocity[1];
     }
 
+    // Check collision against bar and react accordingly.
+    // Refer to readme for explanation.
     float nx = hitBar();
-
     if (nx != NOCOLLISION) {
         float ny = sqrt(1 - nx * nx);
         float dotProduct = velocity[0] * nx + velocity[1] * ny;
@@ -110,11 +133,16 @@ void updateBall() {
 
 void Display() {
     glClear(GL_COLOR_BUFFER_BIT);
+
+    // Draw walls
     topLimit.Draw(topM);
     rightLimit.Draw(rightM);
     leftLimit.Draw(leftM);
 
+    // Draw bar
     Bar.Draw(T_bar * S_bar);
+
+    // If not game out, draw ball.
     if (T_ball[3][1] >= T_bar[3][1])
         Ball.Draw(T_ball * S_ball);
 }
@@ -127,6 +155,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
+    // React to game control keys.
     if (key == GLFW_KEY_RIGHT && T_bar[3][0] < 1) {
         T_bar[3][0] += barDelta;
     }
