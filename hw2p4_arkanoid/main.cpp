@@ -32,6 +32,7 @@ float deltaStart = 0.1;
 float speed = 0.02;
 bool isMoving = false;
 
+float time_s = 0.0;
 /**
  * Reset the game bringing the ball back to the bar.
  */
@@ -115,10 +116,13 @@ void updateBall() {
     }
 
     // Move ball
-    if (isMoving) {
+    float time_n = glfwGetTime();
+    if (isMoving &&
+            time_n - time_s >= 0.001) {
         T_ball[3][0] += velocity[0];
         T_ball[3][1] += velocity[1];
     }
+    time_s = time_n;
 
     // Check collision against bar and react accordingly.
     // Refer to readme for explanation.
@@ -162,7 +166,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     if (key == GLFW_KEY_LEFT && T_bar[3][0] > -1) {
         T_bar[3][0] -= barDelta;
     }
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS && !isMoving) {
         isMoving = !isMoving;
     }
 
