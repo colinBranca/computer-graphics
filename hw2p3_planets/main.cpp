@@ -15,9 +15,8 @@ float SunFactor = 0.25;
 float EarthFactor = 2.0;
 float MoonFactor = 3.4;
 
-float factor = 5;
-float excentricity = 0.016*factor;
-float semiMajorAxis = 0.15*factor;
+float excentricity = 0.4;
+float semiMajorAxis = 0.75;
 float semiMinorAxis = semiMajorAxis*sqrt(1 - excentricity*excentricity);
 
 glm::mat4 R_Sun;
