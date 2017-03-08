@@ -7,6 +7,8 @@
 
 #include "quad/quad.h"
 
+#define NOCOLLISION -9
+
 Quad topLimit;
 glm::mat4 topM;
 Quad leftLimit;
@@ -24,6 +26,7 @@ glm::mat4 S_ball;
 glm::mat4 T_ball;
 GLfloat velocity[2];
 float deltaStart = 0.1;
+float speed = 0.02;
 bool isMoving = false;
 
 void resetBall() {
@@ -31,7 +34,7 @@ void resetBall() {
     T_ball[3][0] = T_bar[3][0];
     T_ball[3][1] = T_bar[3][1] + S_bar[1][1];
     velocity[0] = 0.0;
-    velocity[1] = 0.05;
+    velocity[1] = speed;
     isMoving = false;
 }
 
@@ -66,23 +69,27 @@ void Init() {
     resetBall();
 }
 
-bool hitBar() {
-    return T_ball[3][1] <= T_bar[3][1] &&
-           (T_ball[3][0] >= T_bar[3][0] - S_bar[0][0] && T_ball[3][0] <= T_bar[3][0] + S_bar[0][0]);
+float hitBar() {
+    if (T_ball[3][1] <= T_bar[3][1] &&
+           (T_ball[3][0] >= T_bar[3][0] - S_bar[0][0] &&
+            T_ball[3][0] <= T_bar[3][0] + S_bar[0][0])) {
+        return T_bar[3][0] - T_ball[3][0];
+    }
+    return NOCOLLISION;
 }
 
-void UpdateBall() {
+void updateBall() {
     if (!isMoving) resetBall();
 
-    if (T_ball[3][0] >= 1 || T_ball[3][0] <= -1) {
+    if (T_ball[3][0] >= 1 - rightM[0][0] || T_ball[3][0] <= -1 + leftM[0][0]) {
         velocity[0] = -velocity[0];
     }
 
-    if (T_ball[3][1] >= 1) {
+    if (T_ball[3][1] >= 1 - topM[1][1]) {
         velocity[1] = -velocity[1];
     }
 
-    if (T_ball[3][1] <= -1) {
+    if (T_ball[3][1] <= -1 + leftM[3][0]) {
         resetBall();
     }
 
@@ -90,9 +97,14 @@ void UpdateBall() {
         T_ball[3][0] += velocity[0];
         T_ball[3][1] += velocity[1];
     }
-    if (hitBar()) {
-        velocity[1] = -velocity[1];
-        printf("Collision with bar\n");
+
+    float nx = hitBar();
+
+    if (nx != NOCOLLISION) {
+        float ny = sqrt(1 - nx * nx);
+        float dotProduct = velocity[0] * nx + velocity[1] * ny;
+        velocity[0] = velocity[0] - 2 * dotProduct * nx;
+        velocity[1] = velocity[1] - 2 * dotProduct * ny;
     }
 }
 
@@ -115,10 +127,10 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
-    if (key == GLFW_KEY_RIGHT) {
+    if (key == GLFW_KEY_RIGHT && T_bar[3][0] < 1) {
         T_bar[3][0] += barDelta;
     }
-    if (key == GLFW_KEY_LEFT) {
+    if (key == GLFW_KEY_LEFT && T_bar[3][0] > -1) {
         T_bar[3][0] -= barDelta;
     }
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
@@ -173,7 +185,7 @@ int main(int argc, char *argv[]) {
 
     // render loop
     while(!glfwWindowShouldClose(window)) {
-        UpdateBall();
+        updateBall();
         Display();
         glfwSwapBuffers(window);
         glfwPollEvents();
