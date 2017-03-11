@@ -49,6 +49,18 @@ mat4 PerspectiveProjection(float fovy, float aspect, float near, float far) {
     // TODO 1: Create a perspective projection matrix given the field of view,
     // aspect ratio, and near and far plane distances.
     mat4 projection = IDENTITY_MATRIX;
+    float top = near * tan(fovy);
+    float bottom = -top;
+    float right = top * aspect;
+    float left = -right;
+    projection[0][0] = (2 * near) / (right - left);
+    projection[2][0] = (right + left) / (right - left);
+    projection[1][1] = (2 * near) / (top - bottom);
+    projection[2][1] = (top + bottom) / (top - bottom);
+    projection[2][2] = -(fovy + near) / (fovy - near);
+    projection[3][2] = (-2.0f * fovy * near) / (fovy - near);
+    projection[2][3] = -1.0f;
+
     return projection;
 }
 
@@ -97,9 +109,9 @@ void Init() {
     // applied in a rotated coordinate frame.
     // uncomment lower line to achieve this.
     view_matrix = LookAt(vec3(2.0f, 2.0f, 4.0f),
-                         vec3(0.0f, 0.0f, 0.0f),
-                         vec3(0.0f, 1.0f, 0.0f));
-    // view_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, -4.0f));
+                        vec3(0.0f, 0.0f, 0.0f),
+                        vec3(0.0f, 1.0f, 0.0f));
+    view_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, -4.0f));
 
     trackball_matrix = IDENTITY_MATRIX;
 
@@ -158,6 +170,7 @@ void MousePos(GLFWwindow* window, double x, double y) {
         // trackball.Drag(...) and the value stored in 'old_trackball_matrix'.
         // See also the mouse_button(...) function.
         // trackball_matrix = ...
+        trackball_matrix = trackball.Drag(p[0], p[1]) * old_trackball_matrix;
     }
 
     // zoom
@@ -181,12 +194,12 @@ void SetupProjection(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, window_width, window_height);
 
     // TODO 1: Use a perspective projection instead;
-    // projection_matrix = PerspectiveProjection(45.0f,
-    //                                           (GLfloat)window_width / window_height,
-    //                                           0.1f, 100.0f);
+    projection_matrix = PerspectiveProjection(45.0f,
+                                               (GLfloat)window_width / window_height,
+                                               0.1f, 100.0f);
     GLfloat top = 1.0f;
     GLfloat right = (GLfloat)window_width / window_height * top;
-    projection_matrix = OrthographicProjection(-right, right, -top, top, -10.0, 10.0f);
+    //projection_matrix = OrthographicProjection(-right, right, -top, top, -10.0, 10.0f);
 }
 
 void ErrorCallback(int error, const char* description) {
