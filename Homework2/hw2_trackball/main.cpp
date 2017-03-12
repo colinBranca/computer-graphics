@@ -190,7 +190,7 @@ void MousePos(GLFWwindow* window, double x, double y) {
         // view_matrix = ...
         float newPos = TransformScreenCoords(window, x, y).y;
         float cursorY = 0.1f * (y / ((float) window_height)); // 0.1 is for fluidity
-        cursorY = newPos > old_vertical_mouse_pos ? -cursorY : cursorY;
+        cursorY = newPos > old_vertical_mouse_pos ? -cursorY : cursorY; // decide direction
         view_matrix = translate(view_matrix, vec3(0.0f, 0.0f, cursorY));
         old_vertical_mouse_pos = newPos;
     }

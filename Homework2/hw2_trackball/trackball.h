@@ -42,7 +42,7 @@ public:
       mat3 nN = mat3(n[0]*n[0], n[0]*n[1], n[0]*n[2],
                       n[0]*n[1], n[1]*n[1], n[1]*n[2],
                       n[0]*n[2], n[1]*n[2], n[2]*n[2]);
-      // Use Rodriguez Formula, from class slides.
+      // Use Rodrigues Formula, from class slides.
       mat3 nMat = mat3(0.0f, -n[2], n[1],
                       n[2], 0.0f, -n[0],
                       -n[1], n[0], 0.0f);

@@ -12,6 +12,9 @@ class Grid {
         GLuint texture_id_;                     // texture ID
         GLuint num_indices_;                    // number of vertices to render
         GLuint MVP_id_;                         // model, view, proj matrix ID
+        int flattenCoord(int i, int j, int dim) {
+                return dim * i + j;
+        }
 
     public:
         void Init() {
@@ -30,27 +33,55 @@ class Grid {
 
             // vertex coordinates and indices
             {
-                std::vector<GLfloat> vertices;
-                std::vector<GLuint> indices;
+
                 // TODO 5: make a triangle grid with dimension 100x100.
                 // always two subsequent entries in 'vertices' form a 2D vertex position.
                 int grid_dim = 100;
+                std::vector<GLfloat> vertices;
+
+                float factor = 2.0f / ((float) grid_dim);
+                for (int row = 0; row < grid_dim; ++row) {
+                        float yCoord = factor * row -1.0f;
+                        for (int col = 0; col < grid_dim; ++col) {
+                                vertices.push_back(factor * col - 1.0f);
+                                vertices.push_back(yCoord);
+                        }
+                }
+
+                std::vector<GLuint> indices;
+                for (int row = 0; row < grid_dim -1; ++row) {
+                        for (int col = 0; col < grid_dim -1; ++col) {
+                                // Upper triangle
+                                indices.push_back(flattenCoord(row, col, grid_dim));
+                                indices.push_back(flattenCoord(row, col + 1, grid_dim));
+                                indices.push_back(flattenCoord(row + 1, col, grid_dim));
+                                // Lower triangle
+                                indices.push_back(flattenCoord(row, col + 1, grid_dim));
+                                indices.push_back(flattenCoord(row + 1, col + 1, grid_dim));
+                                indices.push_back(flattenCoord(row + 1, col, grid_dim));
+                        }
+                }
 
                 // the given code below are the vertices for a simple quad.
                 // your grid should have the same dimension as that quad, i.e.,
                 // reach from [-1, -1] to [1, 1].
 
                 // vertex position of the triangles.
+
+                /*
                 vertices.push_back(-1.0f); vertices.push_back( 1.0f);
                 vertices.push_back( 1.0f); vertices.push_back( 1.0f);
                 vertices.push_back( 1.0f); vertices.push_back(-1.0f);
                 vertices.push_back(-1.0f); vertices.push_back(-1.0f);
+                */
 
                 // and indices.
+                /*
                 indices.push_back(0);
                 indices.push_back(1);
                 indices.push_back(3);
                 indices.push_back(2);
+                */
 
                 num_indices_ = indices.size();
 
@@ -150,7 +181,8 @@ class Grid {
             //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             // TODO 5: depending on how you set up your vertex index buffer, you
             // might have to change GL_TRIANGLE_STRIP to GL_TRIANGLES.
-            glDrawElements(GL_TRIANGLE_STRIP, num_indices_, GL_UNSIGNED_INT, 0);
+            //glDrawElements(GL_TRIANGLE_STRIP, num_indices_, GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
 
             glBindVertexArray(0);
             glUseProgram(0);
