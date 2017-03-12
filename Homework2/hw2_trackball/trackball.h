@@ -35,12 +35,14 @@ public:
       // article.
 
       vec3 n = cross(anchor_pos_, current_pos);
-      float theta = asin(sqrt(dot(n, n)));
-      n = normalize(n);
+      float normN = sqrt(dot(n, n));
+      // arcsin is only defined in [-1, 1] therfore clipping wrong values
+      // so that the board does not disappear
+      float theta = asin(normN > 1 ? 1 : normN < -1 ? -1 : normN);
       mat3 nN = mat3(n[0]*n[0], n[0]*n[1], n[0]*n[2],
                       n[0]*n[1], n[1]*n[1], n[1]*n[2],
                       n[0]*n[2], n[1]*n[2], n[2]*n[2]);
-      // Use Rodriguez Formula
+      // Use Rodriguez Formula, from class slides.
       mat3 nMat = mat3(0.0f, -n[2], n[1],
                       n[2], 0.0f, -n[0],
                       -n[1], n[0], 0.0f);
