@@ -97,7 +97,7 @@ mat4 LookAt(vec3 eye, vec3 center, vec3 up) {
 void Init() {
     // sets background color
     glClearColor(0.937, 0.937, 0.937 /*gray*/, 1.0 /*solid*/);
-    
+
     cube.Init();
     grid.Init();
 
@@ -180,6 +180,8 @@ void MousePos(GLFWwindow* window, double x, double y) {
         // should zoom out and it. For that you have to update the current
         // 'view_matrix' with a translation along the z axis.
         // view_matrix = ...
+        float cursorY = y/(window_height);
+        view_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, cursorY));
     }
 }
 
