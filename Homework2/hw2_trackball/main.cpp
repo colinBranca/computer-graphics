@@ -51,7 +51,7 @@ mat4 PerspectiveProjection(float fovy, float aspect, float near, float far) {
     // TODO 1: Create a perspective projection matrix given the field of view,
     // aspect ratio, and near and far plane distances.
     mat4 projection = IDENTITY_MATRIX;
-    float top = near * tan(fovy);
+    float top = near * tan(radians(fovy));
     float bottom = -top;
     float right = top * aspect;
     float left = -right;
@@ -190,6 +190,7 @@ void MousePos(GLFWwindow* window, double x, double y) {
         // view_matrix = ...
         float newPos = TransformScreenCoords(window, x, y).y;
         float cursorY = 0.1f * (y / ((float) window_height)); // 0.1 is for fluidity
+        //float cursorY = 0.5f; // 0.1 is for fluidity
         cursorY = newPos > old_vertical_mouse_pos ? -cursorY : cursorY; // decide direction
         view_matrix = translate(view_matrix, vec3(0.0f, 0.0f, cursorY));
         old_vertical_mouse_pos = newPos;
