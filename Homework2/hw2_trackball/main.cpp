@@ -59,8 +59,8 @@ mat4 PerspectiveProjection(float fovy, float aspect, float near, float far) {
     projection[2][0] = (right + left) / (right - left);
     projection[1][1] = (2 * near) / (top - bottom);
     projection[2][1] = (top + bottom) / (top - bottom);
-    projection[2][2] = -(fovy + near) / (fovy - near);
-    projection[3][2] = (-2.0f * fovy * near) / (fovy - near);
+    projection[2][2] = -(far + near) / (far - near);
+    projection[3][2] = (-2.0f * far * near) / (far - near);
     projection[2][3] = -1.0f;
 
     return projection;
@@ -190,7 +190,6 @@ void MousePos(GLFWwindow* window, double x, double y) {
         // view_matrix = ...
         float newPos = TransformScreenCoords(window, x, y).y;
         float cursorY = 0.1f * (y / ((float) window_height)); // 0.1 is for fluidity
-        //float cursorY = 0.5f; // 0.1 is for fluidity
         cursorY = newPos > old_vertical_mouse_pos ? -cursorY : cursorY; // decide direction
         view_matrix = translate(view_matrix, vec3(0.0f, 0.0f, cursorY));
         old_vertical_mouse_pos = newPos;
