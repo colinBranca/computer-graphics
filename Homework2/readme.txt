@@ -46,3 +46,16 @@ Finally the view matrix is translated along the *z* axis.
 ## 3 - Triangle Grid and Animation
 
 ### Triangulation of the board
+To triangulate the board, the coordinates of each vertex were computed and stored in the `vector`.
+
+To do so, we iterate over the lines and columns of the grid (0-100, 0-100) and find the coordinate using the formula *c(x) = (2 / grid_dim) x - 1*.
+This formula gives evenly distributed values, and
+ - *c(grid_dim) = 1*
+ - *c(0) = -1*
+
+We then create and fill the indices vector as illustrated by the following picture:
+![grid](./readme_pictures/grid.png)
+
+We iterate over all vertices and for each vertex and the three adjacent to it, we add the indices of its coordinates to the vector.
+
+## 4 - Bonus
