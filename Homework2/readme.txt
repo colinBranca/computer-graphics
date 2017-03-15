@@ -59,3 +59,9 @@ We then create and fill the indices vector as illustrated by the following pictu
 We iterate over all vertices and for each vertex and the three adjacent to it, we add the indices of its coordinates to the vector.
 
 ## 4 - Bonus
+To do the water animation, we simply changed the height equation in grid_vshader.
+We added a phase (here: 2.2) in the sin equation which depends on the time.
+>
+> height = sin(((uv.x + uv.y) + 2.2f) * time) * 0.1f
+>
+With this phase that changes every time, we obtain, when iterated on all vertices, a moving wave.
