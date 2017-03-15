@@ -25,15 +25,8 @@ public:
       vec3 current_pos = vec3(x, y, 0.0f);
       ProjectOntoSurface(current_pos);
 
+      // Explication in readme.txt
       mat4 rotation = IDENTITY_MATRIX;
-      // TODO 3: Calculate the rotation given the projections of the anocher
-      // point and the current position. The rotation axis is given by the cross
-      // product of the two projected points, and the angle between them can be
-      // used as the magnitude of the rotation.
-      // you might want to scale the rotation magnitude by a scalar factor.
-      // p.s. No need for using complicated quaternions as suggested inthe wiki
-      // article.
-
       vec3 n = cross(anchor_pos_, current_pos);
       float normN = sqrt(dot(n, n));
       // arcsin is only defined in [-1, 1] therfore clipping wrong values
@@ -62,13 +55,13 @@ private:
     // https://www.opengl.org/wiki/Object_Mouse_Trackball.
     // The trackball radius is given by 'radius_'.
     void ProjectOntoSurface(vec3& p) const {
-      // TODO 2: Implement this function. Read above link for details.
       float xSq = p[0]*p[0];
       float ySq = p[1]*p[1];
       float rSq = radius_*radius_;
+      // Use sphere equation if pointer is inside the sphere
       if (xSq + ySq > rSq / 2.0f) {
         p[2] = (rSq / 2.0f) / (sqrt(xSq + ySq));
-      } else {
+      } else { // or the hyperplan equation otherwise
         p[2] = sqrt(rSq - (xSq + ySq));
       }
     }

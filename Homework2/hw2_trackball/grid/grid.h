@@ -34,11 +34,10 @@ class Grid {
             // vertex coordinates and indices
             {
 
-                // TODO 5: make a triangle grid with dimension 100x100.
-                // always two subsequent entries in 'vertices' form a 2D vertex position.
                 int grid_dim = 100;
                 std::vector<GLfloat> vertices;
 
+                // Generate vertices coordinates
                 float factor = 2.0f / ((float) grid_dim);
                 for (int row = 0; row < grid_dim; ++row) {
                         float yCoord = factor * row -1.0f;
@@ -48,6 +47,8 @@ class Grid {
                         }
                 }
 
+                // Associate indices to vertices.
+                // Please refer to readme.txt for explication
                 std::vector<GLuint> indices;
                 for (int row = 0; row < grid_dim -1; ++row) {
                         for (int col = 0; col < grid_dim -1; ++col) {

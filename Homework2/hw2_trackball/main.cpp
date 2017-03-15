@@ -48,8 +48,7 @@ mat4 OrthographicProjection(float left, float right, float bottom,
 }
 
 mat4 PerspectiveProjection(float fovy, float aspect, float near, float far) {
-    // TODO 1: Create a perspective projection matrix given the field of view,
-    // aspect ratio, and near and far plane distances.
+    // Use matrix from class slides
     mat4 projection = IDENTITY_MATRIX;
     float top = near * tan(radians(fovy));
     float bottom = -top;
@@ -166,6 +165,8 @@ void MouseButton(GLFWwindow* window, int button, int action, int mod) {
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         double x_i, y_i;
         glfwGetCursorPos(window, &x_i, &y_i);
+        // Store the mouse position to be able to determine the direction
+        // of the zoom.
         old_vertical_mouse_pos = TransformScreenCoords(window, x_i, y_i).y;
     }
 
@@ -174,20 +175,16 @@ void MouseButton(GLFWwindow* window, int button, int action, int mod) {
 void MousePos(GLFWwindow* window, double x, double y) {
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
         vec2 p = TransformScreenCoords(window, x, y);
-        // TODO 3: Calculate 'trackball_matrix' given the return value of
-        // trackball.Drag(...) and the value stored in 'old_trackball_matrix'.
-        // See also the mouse_button(...) function.
-        // trackball_matrix = ...
+        // Compute new rotation matrix combining the latest transformation
+        // with the previous one.
         trackball_matrix = trackball.Drag(p[0], p[1]) * old_trackball_matrix;
     }
 
     // zoom
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-        // TODO 4: Implement zooming. When the right mouse button is pressed,
-        // moving the mouse cursor up and down (along the screen's y axis)
-        // should zoom out and it. For that you have to update the current
-        // 'view_matrix' with a translation along the z axis.
-        // view_matrix = ...
+        // Zoom is a simple translation of the view matrix.
+        // Direction chosen comparing current pointer position with its 
+        // previous one.
         float newPos = TransformScreenCoords(window, x, y).y;
         float cursorY = 0.1f * (y / ((float) window_height)); // 0.1 is for fluidity
         cursorY = newPos > old_vertical_mouse_pos ? -cursorY : cursorY; // decide direction
@@ -206,7 +203,6 @@ void SetupProjection(GLFWwindow* window, int width, int height) {
 
     glViewport(0, 0, window_width, window_height);
 
-    // TODO 1: Use a perspective projection instead;
     projection_matrix = PerspectiveProjection(45.0f,
                                                (GLfloat)window_width / window_height,
                                                0.1f, 100.0f);
