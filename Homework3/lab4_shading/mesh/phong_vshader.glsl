@@ -18,10 +18,10 @@ void main() {
     ///>>>>>>>>>> TODO >>>>>>>>>>>
     /// TODO 1.1: Phong shading.
     /// 1) compute normal_mv using the model_view matrix.
-    vec3 normal_mv = normalize((tranpose(inverse(MV)) * vec4(vnormal, 1.0f)).xyz);
+    normal_mv = normalize((transpose(inverse(MV)) * vec4(vnormal, 1.0f)).xyz);
     /// 2) compute the light direction light_dir.
-    vec3 light_dir = normalize(light_pos - vpoint_mv.xyz);
+    light_dir = normalize(light_pos - vpoint_mv.xyz);
     /// 3) compute the view direction view_dir.
-    vec3 view_dir = normalize(- vpoint_mv.xyz);
+    view_dir = normalize(- vpoint_mv.xyz);
     ///<<<<<<<<<< TODO <<<<<<<<<<<
 }
