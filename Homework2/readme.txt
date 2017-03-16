@@ -21,6 +21,8 @@ Note *a* the previous position of the pointer and *b* its new one, the vector ab
 which the rotation was performed *n* is *n = a cross b*
 The rotation angle is then *theta = arcsin(|n|)*
 
+This technique is explained in the course book.
+
 #### Building the rotation matrix
 Having the rotation angle and the vector about which the rotation is performed,
 the Rodrigues formula was used to obtain the rotation matrix.
@@ -61,7 +63,7 @@ We iterate over all vertices and for each vertex and the three adjacent to it, w
 ## 4 - Bonus
 To do the water animation, we simply changed the height equation in grid_vshader.
 We added a phase (here: 2.2) in the sin equation which depends on the time.
->
+
 > height = sin(((uv.x + uv.y) + 2.2f) * time) * 0.1f
->
+
 With this phase that changes every time, we obtain, when iterated on all vertices, a moving wave.
