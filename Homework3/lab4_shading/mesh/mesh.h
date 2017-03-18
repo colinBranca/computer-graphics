@@ -111,6 +111,14 @@ class Mesh : public Material, public Light {
             // TODO
             // TODO 2.1 bind texture_1d_id_ for toon shading
             // TODO 3.1 bind texture_2d_id_ for artistic shading
+            if(program_id == toon_program_id_){
+              glActiveTexture(GL_TEXTURE0);
+              glBindTexture(GL_TEXTURE_1D, texture_1d_id_);
+            }
+            else if (program_id == art_program_id_) {
+              glActiveTexture(GL_TEXTURE1);
+              glBindTexture(GL_TEXTURE_2D, texture_2d_id_);
+            }
         }
 
         void UnbindShader(GLuint program_id) {
