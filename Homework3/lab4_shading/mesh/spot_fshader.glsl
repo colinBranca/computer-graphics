@@ -1,13 +1,20 @@
 #version 330
 
-
+uniform vec3 La, Ld, Ls;
+uniform vec3 ka, kd, ks;
+uniform float alpha;
 out vec3 color;
 
 
 const float spot_cos_cutoff = 0.985; // cos 10 degrees
 const float spot_exp = 150;
 
-void main() {    
+in vec3 normal_mv;
+in vec3 light_dir;
+in vec3 view_dir;
+in vec3 spot_dirv;
+
+void main() {
     const vec3 COLORS[6] = vec3[](
         vec3(1.0,0.0,0.0),
         vec3(0.0,1.0,0.0),
@@ -17,6 +24,17 @@ void main() {
         vec3(1.0,0.0,1.0));
     int index = int( mod(gl_PrimitiveID,6) );
     color = COLORS[index];
+
+    vec3 r = normalize(2.0f * normal_mv * dot(normal_mv, light_dir) - light_dir);
+
+    float nl = dot(normal_mv, light_dir);
+    nl = nl < 0 ? 0.0f : nl;
+    float rv = dot(r, view_dir);
+    rv = rv < 0 ? 0.0f : rv;
+    vec3 I = (ka * La) + (kd * nl * Ld) + (ks * pow(rv, alpha) * Ls);
+
+    float spotEffect = pow(dot(normalize(light_dir), normalize(spot_dirv)), spot_exp);
+    color = I * spotEffect;
 
     //>>>>>>>>>> TODO >>>>>>>>>>>
     // TODO 5: Spot light.
