@@ -13,8 +13,6 @@ out vec3 color;
 uniform sampler1D tex1D;
 
 void main() {
-    color = vec3(0.0,0.0,0.0);
-
     ///>>>>>>>>>> TODO >>>>>>>>>>>
     /// TODO 2.2: Toon shading.
     /// 1) compute ambient term.

@@ -15,13 +15,10 @@ void main() {
     mat4 MV = view * model;
     vec4 vpoint_mv = MV * vec4(vpoint, 1.0);
     gl_Position = projection * vpoint_mv;
-    ///>>>>>>>>>> TODO >>>>>>>>>>>
-    /// TODO 1.1: Phong shading.
     /// 1) compute normal_mv using the model_view matrix.
     normal_mv = normalize((transpose(inverse(MV)) * vec4(vnormal, 1.0f)).xyz);
     /// 2) compute the light direction light_dir.
     light_dir = normalize(light_pos - vpoint_mv.xyz);
     /// 3) compute the view direction view_dir.
     view_dir = normalize(- vpoint_mv.xyz);
-    ///<<<<<<<<<< TODO <<<<<<<<<<<
 }

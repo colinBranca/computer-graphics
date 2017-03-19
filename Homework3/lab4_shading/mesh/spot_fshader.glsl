@@ -15,17 +15,7 @@ in vec3 view_dir;
 in vec3 spot_dirv;
 
 void main() {
-    const vec3 COLORS[6] = vec3[](
-        vec3(1.0,0.0,0.0),
-        vec3(0.0,1.0,0.0),
-        vec3(0.0,0.0,1.0),
-        vec3(1.0,1.0,0.0),
-        vec3(0.0,1.0,1.0),
-        vec3(1.0,0.0,1.0));
-    int index = int( mod(gl_PrimitiveID,6) );
-    color = COLORS[index];
-
-    vec3 r = normalize(2.0f * normal_mv * dot(normal_mv, light_dir) - light_dir);
+   vec3 r = normalize(2.0f * normal_mv * dot(normal_mv, light_dir) - light_dir);
 
     float nl = dot(normal_mv, light_dir);
     nl = nl < 0 ? 0.0f : nl;
@@ -33,11 +23,6 @@ void main() {
     rv = rv < 0 ? 0.0f : rv;
     vec3 I = (ka * La) + (kd * nl * Ld) + (ks * pow(rv, alpha) * Ls);
 
-    float spotEffect = pow(dot(normalize(light_dir), normalize(spot_dirv)), spot_exp);
+    float spotEffect = pow(dot(light_dir, normalize(spot_dirv)), spot_exp);
     color = I * spotEffect;
-
-    //>>>>>>>>>> TODO >>>>>>>>>>>
-    // TODO 5: Spot light.
-    // Complete the shader to obtain spot light effect
-    //<<<<<<<<<< TODO <<<<<<<<<<<
 }
