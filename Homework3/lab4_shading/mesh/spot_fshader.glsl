@@ -12,7 +12,8 @@ const float spot_exp = 150;
 in vec3 normal_mv;
 in vec3 light_dir;
 in vec3 view_dir;
-in vec3 spot_dirv;
+//in vec3 spot_dirv;
+uniform vec3 spot_dir;
 
 void main() {
    vec3 r = normalize(2.0f * normal_mv * dot(normal_mv, light_dir) - light_dir);
@@ -23,6 +24,6 @@ void main() {
     rv = rv < 0 ? 0.0f : rv;
     vec3 I = (ka * La) + (kd * nl * Ld) + (ks * pow(rv, alpha) * Ls);
 
-    float spotEffect = pow(dot(light_dir, normalize(spot_dirv)), spot_exp);
+    float spotEffect = pow(dot(light_dir, normalize(spot_dir)), spot_exp);
     color = I * spotEffect;
 }

@@ -13,8 +13,6 @@ out vec3 color;
 uniform sampler1D tex1D;
 
 void main() {
-    ///>>>>>>>>>> TODO >>>>>>>>>>>
-    /// TODO 2.2: Toon shading.
     /// 1) compute ambient term.
     vec3 ambient = ka*La;
     /// 2) compute diffuse term using the texture sampler tex.
@@ -22,6 +20,5 @@ void main() {
     /// 3) compute specular term using the texture sampler tex.
     vec3 r = normalize(2.0f * normal_mv * dot(normal_mv, light_dir) - light_dir);
     vec3 specular = ks * texture(tex1D, pow(dot(r, view_dir), alpha)).r * Ls;
-    ///<<<<<<<<<< TODO <<<<<<<<<<<
     color = ambient + diffuse + specular;
 }
