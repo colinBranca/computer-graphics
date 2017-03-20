@@ -18,10 +18,10 @@ void main() {
     /// 1) compute ambient term.
     vec3 ambient = ka*La;
     /// 2) compute diffuse term using the texture sampler tex.
-    vec3 diffuse = kd * texture(tex1D, dot(normal_mv, light_dir)).rgb * Ld;
+    vec3 diffuse = kd * texture(tex1D, dot(normal_mv, light_dir)).r * Ld;
     /// 3) compute specular term using the texture sampler tex.
     vec3 r = normalize(2.0f * normal_mv * dot(normal_mv, light_dir) - light_dir);
-    vec3 specular = ks * texture(tex1D, pow(dot(r, view_dir), alpha)).rgb * Ls;
+    vec3 specular = ks * texture(tex1D, pow(dot(r, view_dir), alpha)).r * Ls;
     ///<<<<<<<<<< TODO <<<<<<<<<<<
     color = ambient + diffuse + specular;
 }
