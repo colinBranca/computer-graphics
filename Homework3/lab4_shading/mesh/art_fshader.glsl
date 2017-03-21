@@ -25,7 +25,7 @@ void main() {
 
     vec3 ambient = ka * La;
     vec3 diffuse = kd * t1 * Ld;
-    vec3 specular = ks * texture(tex2D, vec2(t1, t2)).r * Ls;
+    vec3 specular = ks * vec3(texture(tex2D, vec2(t1, t2)).rg, 0.0f) * Ls;
 
     color = ambient + diffuse + specular;
     //<<<<<<<<<< TODO <<<<<<<<<<<
