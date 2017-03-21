@@ -19,13 +19,15 @@ void main() {
     /// 3) compute specular term using the texture sampler tex.
 
     float t1 = dot(normal_mv, light_dir);
+    t1 = clamp(t1, 0.0f, 1.0f);
 
     vec3 r = normalize(2.0f * normal_mv * t1 - light_dir);
     float t2 = pow(dot(r, view_dir), alpha);
+    t2 = clamp(t2, 0.0f, 1.0f);
 
     vec3 ambient = ka * La;
     vec3 diffuse = kd * t1 * Ld;
-    vec3 specular = ks * vec3(texture(tex2D, vec2(t1, t2)).rg, 0.0f) * Ls;
+    vec3 specular = ks * vec3(texture(tex2D, normalize(vec2(t1, t2))).rg, 0.0f) * Ls;
 
     color = ambient + diffuse + specular;
     //<<<<<<<<<< TODO <<<<<<<<<<<
