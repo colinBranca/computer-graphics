@@ -16,12 +16,17 @@ So we only took the red component of the return vector of `texture`.
 
 > texture(tex1D, pow(dot(r, view_dir), alpha)).r
 
+We also had to bind the texture in `mesh.h`.
+To do so we had to activate the texture that correspond the id given in argument of `BindShader`.
 
 ## 3 - Artistic shading
 The code from the Phong vertex shader was used.
 
 We followed the instructions in the handout to compute the values to use with
 the texture and applied what we learned in previous homework and labs about textures.
+
+We also had to bind the texture in `mesh.h`.
+To do so we had to activate the texture that correspond the id given in argument of `BindShader`.
 
 ## 4 - Flat shading
 The code from the Phong vertex shader was used.
