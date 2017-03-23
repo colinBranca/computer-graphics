@@ -107,10 +107,6 @@ class Mesh : public Material, public Light {
                                       DONT_NORMALIZE, ZERO_STRIDE, ZERO_BUFFER_OFFSET);
             }
 
-            // textures
-            // TODO
-            // TODO 2.1 bind texture_1d_id_ for toon shading
-            // TODO 3.1 bind texture_2d_id_ for artistic shading
             GLint tex1d = glGetUniformLocation(program_id, "tex1D");
             GLint tex2d = glGetUniformLocation(program_id, "tex2D");
             if(program_id == toon_program_id_ && tex1d > 0){
@@ -121,7 +117,7 @@ class Mesh : public Material, public Light {
             else if (program_id == art_program_id_ && tex2d > 0) {
               glActiveTexture(GL_TEXTURE1);
               glBindTexture(GL_TEXTURE_2D, texture_2d_id_);
-              glUniform1i(tex2d, 0);
+              glUniform1i(tex2d, 1);
             }
         }
 
