@@ -14,13 +14,11 @@ void main() {
     // 1) compute ambient term.
     vec3 ambient = ka * La;
     // 2) compute diffuse term.
-    float nl = dot(normal_mv, light_dir);
-    nl = nl < 0 ? 0.0f : nl;
+    float nl = max(0.0f, dot(normal_mv, light_dir));
     vec3 diffuse = kd * nl * Ld;
     // 3) compute specular term.
     vec3 r = normalize(2.0f * normal_mv * dot(normal_mv, light_dir) - light_dir);
-    float rv = dot(r, view_dir);
-    rv = rv < 0 ? 0.0f : rv;
+    float rv = max(0.0f, dot(r, view_dir));
     vec3 specular = ks * pow(rv, alpha) * Ls;
     // To avoid GPU bug, remove
     // the code above after

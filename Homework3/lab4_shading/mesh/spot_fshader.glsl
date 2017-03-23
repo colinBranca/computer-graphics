@@ -16,12 +16,10 @@ in vec3 view_dir;
 uniform vec3 spot_dir;
 
 void main() {
-   vec3 r = normalize(2.0f * normal_mv * dot(normal_mv, light_dir) - light_dir);
+    vec3 r = normalize(2.0f * normal_mv * dot(normal_mv, light_dir) - light_dir);
+    float nl = max(0.0f, dot(normal_mv, light_dir));
+    float rv = max(0.0f, dot(r, view_dir));
 
-    float nl = dot(normal_mv, light_dir);
-    nl = nl < 0 ? 0.0f : nl;
-    float rv = dot(r, view_dir);
-    rv = rv < 0 ? 0.0f : rv;
     vec3 I = (ka * La) + (kd * nl * Ld) + (ks * pow(rv, alpha) * Ls);
 
     float spotEffect = pow(dot(light_dir, normalize(spot_dir)), spot_exp);
