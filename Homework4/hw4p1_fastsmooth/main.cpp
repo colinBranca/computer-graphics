@@ -62,11 +62,16 @@ void Display() {
             quad.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
     framebuffer.Unbind();
 
+
     // TODO: use the fullscreen quad to draw the framebuffer texture to screen
     //       (see slides)
     glViewport(0, 0, window_width, window_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    screenquad.Draw();
+    framebuffer.Bind();
+      screenquad.Draw(0);
+    framebuffer.Unbind();
+
+    screenquad.Draw(1);
 }
 
 // gets called when the windows/framebuffer is resized.

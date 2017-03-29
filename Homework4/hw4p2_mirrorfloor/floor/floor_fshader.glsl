@@ -18,6 +18,4 @@ void main() {
     vec3 color_from_texture = texture(tex,uv).rgb;
     vec3 color_from_mirror = texture(tex_mirror, vec2(u, v)).rgb;
     color = mix(color_from_texture, color_from_mirror, vec3(.15));
-    //color = vec3(0.0f, v, 0.0f);
-    //color = color_from_mirror;
 }
