@@ -131,11 +131,11 @@ class Floor {
             // bind textures
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texture_id_);
-            
+
             // bind textures
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, texture_mirror_id_);
-               
+
             // setup MVP
             GLuint MVP_id = glGetUniformLocation(program_id_, "MVP");
             glUniformMatrix4fv(MVP_id, 1, GL_FALSE, value_ptr(MVP));
