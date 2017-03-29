@@ -19,7 +19,8 @@ int window_width = 800;
 int window_height = 600;
 
 // TODO: declare Framebuffer + ScreenQuad (see slides)
-FrameBuffer framebuffer;
+FrameBuffer firstPass;
+FrameBuffer secondPass;
 ScreenQuad screenquad;
 
 using namespace glm;
@@ -49,19 +50,23 @@ void Init(GLFWwindow* window) {
     cube_model_matrix = translate(cube_model_matrix, vec3(0.0, 0.0, 0.6));
 
     // TODO: initialize framebuffer (see slides)
-    GLuint framebuffer_texture_id = framebuffer.Init(window_width, window_height);
+    GLuint framebuffer1_texture_id = firstPass.Init(window_width, window_height);
+    GLuint framebuffer2_texture_id = secondPass.Init(window_width, window_height);
     // TODO: initialize fullscreen quad (see slides)
-    screenquad.Init(window_width, window_height, framebuffer_texture_id);
+    screenquad.Init(window_width, window_height, framebuffer1_texture_id, framebuffer2_texture_id);
 }
 
 void Display() {
-    // TODO: wrap these calls so they render to a texture (see slides)
-    framebuffer.Bind();
+    firstPass.Bind();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             cube.Draw(cube_model_matrix, view_matrix, projection_matrix);
             quad.Draw(IDENTITY_MATRIX, view_matrix, projection_matrix);
-    framebuffer.Unbind();
+    firstPass.Unbind();
 
+    secondPass.Bind();
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            screenquad.Draw(0);
+    secondPass.Unbind();
 
     // TODO: use the fullscreen quad to draw the framebuffer texture to screen
     //       (see slides)
@@ -71,6 +76,9 @@ void Display() {
       screenquad.Draw(0);
     framebuffer.Unbind();
 
+    glViewport(0, 0, window_width, window_height);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
     screenquad.Draw(1);
 }
 
@@ -86,8 +94,11 @@ void ResizeCallback(GLFWwindow* window, int width, int height) {
 
     // TODO : when the window is resized, the framebuffer and the fullscreen quad
     //        sizes should be updated accordingly
-    GLuint framebuffer_texture_id = framebuffer.Init(window_width, window_height);
-    screenquad.Init(window_width, window_height, framebuffer_texture_id);
+    firstPass.Cleanup();
+    secondPass.Cleanup();
+    firstPass.Init(window_width, window_height);
+    secondPass.Init(window_width, window_height);
+    screenquad.UpdateSize(window_width, window_height);
 }
 
 void ErrorCallback(int error, const char* description) {
@@ -98,6 +109,14 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
+
+    if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
+        screenquad.increaseStd(0.25f);
+    }
+    if (key == GLFW_KEY_W && action == GLFW_PRESS) {
+        screenquad.increaseStd(-0.25f);
+    }
+
 }
 
 int main(int argc, char *argv[]) {
@@ -159,7 +178,8 @@ int main(int argc, char *argv[]) {
     quad.Cleanup();
     cube.Cleanup();
     // TODO: clean framebuffer and screenquad
-    framebuffer.Cleanup();
+    firstPass.Cleanup();
+    secondPass.Cleanup();
     screenquad.Cleanup();
 
     // close OpenGL window and terminate GLFW

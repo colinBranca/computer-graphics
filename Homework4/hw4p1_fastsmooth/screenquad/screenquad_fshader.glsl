@@ -4,39 +4,30 @@ in vec2 uv;
 
 out vec3 color;
 
-uniform sampler2D tex;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
 uniform float tex_width;
 uniform float tex_height;
 
-mat3 Gx = mat3(
-        -1, -2, -1,
-        0, 0, 0,
-        1, 2, 1
-);
-
-mat3 Gy = mat3(
-        -1, 0, 1,
-        -2,  0, 2,
-        -1, 0, 1
-);
-
-float rgb_2_luma(vec3 c) {
-    return 0.3*c[0] + 0.59*c[1] + 0.11*c[2];
-}
+uniform float sigma;
+uniform int do_second_pass;
 
 void main() {
-    float Ix = 0.0f;
-    float Iy = 0.0f;
-    for (int row = -1; row <= 1; ++row) {
-       for (int col = -1; col <= 1; ++col) {
-        float a = rgb_2_luma(texture(tex, uv+vec2(row/tex_width, col/tex_height)).rgb);
-        Ix += Gx[row+1][col+1] * a;
-        Iy += Gy[row+1][col+1] * a;
-       }
+
+    int size = 1 + 4 * int(ceil(sigma * sigma));
+    vec3 color_accumulator = vec3(0.0f, 0.0f, 0.0f);
+    float weight = 0.0f;
+
+    for (int i = -size; i <= size; ++i) {
+       float tmp_w = exp(-pow(i, 2) / (2.0f * pow(sigma, 4)));
+       if (do_second_pass == 0)
+          color_accumulator += texture(tex1, uv + vec2(i / tex_width, 0.0f)).rgb * tmp_w;
+       else if (do_second_pass == 1)
+          color_accumulator += texture(tex2, uv + vec2(0.0f, i / tex_height)).rgb * tmp_w;
+       weight += tmp_w;
     }
-    float I = 1.0f - sqrt(Ix*Ix + Iy*Iy);
-    color = vec3(I, I, I);
-    //color = texture(tex,uv).rgb;
+    color = color_accumulator / weight;
+
 
 
 }
