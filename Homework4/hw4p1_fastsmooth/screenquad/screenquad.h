@@ -124,7 +124,6 @@ class ScreenQuad {
                         this->screenquad_height_);
 
             glUniform1f(glGetUniformLocation(program_id_, "sigma"), sigma);
-            glUniform1f(glGetUniformLocation(program_id_, "gaussIncrease"), gaussIncrease);
             glUniform1i(glGetUniformLocation(program_id_, "do_second_pass"), do_second_pass);
 
 

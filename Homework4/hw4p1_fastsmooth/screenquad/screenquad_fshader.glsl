@@ -29,6 +29,5 @@ void main() {
     color = color_accumulator / weight;
 
 
-
 }
 

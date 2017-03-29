@@ -72,9 +72,6 @@ void Display() {
     //       (see slides)
     glViewport(0, 0, window_width, window_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    framebuffer.Bind();
-      screenquad.Draw(0);
-    framebuffer.Unbind();
 
     glViewport(0, 0, window_width, window_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
