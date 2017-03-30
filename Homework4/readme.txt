@@ -28,7 +28,7 @@ using the weighted sum learned during the lab session but only in one dimension.
 The direction is chosen using the uniform variable indicating whether it is dealing
 with the first or the second pass.
 
-The key callback listening for W/Q simply calls a Screenquad varying the value
+The key callback listening for W/Q simply calls a Screenquad method varying the value
 of the sigma that this class sends to the framebuffer through the uniform variable.
 
 ## 2 - Screen Space Reflection
