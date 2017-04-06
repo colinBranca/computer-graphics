@@ -10,8 +10,15 @@
 #include "grid/grid.h"
 
 #include "trackball.h"
+#include "framebuffer.h"
+#include "PerlinNoise.h"
+#include "screenquad/screenquad.h"
 
 Grid grid;
+FrameBuffer framebuffer;
+int framebuffer_id;
+ScreenQuad screenquad;
+PerlinNoise perlin;
 
 int window_width = 800;
 int window_height = 600;
@@ -22,7 +29,6 @@ mat4 projection_matrix;
 mat4 view_matrix;
 mat4 trackball_matrix;
 mat4 old_trackball_matrix;
-mat4 cube_scale;
 mat4 quad_model_matrix;
 
 float old_vertical_mouse_pos;
@@ -97,7 +103,7 @@ void Init() {
     // sets background color
     glClearColor(0.937, 0.937, 0.937 /*gray*/, 1.0 /*solid*/);
 
-    grid.Init();
+    grid.Init(16);
 
     // enable depth test.
     glEnable(GL_DEPTH_TEST);
@@ -114,16 +120,28 @@ void Init() {
     trackball_matrix = IDENTITY_MATRIX;
 
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, -0.25f, 0.0f));
+
+    perlin.Init(window_width, window_height);
+    framebuffer_id = framebuffer.Init(window_width, window_height);
+    screenquad.Init(window_width, window_height, framebuffer_id);
+
 }
 
 // gets called for every frame.
 void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    const float time = glfwGetTime();
+    //grid.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
+    //perlin.Draw();
+    framebuffer.Bind();
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            //grid.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
+            perlin.Draw();
+    framebuffer.Unbind();
 
-    // draw a quad on the ground.
-    grid.Draw(time, trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    screenquad.Draw();
+    //glViewport(0, 0, window_width, window_height);
 }
 
 // transforms glfw screen coordinates into normalized OpenGL coordinates.

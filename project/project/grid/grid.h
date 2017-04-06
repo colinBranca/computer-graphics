@@ -17,7 +17,7 @@ class Grid {
         }
 
     public:
-        void Init() {
+        void Init(size_t grid_dim) {
             // compile the shaders.
             program_id_ = icg_helper::LoadShaders("grid_vshader.glsl",
                                                   "grid_fshader.glsl");
@@ -34,7 +34,6 @@ class Grid {
             // vertex coordinates and indices
             {
 
-                int grid_dim = 100;
                 std::vector<GLfloat> vertices;
 
                 // Generate vertices coordinates
@@ -62,27 +61,6 @@ class Grid {
                                 indices.push_back(flattenCoord(row + 1, col, grid_dim));
                         }
                 }
-
-                // the given code below are the vertices for a simple quad.
-                // your grid should have the same dimension as that quad, i.e.,
-                // reach from [-1, -1] to [1, 1].
-
-                // vertex position of the triangles.
-
-                /*
-                vertices.push_back(-1.0f); vertices.push_back( 1.0f);
-                vertices.push_back( 1.0f); vertices.push_back( 1.0f);
-                vertices.push_back( 1.0f); vertices.push_back(-1.0f);
-                vertices.push_back(-1.0f); vertices.push_back(-1.0f);
-                */
-
-                // and indices.
-                /*
-                indices.push_back(0);
-                indices.push_back(1);
-                indices.push_back(3);
-                indices.push_back(2);
-                */
 
                 num_indices_ = indices.size();
 
@@ -159,22 +137,21 @@ class Grid {
             glDeleteTextures(1, &texture_id_);
         }
 
-        void Draw(float time, const glm::mat4 &model = IDENTITY_MATRIX,
+        void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
                   const glm::mat4 &view = IDENTITY_MATRIX,
                   const glm::mat4 &projection = IDENTITY_MATRIX) {
             glUseProgram(program_id_);
             glBindVertexArray(vertex_array_id_);
 
             // bind textures
+            /*
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texture_id_);
+            */
 
             // setup MVP
             glm::mat4 MVP = projection*view*model;
             glUniformMatrix4fv(MVP_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(MVP));
-
-            // pass the current time stamp to the shader.
-            glUniform1f(glGetUniformLocation(program_id_, "time"), time);
 
             // draw
             // TODO 5: for debugging it can be helpful to draw only the wireframe.
