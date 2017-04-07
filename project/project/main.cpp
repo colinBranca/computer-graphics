@@ -15,8 +15,7 @@
 #include "screenquad/screenquad.h"
 
 Grid grid;
-FrameBuffer framebuffer;
-int framebuffer_id;
+FrameBuffer noiseContainer;
 ScreenQuad screenquad;
 PerlinNoise perlin;
 
@@ -122,7 +121,7 @@ void Init() {
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, -0.25f, 0.0f));
 
     perlin.Init(window_width, window_height);
-    framebuffer_id = framebuffer.Init(window_width, window_height);
+    int framebuffer_id = noiseContainer.Init(window_width, window_height);
     screenquad.Init(window_width, window_height, framebuffer_id);
 
 }
@@ -133,11 +132,11 @@ void Display() {
 
     //grid.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
     //perlin.Draw();
-    framebuffer.Bind();
+    noiseContainer.Bind();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             //grid.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
             perlin.Draw();
-    framebuffer.Unbind();
+    noiseContainer.Unbind();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     screenquad.Draw();
