@@ -39,8 +39,8 @@ float noise(float x, float y) {
    }
 
 void main() {
-        float frequency = 1.0f / 100.0f;
-        float noise = noise(uv.x * width * frequency, uv.y * height * frequency) * 2.0f;
+        float frequency = 1.0f / 40.0f;
+        float noise = noise(uv.x * width * frequency, uv.y * height * frequency) * 1.6f;
         color = vec3(noise, noise, noise);
 }
 
