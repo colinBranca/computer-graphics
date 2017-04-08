@@ -15,6 +15,7 @@ void main() {
     // convert the 2D position into 3D positions that all lay in a horizontal
     // plane.
     vec3 pos_3d = vec3(position.x, texture(tex, uv).r, -position.y);
+    //vec3 pos_3d = vec3(position.x, 0, -position.y);
 
     gl_Position = MVP * vec4(pos_3d, 1.0);
 }

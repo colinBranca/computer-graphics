@@ -10,6 +10,7 @@ class PerlinNoise {
         GLuint vertex_array_id;
         int program_id_;
         int p[512];
+        int octaves;
 
         void generateP() {
                 int permutation[] = { 151,160,137,91,90,15,
@@ -34,10 +35,11 @@ class PerlinNoise {
         }
 
     public:
-        void Init(int width, int height) {
+        void Init(int width, int height, int octaves=6) {
             // set screenquad size
             this->width_ = width;
             this->height_ = height;
+            this->octaves = octaves;
 
             program_id_ = icg_helper::LoadShaders("perlin_vshader.glsl",
                                                   "perlin_fshader.glsl");
@@ -91,6 +93,8 @@ class PerlinNoise {
                         width_);
                 glUniform1i(glGetUniformLocation(program_id_, "height"),
                         height_);
+                glUniform1i(glGetUniformLocation(program_id_, "octaves"),
+                        octaves);
                 glBindVertexArray(vertex_array_id);
 
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
