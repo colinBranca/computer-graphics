@@ -7,15 +7,14 @@ out vec2 uv;
 uniform mat4 MVP;
 //uniform float time;
 
+uniform sampler2D tex;
+
 void main() {
-    uv = position; //(position + vec2(1.0, 1.0)) * 0.5;
+    uv =(position + vec2(1.0, 1.0)) * 0.5;
 
     // convert the 2D position into 3D positions that all lay in a horizontal
     // plane.
-    // TODO 6: animate the height of the grid points as a sine function of the
-    // 'time' and the position ('uv') within the grid.
-    //float height = sin(((uv.x + uv.y) + 2.2f) * time) * 0.1f;
-    vec3 pos_3d = vec3(position.x, /*height*/0, -position.y);
+    vec3 pos_3d = vec3(position.x, texture(tex, uv).r, -position.y);
 
     gl_Position = MVP * vec4(pos_3d, 1.0);
 }

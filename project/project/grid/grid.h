@@ -17,10 +17,11 @@ class Grid {
         }
 
     public:
-        void Init(size_t grid_dim) {
+        void Init(size_t grid_dim, GLuint texture_id) {
             // compile the shaders.
             program_id_ = icg_helper::LoadShaders("grid_vshader.glsl",
                                                   "grid_fshader.glsl");
+            this->texture_id_ = texture_id;
             if(!program_id_) {
                 exit(EXIT_FAILURE);
             }
@@ -83,42 +84,12 @@ class Grid {
                                       ZERO_STRIDE, ZERO_BUFFER_OFFSET);
             }
 
-            // load texture
-            {
-                int width;
-                int height;
-                int nb_component;
-                string filename = "grid_texture.tga";
-                // set stb_image to have the same coordinates as OpenGL
-                stbi_set_flip_vertically_on_load(1);
-                unsigned char* image = stbi_load(filename.c_str(), &width,
-                                                 &height, &nb_component, 0);
+           glBindTexture(GL_TEXTURE_2D, texture_id);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-                if(image == nullptr) {
-                    throw(string("Failed to load texture"));
-                }
-
-                glGenTextures(1, &texture_id_);
-                glBindTexture(GL_TEXTURE_2D, texture_id_);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-                if(nb_component == 3) {
-                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
-                                 GL_RGB, GL_UNSIGNED_BYTE, image);
-                } else if(nb_component == 4) {
-                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-                                 GL_RGBA, GL_UNSIGNED_BYTE, image);
-                }
-
-                GLuint tex_id = glGetUniformLocation(program_id_, "tex");
-                glUniform1i(tex_id, 0 /*GL_TEXTURE0*/);
-
-                // cleanup
-                glBindTexture(GL_TEXTURE_2D, 0);
-                stbi_image_free(image);
-            }
-
+            GLuint tex_id = glGetUniformLocation(program_id_, "tex");
+            glUniform1i(tex_id, 0);
             // other uniforms
             MVP_id_ = glGetUniformLocation(program_id_, "MVP");
 
@@ -142,12 +113,6 @@ class Grid {
                   const glm::mat4 &projection = IDENTITY_MATRIX) {
             glUseProgram(program_id_);
             glBindVertexArray(vertex_array_id_);
-
-            // bind textures
-            /*
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture_id_);
-            */
 
             // setup MVP
             glm::mat4 MVP = projection*view*model;
