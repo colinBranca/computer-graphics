@@ -102,15 +102,10 @@ void Init() {
     // sets background color
     glClearColor(0.937, 0.937, 0.937 /*gray*/, 1.0 /*solid*/);
 
-    grid.Init(16);
 
     // enable depth test.
     glEnable(GL_DEPTH_TEST);
 
-    // TODO 3: once you use the trackball, you should use a view matrix that
-    // looks straight down the -z axis. Otherwise the trackball's rotation gets
-    // applied in a rotated coordinate frame.
-    // uncomment lower line to achieve this.
     view_matrix = LookAt(vec3(2.0f, 2.0f, 4.0f),
                         vec3(0.0f, 0.0f, 0.0f),
                         vec3(0.0f, 1.0f, 0.0f));
@@ -120,9 +115,16 @@ void Init() {
 
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, -0.25f, 0.0f));
 
+    // Draw Perlin noise on framebuffer for later use
     perlin.Init(window_width, window_height);
     int framebuffer_id = noiseContainer.Init(window_width, window_height);
     screenquad.Init(window_width, window_height, framebuffer_id);
+    noiseContainer.Bind();
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            perlin.Draw();
+    noiseContainer.Unbind();
+
+    grid.Init(1024, framebuffer_id);
 
 }
 
@@ -130,17 +132,9 @@ void Init() {
 void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //grid.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
-    //perlin.Draw();
-    noiseContainer.Bind();
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            //grid.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
-            perlin.Draw();
-    noiseContainer.Unbind();
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    screenquad.Draw();
-    //glViewport(0, 0, window_width, window_height);
+    grid.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
+    //screenquad.Draw();
+    glViewport(0, 0, window_width, window_height);
 }
 
 // transforms glfw screen coordinates into normalized OpenGL coordinates.
@@ -287,6 +281,7 @@ int main(int argc, char *argv[]) {
         glfwPollEvents();
     }
 
+    perlin.Cleanup();
     grid.Cleanup();
 
     // close OpenGL window and terminate GLFW
