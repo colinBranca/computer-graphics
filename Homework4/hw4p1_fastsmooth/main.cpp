@@ -107,10 +107,10 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
 
-    if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_Q) {
         screenquad.increaseStd(0.25f);
     }
-    if (key == GLFW_KEY_W && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_W) {
         screenquad.increaseStd(-0.25f);
     }
 

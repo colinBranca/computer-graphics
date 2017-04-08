@@ -27,12 +27,12 @@ mat4 T(float tx, float ty, float tz) {
 
 void main() {
     // spin-circ
-    gl_Position =  MVP * R(50*time) * T(1,0,0) * R(50*time)* vec4(vpoint,1);
+    //gl_Position =  MVP * R(50*time) * T(1,0,0) * R(50*time)* vec4(vpoint,1);
 
     // spin
     // gl_Position =  MVP * R(50*time)* vec4(vpoint,1);
 
     // still
-    // gl_Position =  MVP * R(0) * vec4(vpoint,1);
+     gl_Position =  MVP * R(0) * vec4(vpoint,1);
     uv = vtexcoord;
 }

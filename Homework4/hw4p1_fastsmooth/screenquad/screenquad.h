@@ -10,10 +10,40 @@ class ScreenQuad {
         GLuint texture1_id_;             // texture ID
         GLuint texture2_id_;             // texture ID
 
-        float sigma = 2.0f;
+        GLfloat* kernel_;
+        int kernel_len_ = 7;
+
+        float sigma = 3.0f;
         float gaussIncrease = 1.0f;
         float screenquad_width_;
         float screenquad_height_;
+
+        void oneDkernel() {
+            int size = 5;
+            kernel_len_ = size + (size % 2 == 0 ? 1 : 2);
+            size--;
+
+            kernel_ = new float[kernel_len_];
+
+            float norm = 1.0f / (2.0f * sigma * sigma);
+            float total = 0.0f;
+            float tmp;
+
+            for (int i = -size; i <= size; ++i) {
+                    tmp = exp(-(i * i) / (2 * sigma*sigma));
+                    kernel_[i + size] = tmp;
+                    total += tmp;
+            }
+
+            for (int i = 0; i < kernel_len_; i++) {
+                    kernel_[i] = kernel_[i] / total;
+                    printf("in 1dKernel duv %f\n", kernel_[i]);
+            }
+               printf("Done in 1dKernel\n");
+
+            glUniform1fv(glGetUniformLocation(program_id_, "kernel"), kernel_len_, kernel_);
+
+        }
 
     public:
         void Init(float screenquad_width, float screenquad_height,
@@ -88,6 +118,7 @@ class ScreenQuad {
             tex_id = glGetUniformLocation(program_id_, "tex2");
             glUniform1i(tex_id, 1);
 
+            oneDkernel();
             // to avoid the current object being polluted
             glBindVertexArray(0);
             glUseProgram(0);
@@ -101,6 +132,7 @@ class ScreenQuad {
             glDeleteVertexArrays(1, &vertex_array_id_);
             glDeleteTextures(1, &texture1_id_);
             glDeleteTextures(1, &texture2_id_);
+            delete kernel_;
         }
 
         void UpdateSize(int screenquad_width, int screenquad_height) {
@@ -109,8 +141,8 @@ class ScreenQuad {
         }
 
         void increaseStd(float factor) {
-                float tmp = sigma += factor;
-                if (tmp >= 0) sigma = tmp;
+                sigma += factor;
+                oneDkernel();
         }
 
         void Draw(int do_second_pass) {
@@ -122,8 +154,10 @@ class ScreenQuad {
                         this->screenquad_width_);
             glUniform1f(glGetUniformLocation(program_id_, "tex_height"),
                         this->screenquad_height_);
-
-            glUniform1f(glGetUniformLocation(program_id_, "sigma"), sigma);
+/*            glUniform1i(glGetUniformLocation(program_id_, "kernel_len"), kernel_len_);
+            glUniform1fv(glGetUniformLocation(program_id_, "kernel"), kernel_len_, kernel_);*/
+ 
+            glUniform1i(glGetUniformLocation(program_id_, "sigma"), sigma);
             glUniform1i(glGetUniformLocation(program_id_, "do_second_pass"), do_second_pass);
 
 

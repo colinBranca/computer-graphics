@@ -19,12 +19,14 @@ image being displayed in the OpenGL Window.
 
 The Screenquad class was also modified in order to make it aware of the presence of two framebuffers:
 it now stores their id and is responsible for sending the uniform variables needed for the
-blurring to the fragment shader: the sigma for the blurring formula, and a simple
+blurring to the fragment shader: the kernel of the matrix and a simple
 integer to indicate the framebuffer whether it should perform the horizontal or vertical
 blurring.
 
+The kernel is generated in oneDKernel.
+
 Finally the screenquad fragment shader computes the new color for the fragment
-using the weighted sum learned during the lab session but only in one dimension.
+using the kernel computed in Screenquad but only in one dimension.
 The direction is chosen using the uniform variable indicating whether it is dealing
 with the first or the second pass.
 
