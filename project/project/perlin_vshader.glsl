@@ -11,5 +11,5 @@ out vec2 uv;
 void main() {
         gl_Position = vec4(vpoint, 1.0);
         //uv = vtexcoord;
-	uv = vec2(vtexcoord.x * width, vtexcoord.y * height);
+	uv = vec2(vtexcoord.x, height - vtexcoord.y);
 }

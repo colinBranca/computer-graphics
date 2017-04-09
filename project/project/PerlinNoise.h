@@ -1,8 +1,6 @@
 #pragma once
 #include "icg_helper.h"
 
-#define M_PI 3.14159265358979323846
-
 class PerlinNoise {
     private:
         int width_, height_;
@@ -27,7 +25,7 @@ class PerlinNoise {
                    49,192,214, 31,181,199,106,157,184, 84,204,176,115,121,50,45,127, 4,150,254,
                    138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180
                    };
-        for (int i=0; i < 256 ; i++) {
+                for (int i=0; i < 256 ; i++) {
                         int v = permutation[i];
                         p[256+i] = v;
                         p[i] = v;
@@ -40,6 +38,7 @@ class PerlinNoise {
             this->width_ = width;
             this->height_ = height;
             this->octaves = octaves;
+            generateP();
 
             program_id_ = icg_helper::LoadShaders("perlin_vshader.glsl",
                                                   "perlin_fshader.glsl");
@@ -65,10 +64,10 @@ class PerlinNoise {
                                   ZERO_STRIDE, ZERO_BUFFER_OFFSET);
 
 
-            const GLfloat vertex_texture_coordinates[] = { /*V1*/ 0.0f, 0.0f,
-                                                           /*V2*/ 1.0f, 0.0f,
-                                                           /*V3*/ 0.0f, 1.0f,
-                                                           /*V4*/ 1.0f, 1.0f};
+            const GLint vertex_texture_coordinates[] = { /*V1*/ 0, 0,
+                                                           /*V2*/ width_, 0,
+                                                           /*V3*/ 0, height_,
+                                                           /*V4*/ width_, height_};
 
             // buffer
             glGenBuffers(1, &vertex_buffer_object_);
@@ -79,11 +78,10 @@ class PerlinNoise {
             // attribute
             GLuint vtexcoord_id  = glGetAttribLocation(program_id_, "vtexcoord");
             glEnableVertexAttribArray(vtexcoord_id);
-            glVertexAttribPointer(vtexcoord_id, 2, GL_FLOAT, DONT_NORMALIZE,
+            glVertexAttribPointer(vtexcoord_id, 2, GL_INT, DONT_NORMALIZE,
                                   ZERO_STRIDE, ZERO_BUFFER_OFFSET);
-                       glBindVertexArray(0);
-            generateP();
             glUniform1iv(glGetUniformLocation(program_id_, "p"), 512, p);
+
             glUseProgram(0);
         }
 
@@ -98,7 +96,6 @@ class PerlinNoise {
                 glBindVertexArray(vertex_array_id);
 
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
 
                 glBindVertexArray(0);
                 glUseProgram(0);
