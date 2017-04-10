@@ -11,7 +11,7 @@
 
 #include "trackball.h"
 #include "framebuffer.h"
-#include "PerlinNoise.h"
+#include "perlin/PerlinNoise.h"
 #include "screenquad/screenquad.h"
 
 Grid grid;
@@ -19,7 +19,7 @@ FrameBuffer noiseContainer;
 ScreenQuad screenquad;
 PerlinNoise perlin;
 
-int window_width = 800;
+int window_width = 600;
 int window_height = 600;
 
 using namespace glm;
@@ -100,7 +100,8 @@ mat4 LookAt(vec3 eye, vec3 center, vec3 up) {
 
 void Init() {
     // sets background color
-    glClearColor(0.937, 0.937, 0.937 /*gray*/, 1.0 /*solid*/);
+    //glClearColor(0.937, 0.937, 0.937 /*gray*/, 1.0 /*solid*/);
+    glClearColor(0, 0, 0 /*gray*/, 1.0 /*solid*/);
 
 
     // enable depth test.
@@ -109,14 +110,14 @@ void Init() {
     view_matrix = LookAt(vec3(2.0f, 2.0f, 4.0f),
                         vec3(0.0f, 0.0f, 0.0f),
                         vec3(0.0f, 1.0f, 0.0f));
-    view_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, -4.0f));
+    view_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, -2.0f));
 
     trackball_matrix = IDENTITY_MATRIX;
 
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, -0.25f, 0.0f));
 
     // Draw Perlin noise on framebuffer for later use
-    perlin.Init(window_width, window_height);
+    perlin.Init(window_width, window_height, 8);
     int framebuffer_id = noiseContainer.Init(window_width, window_height);
     screenquad.Init(window_width, window_height, framebuffer_id);
     noiseContainer.Bind();
@@ -134,6 +135,7 @@ void Display() {
 
     grid.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
     //screenquad.Draw();
+    //perlin.Draw();
     glViewport(0, 0, window_width, window_height);
 }
 
@@ -237,7 +239,7 @@ int main(int argc, char *argv[]) {
     // note some Intel GPUs do not support OpenGL 3.2
     // note update the driver of your graphic card
     GLFWwindow* window = glfwCreateWindow(window_width, window_height,
-                                          "Trackball", NULL, NULL);
+                                          "Project", NULL, NULL);
     if(!window) {
         glfwTerminate();
         return EXIT_FAILURE;
@@ -264,6 +266,7 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
+                check_error_gl();
     cout << "OpenGL" << glGetString(GL_VERSION) << endl;
 
     // initialize our OpenGL program

@@ -14,8 +14,8 @@ file(GLOB SHADERS
   grid/grid_vshader.glsl
   grid/grid_fshader.glsl
   screenquad/*.glsl
-  perlin_vshader.glsl
-  perlin_fshader.glsl)
+  perlin/*.glsl)
+
 deploy_shaders_to_build_dir(${SHADERS})
 
 add_executable(${EXERCISENAME} ${SOURCES} ${HEADERS} ${SHADERS})

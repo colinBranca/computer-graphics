@@ -35,12 +35,13 @@ float noise(float x, float y) {
 
 void main() {
 	vec2 pos = uv;
-        float frequency = 1.0f / 80.0f;
+        float frequencyX = 1.0f / 400.0f;
+        float frequencyY = 1.0f / 300.0f;
 	float sum = 0.0f;
 	float amplitude = 0.5f;
 
 	for (int i = 0; i < octaves; ++i) {
-		sum += /*0.5/(2*i +1)*/ + amplitude * noise(pos.x * frequency, pos.y * frequency);
+		sum += amplitude * noise(pos.x * frequencyX, pos.y * frequencyY);
 		pos *= 2.0f;
 		amplitude *= 0.5;
 	}
