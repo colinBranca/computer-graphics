@@ -2,14 +2,16 @@
 #include "icg_helper.h"
 #include <glm/gtc/type_ptr.hpp>
 
-class Grid {
+
+class Grid  {
 
     private:
         GLuint vertex_array_id_;                // vertex array object
         GLuint vertex_buffer_object_position_;  // memory buffer for positions
         GLuint vertex_buffer_object_index_;     // memory buffer for indices
         GLuint program_id_;                     // GLSL shader program ID
-        GLuint texture_id_;                     // texture ID
+        GLuint height_texture_id_;              // texture ID
+        GLuint colormap_texture_id_;            // texture ID
         GLuint num_indices_;                    // number of vertices to render
         GLuint MVP_id_;                         // model, view, proj matrix ID
         int flattenCoord(int i, int j, int dim) {
@@ -21,7 +23,7 @@ class Grid {
             // compile the shaders.
             program_id_ = icg_helper::LoadShaders("grid_vshader.glsl",
                                                   "grid_fshader.glsl");
-            this->texture_id_ = texture_id;
+            this->height_texture_id_ = texture_id;
             if(!program_id_) {
                 exit(EXIT_FAILURE);
             }
@@ -88,10 +90,27 @@ class Grid {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-            GLuint tex_id = glGetUniformLocation(program_id_, "tex");
-            glUniform1i(tex_id, 0);
+            GLuint h_tex_id = glGetUniformLocation(program_id_, "tex");
+            glUniform1i(h_tex_id, 0);
             // other uniforms
             MVP_id_ = glGetUniformLocation(program_id_, "MVP");
+
+            // create 1D texture (colormap)
+            {
+                const int ColormapSize=3;
+                GLfloat colors[3*ColormapSize] = {/*beige*/ 0.9, 0.5, 0.1,
+                                               /*green*/ 0.1, 0.8, 0.1,
+                                               /*white*/  1.0, 1.0, 1.0};
+                glGenTextures(1, &colormap_texture_id_);
+                glBindTexture(GL_TEXTURE_1D, colormap_texture_id_);
+                glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, ColormapSize, 0, GL_RGB, GL_FLOAT, colors);
+                glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                GLuint c_tex_id = glGetUniformLocation(program_id_, "colormap");
+                glUniform1i(c_tex_id, 1 /*GL_TEXTURE0*/);
+                // check_error_gl();
+            }
 
             // to avoid the current object being polluted
             glBindVertexArray(0);
@@ -105,7 +124,8 @@ class Grid {
             glDeleteBuffers(1, &vertex_buffer_object_index_);
             glDeleteVertexArrays(1, &vertex_array_id_);
             glDeleteProgram(program_id_);
-            glDeleteTextures(1, &texture_id_);
+            glDeleteTextures(1, &height_texture_id_);
+            glDeleteTextures(1, &colormap_texture_id_);
         }
 
         void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
@@ -118,16 +138,12 @@ class Grid {
             glm::mat4 MVP = projection*view*model;
             glUniformMatrix4fv(MVP_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(MVP));
 
+            // bind textures
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_1D, colormap_texture_id_);
+
             // draw
-            // TODO 5: for debugging it can be helpful to draw only the wireframe.
-            // You can do that by uncommenting the next line.
-            //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            // TODO 5: depending on how you set up your vertex index buffer, you
-            // might have to change GL_TRIANGLE_STRIP to GL_TRIANGLES.
-            //glDrawElements(GL_TRIANGLE_STRIP, num_indices_, GL_UNSIGNED_INT, 0);
             glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
 
-            glBindVertexArray(0);
-            glUseProgram(0);
         }
 };
