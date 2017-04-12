@@ -2,8 +2,54 @@
 #include "icg_helper.h"
 #include <glm/gtc/type_ptr.hpp>
 
+struct Light {
+        glm::vec3 La = glm::vec3(1.0f, 1.0f, 1.0f);
+        glm::vec3 Ld = glm::vec3(1.0f, 1.0f, 1.0f);
+        glm::vec3 Ls = glm::vec3(1.0f, 1.0f, 1.0f);
 
-class Grid  {
+        glm::vec3 light_pos = glm::vec3(0.0f, 0.0f, 2.0f);
+
+        // pass light properties to the shader
+        void Setup(GLuint program_id) {
+            glUseProgram(program_id);
+
+            // given in camera space
+            GLuint light_pos_id = glGetUniformLocation(program_id, "light_pos");
+
+            GLuint La_id = glGetUniformLocation(program_id, "La");
+            GLuint Ld_id = glGetUniformLocation(program_id, "Ld");
+            GLuint Ls_id = glGetUniformLocation(program_id, "Ls");
+
+            glUniform3fv(light_pos_id, ONE, glm::value_ptr(light_pos));
+            glUniform3fv(La_id, ONE, glm::value_ptr(La));
+            glUniform3fv(Ld_id, ONE, glm::value_ptr(Ld));
+            glUniform3fv(Ls_id, ONE, glm::value_ptr(Ls));
+        }
+};
+
+struct Material {
+        glm::vec3 ka = glm::vec3(0.18f, 0.1f, 0.1f);
+        glm::vec3 kd = glm::vec3(0.9f, 0.5f, 0.5f);
+        glm::vec3 ks = glm::vec3(0.8f, 0.8f, 0.8f);
+        float alpha = 60.0f;
+
+        // pass material properties to the shaders
+        void Setup(GLuint program_id) {
+            glUseProgram(program_id);
+
+            GLuint ka_id = glGetUniformLocation(program_id, "ka");
+            GLuint kd_id = glGetUniformLocation(program_id, "kd");
+            GLuint ks_id = glGetUniformLocation(program_id, "ks");
+            GLuint alpha_id = glGetUniformLocation(program_id, "alpha");
+
+            glUniform3fv(ka_id, ONE, glm::value_ptr(ka));
+            glUniform3fv(kd_id, ONE, glm::value_ptr(kd));
+            glUniform3fv(ks_id, ONE, glm::value_ptr(ks));
+            glUniform1f(alpha_id, alpha);
+        }
+};
+
+class Grid: public Light, public Material  {
 
     private:
         GLuint vertex_array_id_;                // vertex array object
@@ -13,7 +59,9 @@ class Grid  {
         GLuint height_texture_id_;              // texture ID
         GLuint colormap_texture_id_;            // texture ID
         GLuint num_indices_;                    // number of vertices to render
-        GLuint MVP_id_;                         // model, view, proj matrix ID
+        GLuint M_id_;                         // model, view, proj matrix ID
+        GLuint V_id_;                         // model, view, proj matrix ID
+        GLuint P_id_;                         // model, view, proj matrix ID
         int flattenCoord(int i, int j, int dim) {
                 return dim * i + j;
         }
@@ -93,7 +141,9 @@ class Grid  {
             GLuint h_tex_id = glGetUniformLocation(program_id_, "tex");
             glUniform1i(h_tex_id, 0);
             // other uniforms
-            MVP_id_ = glGetUniformLocation(program_id_, "MVP");
+            M_id_ = glGetUniformLocation(program_id_, "M");
+            V_id_ = glGetUniformLocation(program_id_, "V");
+            P_id_ = glGetUniformLocation(program_id_, "P");
 
             // create 1D texture (colormap)
             {
@@ -135,9 +185,13 @@ class Grid  {
             glUseProgram(program_id_);
             glBindVertexArray(vertex_array_id_);
 
+            Material::Setup(program_id_);
+            Light::Setup(program_id_);
+
             // setup MVP
-            glm::mat4 MVP = projection*view*model;
-            glUniformMatrix4fv(MVP_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(MVP));
+            glUniformMatrix4fv(M_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(model));
+            glUniformMatrix4fv(V_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(view));
+            glUniformMatrix4fv(P_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(projection));
 
             // bind textures
             glActiveTexture(GL_TEXTURE1);
