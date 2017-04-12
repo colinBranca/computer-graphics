@@ -5,7 +5,7 @@ in vec2 uv;
 uniform int p[512];
 uniform int octaves;
 
-out vec3 color;
+out float color;
 
 float fade(float t) { return t * t * t * (t * (t * 6 - 15) + 10); }
 
@@ -46,6 +46,6 @@ void main() {
 		amplitude *= 0.5;
 	}
 
-        color = vec3(sum + 0.5);
+        color = sum + 0.5;
 }
 

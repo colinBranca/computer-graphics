@@ -9,6 +9,8 @@ class PerlinNoise {
         int program_id_;
         int p[512];
         int octaves;
+        GLuint height_tex_id;
+        GLuint fb_id;
 
         void generateP() {
                 int permutation[] = { 151,160,137,91,90,15,
@@ -33,14 +35,14 @@ class PerlinNoise {
         }
 
     public:
-        void Init(int width, int height, int octaves=6) {
+        int Init(int width, int height, int octaves=6) {
             // set screenquad size
             this->width_ = width;
             this->height_ = height;
             this->octaves = octaves;
             generateP();
 
-            program_id_ = icg_helper::LoadShaders("perlin_vshader.glsl",
+           program_id_ = icg_helper::LoadShaders("perlin_vshader.glsl",
                                                   "perlin_fshader.glsl");
 
             if (!program_id_) exit(EXIT_FAILURE);
@@ -83,9 +85,33 @@ class PerlinNoise {
             glUniform1iv(glGetUniformLocation(program_id_, "p"), 512, p);
 
             glUseProgram(0);
+            //
+            // framebuffer creation
+            {
+                glGenTextures(1, &height_tex_id);
+                glBindTexture(GL_TEXTURE_2D, height_tex_id);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width_, height_, 0,
+                             GL_RED, GL_FLOAT, NULL);
+                glGenFramebuffers(1, &fb_id);
+                glBindFramebuffer(GL_FRAMEBUFFER, fb_id);
+                glFramebufferTexture2D(GL_FRAMEBUFFER,
+                                       GL_COLOR_ATTACHMENT0,
+                                       GL_TEXTURE_2D, height_tex_id, 0);
+                glBindFramebuffer(GL_FRAMEBUFFER, 0); // avoid pollution
+            }
+            return height_tex_id;
         }
 
-        void Draw() {
+        void Compute() {
+                glViewport(0,0, width_, height_);
+                glBindFramebuffer(GL_FRAMEBUFFER, fb_id);
+                const GLenum buffers[] = {GL_COLOR_ATTACHMENT0};
+                glDrawBuffers(1, buffers);
+
                 glUseProgram(program_id_);
                 glUniform1i(glGetUniformLocation(program_id_, "width"),
                         width_);
@@ -94,15 +120,18 @@ class PerlinNoise {
                 glUniform1i(glGetUniformLocation(program_id_, "octaves"),
                         octaves);
                 glBindVertexArray(vertex_array_id);
-
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
                 glBindVertexArray(0);
                 glUseProgram(0);
         }
 
         void Cleanup() {
             //glEnableVertexAttribArray(vertex_point_id);
+            glDeleteTextures(1, &height_tex_id);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glDeleteFramebuffers(1, &fb_id);
             glBindVertexArray(0);
             glUseProgram(0);
             glDeleteBuffers(1, &vertex_buffer_object_);
