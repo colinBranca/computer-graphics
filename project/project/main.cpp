@@ -7,7 +7,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "grid/grid.h"
+#include "terrain/terrain.h"
 
 #include "trackball.h"
 #include "framebuffer.h"
@@ -19,7 +19,7 @@ FrameBuffer noiseContainer;
 ScreenQuad screenquad;
 PerlinNoise perlin;
 
-int window_width = 600;
+int window_width = 800;
 int window_height = 600;
 
 using namespace glm;
