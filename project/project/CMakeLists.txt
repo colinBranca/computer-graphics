@@ -11,6 +11,8 @@ copy_files_once(${TEXTURES})
 # list all the files you want to copy everytime
 # you build (ie, you want the shaders there)
 file(GLOB SHADERS
+  cube/cube_vshader.glsl
+  cube/cube_fshader.glsl
   terrain/*.glsl
   screenquad/*.glsl
   perlin/*.glsl)

@@ -8,6 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "terrain/terrain.h"
+#include "cube/cube.h"
 
 #include "trackball.h"
 #include "framebuffer.h"
@@ -17,6 +18,7 @@
 Terrain terrain;
 ScreenQuad screenquad;
 PerlinNoise perlin;
+Cube skybox;
 
 int window_width = 800;
 int window_height = 600;
@@ -28,6 +30,7 @@ mat4 view_matrix;
 mat4 trackball_matrix;
 mat4 old_trackball_matrix;
 mat4 quad_model_matrix;
+mat4 cube_scale;
 
 vec3 eye;
 vec3 center;
@@ -106,6 +109,7 @@ void Init() {
     //glClearColor(0.937, 0.937, 0.937 /*gray*/, 1.0 /*solid*/);
     glClearColor(0, 0, 0 /*gray*/, 1.0 /*solid*/);
 
+    skybox.Init();
 
     // enable depth test.
     glEnable(GL_DEPTH_TEST);
@@ -117,6 +121,12 @@ void Init() {
     //view_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, -2.0f));
 
     trackball_matrix = IDENTITY_MATRIX;
+
+    // scaling matrix to scale the cube down to a reasonable size.
+    cube_scale = mat4(0.5f, 0.0f,  0.0f,  0.0f,
+                      0.0f,  0.5f, 0.0f,  0.0f,
+                      0.0f,  0.0f,  0.5f, 0.0f,
+                      0.0f,  0.0f,  0.0f,  1.0f);
 
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, -0.25f, 0.0f));
 
@@ -136,6 +146,8 @@ void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     terrain.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
+
+    skybox.Draw(trackball_matrix * cube_scale, view_matrix, projection_matrix);
     //screenquad.Draw();
     //perlin.Draw();
     glViewport(0, 0, window_width, window_height);
@@ -326,6 +338,7 @@ int main(int argc, char *argv[]) {
 
     perlin.Cleanup();
     terrain.Cleanup();
+    skybox.Cleanup();
 
     // close OpenGL window and terminate GLFW
     glfwDestroyWindow(window);
