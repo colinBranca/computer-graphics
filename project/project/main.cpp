@@ -30,6 +30,10 @@ mat4 trackball_matrix;
 mat4 old_trackball_matrix;
 mat4 quad_model_matrix;
 
+vec3 eye;
+vec3 center;
+vec3 up;
+
 float old_vertical_mouse_pos;
 
 Trackball trackball;
@@ -107,10 +111,11 @@ void Init() {
     // enable depth test.
     glEnable(GL_DEPTH_TEST);
 
-    view_matrix = LookAt(vec3(2.0f, 2.0f, 4.0f),
-                        vec3(0.0f, 0.0f, 0.0f),
-                        vec3(0.0f, 1.0f, 0.0f));
-    view_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, -2.0f));
+    eye = vec3(2.0f, 2.0f, 4.0f);
+    center = vec3(0.0f, 0.0f, 0.0f);
+    up = vec3(0.0f, 1.0f, 0.0f);
+    view_matrix = LookAt(eye, center, up);
+    //view_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, -2.0f));
 
     trackball_matrix = IDENTITY_MATRIX;
 
@@ -215,6 +220,35 @@ void ErrorCallback(int error, const char* description) {
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
+    }
+    if (key == GLFW_KEY_UP) {
+        center.y -= 0.1f;
+        view_matrix = LookAt(eye, center, up);
+    }
+    if (key == GLFW_KEY_DOWN) {
+      center.y += 0.1f;
+      view_matrix = LookAt(eye, center, up);
+    }
+    if (key == GLFW_KEY_RIGHT) {
+      center.x -= 0.1f;
+      view_matrix = LookAt(eye, center, up);
+    }
+    if (key == GLFW_KEY_LEFT) {
+      center.x += 0.1f;
+      view_matrix = LookAt(eye, center, up);
+    }
+    if (key == GLFW_KEY_W) {
+      center.z += 0.1f;
+      view_matrix = LookAt(eye, center, up);
+    }
+    if (key == GLFW_KEY_S) {
+      view_matrix = translate(view_matrix, vec3(0.0f, 0.0f, -0.1f));
+    }
+    if (key == GLFW_KEY_A) {
+      view_matrix = translate(view_matrix, vec3(-0.1f, 0.0f, 0.0f));
+    }
+    if (key == GLFW_KEY_D) {
+      view_matrix = translate(view_matrix, vec3(0.1f, 0.0f, 0.0f));
     }
 }
 
