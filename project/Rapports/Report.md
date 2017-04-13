@@ -41,12 +41,17 @@ The initialization function receives the id of the height map texture generated 
 project and view matrices that it passes to the shaders. The class inherits from
 `Material` and `Light` in order to implement the shading.
 
-The colors are stored in `TEXTURE_1D` which is accessed with the height.
+To color the terrain, we created a new `TEXTURE_1D` colormap. The color is mapped with the height of the pixel.
 
 The shaders implement the shading computations as learned in the homework and give
 height to the flat quad using the previously generated height map as a texture.
+
+We also implemented a way to move through our world.
+With the keyboard arrows we can look to an other direction and we can move by using the `A,S,D,W` keys.
+To do this we implemented a `KeyCallback` function in the `main` and worked with the `GLFW` library.
 
 ## Team Work
  - Vincenzo Bazzucchi worked on the height map generation and on the shading, for about 60%
  of the load.
  - Colin Branca worked the terrain rendering for the remaining 40%.
+ - Nicolas Phan Van did not worked on this part of the project.
