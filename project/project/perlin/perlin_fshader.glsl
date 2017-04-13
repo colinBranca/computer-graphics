@@ -38,7 +38,7 @@ void main() {
         float frequencyX = 1.0f / 400.0f;
         float frequencyY = 1.0f / 300.0f;
 	float sum = 0.0f;
-	float amplitude = 0.5f;
+	float amplitude = 2.0f;
 
 	for (int i = 0; i < octaves; ++i) {
 		sum += amplitude * noise(pos.x * frequencyX, pos.y * frequencyY);
