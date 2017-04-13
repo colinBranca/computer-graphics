@@ -18,7 +18,7 @@ out vec2 uv;
 
 
 void main() {
-    uv = (position + vec2(1.0, 1.0)) * 0.5;
+    uv = (position + vec2(5.0, 5.0)) * 0.1;
 
     // convert the 2D position into 3D positions that all lay in a horizontal
     // plane.

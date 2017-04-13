@@ -38,40 +38,6 @@ float old_vertical_mouse_pos;
 
 Trackball trackball;
 
-mat4 OrthographicProjection(float left, float right, float bottom,
-                            float top, float near, float far) {
-    assert(right > left);
-    assert(far > near);
-    assert(top > bottom);
-    mat4 projection = mat4(1.0f);
-    projection[0][0] = 2.0f / (right - left);
-    projection[1][1] = 2.0f / (top - bottom);
-    projection[2][2] = -2.0f / (far - near);
-    projection[3][3] = 1.0f;
-    projection[3][0] = -(right + left) / (right - left);
-    projection[3][1] = -(top + bottom) / (top - bottom);
-    projection[3][2] = -(far + near) / (far - near);
-    return projection;
-}
-
-mat4 PerspectiveProjection(float fovy, float aspect, float near, float far) {
-    // Use matrix from class slides
-    mat4 projection = IDENTITY_MATRIX;
-    float top = near * tan(radians(fovy));
-    float bottom = -top;
-    float right = top * aspect;
-    float left = -right;
-    projection[0][0] = (2 * near) / (right - left);
-    projection[2][0] = (right + left) / (right - left);
-    projection[1][1] = (2 * near) / (top - bottom);
-    projection[2][1] = (top + bottom) / (top - bottom);
-    projection[2][2] = -(far + near) / (far - near);
-    projection[3][2] = (-2.0f * far * near) / (far - near);
-    projection[2][3] = -1.0f;
-
-    return projection;
-}
-
 mat4 LookAt(vec3 eye, vec3 center, vec3 up) {
     // we need a function that converts from world coordinates into camera coordiantes.
     //
@@ -122,7 +88,7 @@ void Init() {
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, -0.25f, 0.0f));
 
     // Draw Perlin noise on framebuffer for later use
-    int height_map_tex_id = perlin.Init(window_width, window_height, 8);
+    int height_map_tex_id = perlin.Init(1024, 1024, 8);
     perlin.Compute();
     //screenquad.Init(window_width, window_height, height_map_tex_id);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

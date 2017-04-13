@@ -64,11 +64,11 @@ class Terrain: public Light, Material  {
                 std::vector<GLfloat> vertices;
 
                 // Generate vertices coordinates
-                float factor = 2.0f / ((float) grid_dim);
+                float factor = 10.0f / ((float) grid_dim);
                 for (int row = 0; row < grid_dim; ++row) {
-                        float yCoord = factor * row -1.0f;
+                        float yCoord = factor * row -5.0f;
                         for (int col = 0; col < grid_dim; ++col) {
-                                vertices.push_back(factor * col - 1.0f);
+                                vertices.push_back(factor * col - 5.0f);
                                 vertices.push_back(yCoord);
                         }
                 }
