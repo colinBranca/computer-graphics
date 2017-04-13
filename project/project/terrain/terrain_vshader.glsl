@@ -4,7 +4,7 @@
 uniform mat4 M;
 uniform mat4 V;
 uniform mat4 P;
-uniform sampler2D tex;
+uniform sampler2D height_tex;
 
 in vec2 position;
 
@@ -13,17 +13,33 @@ uniform vec3 light_pos;
 out vec3 light_dir;
 out vec3 view_dir;
 out vec4 vpoint_mv;
+out vec3 normal;
 
 out vec2 uv;
 
+vec2 getTexCoord(vec2 position) {
+    return (position + vec2(5.0f, 5.0f)) * 0.1f;
+}
 
 void main() {
-    uv = (position + vec2(5.0, 5.0)) * 0.1;
+    uv = getTexCoord(position);
+    float rightEl = textureOffset(height_tex, uv, ivec2(1, 0)).x;
+    float downEl = textureOffset(height_tex, uv, ivec2(0, 1)).x;
+    float leftEl = textureOffset(height_tex, uv, ivec2(-1, 0)).x;
+    float upEl = textureOffset(height_tex, uv, ivec2(0, -1)).x;
+
+    vec3 right = vec3(uv.x + 1.0f / 1024.0f, rightEl, uv.y);
+    vec3 left = vec3(uv.x - 1.0f / 1024.0f, leftEl, uv.y);
+    vec3 up = vec3(uv.x, upEl, uv.y - 1.0f / 1024.0f);
+    vec3 down = vec3(uv.x, downEl, uv.y + 1.0f / 1024.0f);
+    vec3 b1 = right - left;
+    vec3 b2 = down - up;
+
+    normal = normalize((transpose(inverse(M * V)) * vec4(cross(b1, b2), 1.0f)).xyz);
 
     // convert the 2D position into 3D positions that all lay in a horizontal
     // plane.
-    vec3 pos_3d = vec3(position.x, texture(tex, uv).r, -position.y);
-    //vec3 pos_3d = vec3(position.x, 0, -position.y);
+    vec3 pos_3d = vec3(position.x, texture(height_tex, uv).r, -position.y);
     gl_Position = P * V * M * vec4(pos_3d, 1.0);
     vpoint_mv = M * V * vec4(pos_3d, 1.0f);
     light_dir = normalize(light_pos - vpoint_mv.xyz);
