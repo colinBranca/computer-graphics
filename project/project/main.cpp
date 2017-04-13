@@ -7,19 +7,18 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "grid/grid.h"
+#include "terrain/terrain.h"
 
 #include "trackball.h"
 #include "framebuffer.h"
 #include "perlin/PerlinNoise.h"
 #include "screenquad/screenquad.h"
 
-Grid grid;
-FrameBuffer noiseContainer;
+Terrain terrain;
 ScreenQuad screenquad;
 PerlinNoise perlin;
 
-int window_width = 600;
+int window_width = 800;
 int window_height = 600;
 
 using namespace glm;
@@ -122,15 +121,13 @@ void Init() {
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, -0.25f, 0.0f));
 
     // Draw Perlin noise on framebuffer for later use
-    perlin.Init(window_width, window_height, 8);
-    int framebuffer_id = noiseContainer.Init(window_width, window_height);
-    screenquad.Init(window_width, window_height, framebuffer_id);
-    noiseContainer.Bind();
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            perlin.Draw();
-    noiseContainer.Unbind();
+    int height_map_tex_id = perlin.Init(window_width, window_height, 8);
+    perlin.Compute();
+    //screenquad.Init(window_width, window_height, height_map_tex_id);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    grid.Init(1024, framebuffer_id);
+
+    terrain.Init(1024, height_map_tex_id);
 
 }
 
@@ -138,7 +135,7 @@ void Init() {
 void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    grid.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
+    terrain.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
     //screenquad.Draw();
     //perlin.Draw();
     glViewport(0, 0, window_width, window_height);
@@ -319,7 +316,7 @@ int main(int argc, char *argv[]) {
     }
 
     perlin.Cleanup();
-    grid.Cleanup();
+    terrain.Cleanup();
 
     // close OpenGL window and terminate GLFW
     glfwDestroyWindow(window);
