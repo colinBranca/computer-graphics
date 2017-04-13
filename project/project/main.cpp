@@ -202,9 +202,10 @@ void SetupProjection(GLFWwindow* window, int width, int height) {
 
     glViewport(0, 0, window_width, window_height);
 
-    projection_matrix = PerspectiveProjection(45.0f,
-                                               (GLfloat)window_width / window_height,
-                                               0.1f, 100.0f);
+    // projection_matrix = PerspectiveProjection(45.0f,
+    //                                            (GLfloat)window_width / window_height,
+    //                                            0.0000001f, 100.0f);
+    projection_matrix = glm::perspective(45.0f, (GLfloat)window_width / window_height, 0.00001f, 100.0f);
     GLfloat top = 1.0f;
     GLfloat right = (GLfloat)window_width / window_height * top;
     //projection_matrix = OrthographicProjection(-right, right, -top, top, -10.0, 10.0f);
@@ -234,16 +235,24 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
       center.x += 0.1f;
       view_matrix = LookAt(eye, center, up);
     }
-    if (key == GLFW_KEY_W) {
-      center.z += 0.1f;
-      view_matrix = LookAt(eye, center, up);
+    if(key == GLFW_KEY_W){
+      vec3 viewDir = 0.1f*(center - eye);
+      eye += viewDir;
+      center += viewDir;
+      view_matrix = lookAt(eye, center, up);
     }
     if (key == GLFW_KEY_S) {
-      view_matrix = translate(view_matrix, vec3(0.0f, 0.0f, -0.1f));
+      vec3 viewDir = 0.1f*(center - eye);
+      eye -= viewDir;
+      center -= viewDir;
+      view_matrix = lookAt(eye, center, up);
     }
-    if (key == GLFW_KEY_A) {
-      view_matrix = translate(view_matrix, vec3(-0.1f, 0.0f, 0.0f));
-    }
+    // if (key == GLFW_KEY_A) {
+    //   vec3 viewDir = 0.1f*(center - eye);
+    //   viewDir = rotate(viewDir, 1.0f, cross(up, viewDir));
+    //   center = viewDir + eye;
+    //   view_matrix = lookAt(eye, center, up);
+    // }
     if (key == GLFW_KEY_D) {
       view_matrix = translate(view_matrix, vec3(0.1f, 0.0f, 0.0f));
     }
