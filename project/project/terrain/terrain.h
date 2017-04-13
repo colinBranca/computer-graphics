@@ -116,7 +116,7 @@ class Terrain: public Light, Material  {
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-                    glUniform1i(glGetUniformLocation(program_id_, "tex"), 0);
+                    glUniform1i(glGetUniformLocation(program_id_, "height_tex"), 0);
             }
             // other uniforms
             M_id_ = glGetUniformLocation(program_id_, "M");
