@@ -6,6 +6,7 @@
 #include "icg_helper.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 
 #include "terrain/terrain.h"
 
@@ -220,19 +221,25 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
     if (key == GLFW_KEY_UP) {
-        center.y -= 0.1f;
-        view_matrix = LookAt(eye, center, up);
+      vec3 view = 0.1f*(center - eye);
+      vec3 axis = normalize(cross(up, view));
+      view = rotate(view, 0.1f, axis);
+      center -= view;
+      view_matrix = lookAt(eye, center, up);
     }
     if (key == GLFW_KEY_DOWN) {
-      center.y += 0.1f;
-      view_matrix = LookAt(eye, center, up);
+      vec3 view = 0.1f*(center - eye);
+      vec3 axis = normalize(cross(up, view));
+      view = rotate(view, 0.1f, axis);
+      center += view;
+      view_matrix = lookAt(eye, center, up);
     }
     if (key == GLFW_KEY_RIGHT) {
-      center.x -= 0.1f;
+      center.x += 0.1f;
       view_matrix = LookAt(eye, center, up);
     }
     if (key == GLFW_KEY_LEFT) {
-      center.x += 0.1f;
+      center.x -= 0.1f;
       view_matrix = LookAt(eye, center, up);
     }
     if(key == GLFW_KEY_W){
@@ -242,19 +249,22 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
       view_matrix = lookAt(eye, center, up);
     }
     if (key == GLFW_KEY_S) {
-      vec3 viewDir = 0.1f*(center - eye);
-      eye -= viewDir;
-      center -= viewDir;
+      vec3 view = 0.1f*(center - eye);
+      eye -= view;
+      center -= view;
       view_matrix = lookAt(eye, center, up);
     }
-    // if (key == GLFW_KEY_A) {
-    //   vec3 viewDir = 0.1f*(center - eye);
-    //   viewDir = rotate(viewDir, 1.0f, cross(up, viewDir));
-    //   center = viewDir + eye;
-    //   view_matrix = lookAt(eye, center, up);
-    // }
+    if (key == GLFW_KEY_A) {
+      vec3 view = 0.1f*(eye - center);
+      eye.y += view.y;
+      center.y += view.y;
+      view_matrix = lookAt(eye, center, up);
+    }
     if (key == GLFW_KEY_D) {
-      view_matrix = translate(view_matrix, vec3(0.1f, 0.0f, 0.0f));
+      vec3 view = 0.1f*(eye - center);
+      eye.y -= view.y;
+      center.y -= view.y;
+      view_matrix = lookAt(eye, center, up);
     }
 }
 
