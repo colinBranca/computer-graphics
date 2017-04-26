@@ -1,16 +1,10 @@
 #version 330
 
-out vec3 color;
+in vec3 TexCoords;
+out vec4 color;
 
-// color buffer
-const vec3 COLOR[6] = vec3[](
-    vec3(0.0, 0.0, 1.0),
-    vec3(0.0, 1.0, 0.0),
-    vec3(0.0, 1.0, 1.0),
-    vec3(1.0, 0.0, 0.0),
-    vec3(1.0, 0.0, 1.0),
-    vec3(1.0, 1.0, 0.0));
+uniform samplerCube skybox;
 
 void main() {
-    color = COLOR[gl_PrimitiveID / 2];
+    color = texture(skybox, TexCoords);
 }
