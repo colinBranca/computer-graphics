@@ -28,20 +28,20 @@ class Water {
 
             // vertex coordinates
             {
-                const GLfloat vertex_point[] = { /*V1*/ -1.0f, -1.0f, 0.0f,
-                                                 /*V2*/ +1.0f, -1.0f, 0.0f,
-                                                 /*V3*/ -1.0f, +1.0f, 0.0f,
-                                                 /*V4*/ +1.0f, +1.0f, 0.0f};
+                const GLfloat vertex_point[] = { /*V1*/ -5.0f, -5.0f
+                                                 /*V2*/ +5.0f, -5.0f
+                                                 /*V3*/ -5.0f, +5.0f
+                                                 /*V4*/ +5.0f, +5.0f};
                 // buffer
                 glGenBuffers(1, &vertex_buffer_object_);
                 glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object_);
-                glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_point),
-                             vertex_point, GL_STATIC_DRAW);
+                glBufferData(GL_ARRAY_BUFFER, 8*sizeof(GLfloat),
+                             &vertex_point[0], GL_STATIC_DRAW);
 
                 // attribute
                 GLuint vertex_point_id = glGetAttribLocation(program_id_, "vpoint");
                 glEnableVertexAttribArray(vertex_point_id);
-                glVertexAttribPointer(vertex_point_id, 3, GL_FLOAT, DONT_NORMALIZE,
+                glVertexAttribPointer(vertex_point_id, 2, GL_FLOAT, DONT_NORMALIZE,
                                       ZERO_STRIDE, ZERO_BUFFER_OFFSET);
             }
 
@@ -120,13 +120,18 @@ class Water {
             glDeleteBuffers(1, &vertex_buffer_object_);
             glDeleteProgram(program_id_);
             glDeleteVertexArrays(1, &vertex_array_id_);
-            glDeleteTextures(1, &texture_id_);
-            glDeleteTextures(1, &texture_mirror_id_);
+            // glDeleteTextures(1, &texture_id_);
+            // glDeleteTextures(1, &texture_mirror_id_);
         }
 
-        void Draw(const glm::mat4& MVP) {
+        void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
+                  const glm::mat4 &view = IDENTITY_MATRIX,
+                  const glm::mat4 &projection = IDENTITY_MATRIX) {
             glUseProgram(program_id_);
             glBindVertexArray(vertex_array_id_);
+
+            // setup MVP
+            glm::mat4 MVP = projection*view*model;
 
             // // bind textures
             // glActiveTexture(GL_TEXTURE0);

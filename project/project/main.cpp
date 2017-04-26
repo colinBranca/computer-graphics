@@ -10,6 +10,7 @@
 
 #include "terrain/terrain.h"
 #include "cube/cube.h"
+#include "water/water.h"
 
 #include "trackball.h"
 #include "framebuffer.h"
@@ -20,6 +21,7 @@ Terrain terrain;
 ScreenQuad screenquad;
 PerlinNoise perlin;
 Cube skybox;
+Water water;
 
 int window_width = 800;
 int window_height = 600;
@@ -77,6 +79,7 @@ void Init() {
     glClearColor(0, 0, 0 /*gray*/, 1.0 /*solid*/);
 
     skybox.Init();
+    water.Init();
 
     // enable depth test.
     glEnable(GL_DEPTH_TEST);
@@ -115,6 +118,8 @@ void Display() {
     terrain.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
 
     skybox.Draw(trackball_matrix * cube_scale, view_matrix, projection_matrix);
+
+    water.Draw(trackball_matrix * cube_scale, view_matrix, projection_matrix);
     //screenquad.Draw();
     //perlin.Draw();
     glViewport(0, 0, window_width, window_height);

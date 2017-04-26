@@ -15,7 +15,8 @@ file(GLOB SHADERS
   cube/cube_fshader.glsl
   terrain/*.glsl
   screenquad/*.glsl
-  perlin/*.glsl)
+  perlin/*.glsl
+  water/*.glsl)
 
 deploy_shaders_to_build_dir(${SHADERS})
 
