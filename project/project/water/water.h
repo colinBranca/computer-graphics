@@ -28,20 +28,21 @@ class Water {
 
             // vertex coordinates
             {
-                const GLfloat vertex_point[] = { /*V1*/ -5.0f, -5.0f, 0.0f
-                                                 /*V2*/ +5.0f, -5.0f, 0.0f
-                                                 /*V3*/ -5.0f, +5.0f, 0.0f
-                                                 /*V4*/ +5.0f, +5.0f, 0.0f};
+
+                const GLfloat vertex_point[] = { /*V1*/ -10.0f, 0.05f, -10.0f,
+                                                 /*V2*/ +10.0f, 0.05f, -10.0f,
+                                                 /*V3*/ -10.0f, 0.05f, +10.0f,
+                                                 /*V4*/ +10.0f, 0.05f, +10.0f,};
                 // buffer
                 glGenBuffers(1, &vertex_buffer_object_);
                 glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object_);
-                glBufferData(GL_ARRAY_BUFFER, 12*sizeof(GLfloat),
-                             &vertex_point[0], GL_STATIC_DRAW);
+                glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat),
+                             vertex_point, GL_STATIC_DRAW);
 
                 // attribute
                 GLuint vertex_point_id = glGetAttribLocation(program_id_, "vpoint");
                 glEnableVertexAttribArray(vertex_point_id);
-                glVertexAttribPointer(vertex_point_id, 2, GL_FLOAT, DONT_NORMALIZE,
+                glVertexAttribPointer(vertex_point_id, 3, GL_FLOAT, DONT_NORMALIZE,
                                       ZERO_STRIDE, ZERO_BUFFER_OFFSET);
             }
 
@@ -66,48 +67,48 @@ class Water {
                                       DONT_NORMALIZE, ZERO_STRIDE,
                                       ZERO_BUFFER_OFFSET);
             }
-            //
-            // {
-            //     // load texture
-            //     int width;
-            //     int height;
-            //     int nb_component;
-            //     string filename = "floor_texture.tga";
-            //     // set stb_image to have the same coordinates as OpenGL
-            //     stbi_set_flip_vertically_on_load(1);
-            //     unsigned char* image = stbi_load(filename.c_str(), &width,
-            //                                      &height, &nb_component, 0);
-            //
-            //     if(image == nullptr) {
-            //         throw(string("Failed to load texture"));
-            //     }
-            //
-            //     glGenTextures(1, &texture_id_);
-            //     glBindTexture(GL_TEXTURE_2D, texture_id_);
-            //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            //     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            //
-            //     if(nb_component == 3) {
-            //         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
-            //                      GL_RGB, GL_UNSIGNED_BYTE, image);
-            //     } else if(nb_component == 4) {
-            //         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-            //                      GL_RGBA, GL_UNSIGNED_BYTE, image);
-            //     }
-            //
-            //
-            //     texture_mirror_id_ = (tex_mirror==-1)? texture_id_ : tex_mirror;
-            //
-            //     // texture uniforms
-            //     GLuint tex_id = glGetUniformLocation(program_id_, "tex");
-            //     glUniform1i(tex_id, 0 /*GL_TEXTURE0*/);
-            //     GLuint tex_mirror_id = glGetUniformLocation(program_id_, "tex_mirror");
-            //     glUniform1i(tex_mirror_id, 1 /*GL_TEXTURE1*/);
-            //
-            //     // cleanup
-            //     glBindTexture(GL_TEXTURE_2D, 0);
-            //     stbi_image_free(image);
-            // }
+
+            {
+                // // load texture
+                // int width;
+                // int height;
+                // int nb_component;
+                // string filename = "floor_texture.tga";
+                // // set stb_image to have the same coordinates as OpenGL
+                // stbi_set_flip_vertically_on_load(1);
+                // unsigned char* image = stbi_load(filename.c_str(), &width,
+                //                                  &height, &nb_component, 0);
+                //
+                // if(image == nullptr) {
+                //     throw(string("Failed to load texture"));
+                // }
+                //
+                // glGenTextures(1, &texture_id_);
+                // glBindTexture(GL_TEXTURE_2D, texture_id_);
+                // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                //
+                // if(nb_component == 3) {
+                //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
+                //                  GL_RGB, GL_UNSIGNED_BYTE, image);
+                // } else if(nb_component == 4) {
+                //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
+                //                  GL_RGBA, GL_UNSIGNED_BYTE, image);
+                // }
+
+
+                //texture_mirror_id_ = (tex_mirror==-1)? texture_id_ : tex_mirror;
+
+                // texture uniforms
+                // GLuint tex_id = glGetUniformLocation(program_id_, "tex");
+                // glUniform1i(tex_id, 0 /*GL_TEXTURE0*/);
+                GLuint tex_mirror_id = glGetUniformLocation(program_id_, "tex_mirror");
+                glUniform1i(tex_mirror_id, 1 /*GL_TEXTURE1*/);
+
+                // cleanup
+                glBindTexture(GL_TEXTURE_2D, 0);
+                stbi_image_free(image);
+            }
 
             // to avoid the current object being polluted
             glBindVertexArray(0);
@@ -121,7 +122,7 @@ class Water {
             glDeleteProgram(program_id_);
             glDeleteVertexArrays(1, &vertex_array_id_);
             // glDeleteTextures(1, &texture_id_);
-            // glDeleteTextures(1, &texture_mirror_id_);
+            glDeleteTextures(1, &texture_mirror_id_);
         }
 
         void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
@@ -137,9 +138,9 @@ class Water {
             // glActiveTexture(GL_TEXTURE0);
             // glBindTexture(GL_TEXTURE_2D, texture_id_);
             //
-            // // bind textures
-            // glActiveTexture(GL_TEXTURE1);
-            // glBindTexture(GL_TEXTURE_2D, texture_mirror_id_);
+            // bind textures
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, texture_mirror_id_);
 
             // setup MVP
             GLuint MVP_id = glGetUniformLocation(program_id_, "MVP");
