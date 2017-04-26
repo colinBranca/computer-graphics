@@ -93,12 +93,8 @@ void Init() {
     trackball_matrix = IDENTITY_MATRIX;
 
     // scaling matrix to scale the cube down to a reasonable size.
-    cube_scale = mat4(0.5f, 0.0f,  0.0f,  0.0f,
-                      0.0f,  0.5f, 0.0f,  0.0f,
-                      0.0f,  0.0f,  0.5f, 0.0f,
-                      0.0f,  0.0f,  0.0f,  1.0f);
-
-    quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, -0.25f, 0.0f));
+    cube_scale = IDENTITY_MATRIX;
+    quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.25f, 0.0f));
 
     // Draw Perlin noise on framebuffer for later use
     int height_map_tex_id = perlin.Init(1024, 1024, 8);
