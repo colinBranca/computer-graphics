@@ -28,20 +28,20 @@ class Water {
 
             // vertex coordinates
             {
-                const GLfloat vertex_point[] = { /*V1*/ -5.0f, -5.0f
-                                                 /*V2*/ +5.0f, -5.0f
-                                                 /*V3*/ -5.0f, +5.0f
-                                                 /*V4*/ +5.0f, +5.0f};
+                const GLfloat vertex_point[] = { /*V1*/ -5.0f, 0.0f, -5.0f,
+                                                 /*V2*/ +5.0f, 0.0f, -5.0f,
+                                                 /*V3*/ -5.0f, 0.0f, +5.0f,
+                                                 /*V4*/ +5.0f, 0.0f, +5.0f,};
                 // buffer
                 glGenBuffers(1, &vertex_buffer_object_);
                 glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object_);
-                glBufferData(GL_ARRAY_BUFFER, 8*sizeof(GLfloat),
-                             &vertex_point[0], GL_STATIC_DRAW);
+                glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat),
+                             vertex_point, GL_STATIC_DRAW);
 
                 // attribute
                 GLuint vertex_point_id = glGetAttribLocation(program_id_, "vpoint");
                 glEnableVertexAttribArray(vertex_point_id);
-                glVertexAttribPointer(vertex_point_id, 2, GL_FLOAT, DONT_NORMALIZE,
+                glVertexAttribPointer(vertex_point_id, 3, GL_FLOAT, DONT_NORMALIZE,
                                       ZERO_STRIDE, ZERO_BUFFER_OFFSET);
             }
 
