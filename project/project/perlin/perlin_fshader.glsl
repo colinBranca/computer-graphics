@@ -4,6 +4,9 @@ in vec2 uv;
 
 uniform int p[512];
 uniform int octaves;
+uniform float frequencyX;
+uniform float frequencyY;
+uniform float amplitude;
 
 out float color;
 
@@ -35,15 +38,13 @@ float noise(float x, float y) {
 
 void main() {
 	vec2 pos = uv;
-        float frequencyX = 1.0f / 400.0f;
-        float frequencyY = 1.0f / 300.0f;
 	float sum = 0.0f;
-	float amplitude = 2.0f;
+	float a = amplitude;
 
 	for (int i = 0; i < octaves; ++i) {
-		sum += amplitude * noise(pos.x * frequencyX, pos.y * frequencyY);
+		sum += a * noise(pos.x * frequencyX, pos.y * frequencyY);
 		pos *= 2.0f;
-		amplitude *= 0.5;
+		a *= 0.5;
 	}
 
         color = sum + 0.5;
