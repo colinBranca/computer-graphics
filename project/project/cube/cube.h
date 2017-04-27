@@ -30,14 +30,12 @@ class Cube {
 
             glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
             for(GLuint i = 0; i < faces.size(); i++) {
-                //image = SOIL_load_image(faces[i], &width, &height, 0, SOIL_LOAD_RGB);
-                image = stbi_load(faces[i].c_str(), &width, &height, &nb_component, 0); // TODO: fix image loading
+                image = stbi_load(faces[i].c_str(), &width, &height, &nb_component, 0);
                 if (image == nullptr) {
-                    std::cout << "fuck it\n";
+                    throw(string(stbi_failure_reason()));
                 }
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
                 stbi_image_free(image);
-                //SOIL_free_image_data(image);
             }
             glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

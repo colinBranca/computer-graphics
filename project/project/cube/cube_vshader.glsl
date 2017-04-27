@@ -2,7 +2,7 @@
 
 uniform mat4 MVP;
 
-in vec3 position;
+layout (location = 0) in vec3 position;
 out vec3 TexCoords;
 
 void main() {
