@@ -21,7 +21,6 @@ void main() {
     float height = texture(tex, uv).r;
     vec3 colorT = texture(colormap, height).rgb;
 
-    // OLDvec3 normal_mv = normalize(cross(dFdx(vpoint_mv.xyz), dFdy(vpoint_mv.xyz)));
     vec3 normal_mv = normal;
     /// 1) compute ambient term.
     //vec3 ambient = ka * La;

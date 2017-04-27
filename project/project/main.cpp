@@ -84,6 +84,7 @@ void Init() {
 
     // enable depth test.
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
 
     eye = vec3(2.0f, 2.0f, 4.0f);
     center = vec3(0.0f, 0.0f, 0.0f);
@@ -113,19 +114,20 @@ void Init() {
 
 // gets called for every frame.
 void Display() {
+    glViewport(0, 0, window_width, window_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     mat4 scale = IDENTITY_MATRIX;
     scale[0][0] = 20.0f;
     scale[1][1] = 20.0f;
     scale[2][2] = 20.0f;
-    skybox.Draw(trackball_matrix * scale, view_matrix, projection_matrix);
+    glEnable(GL_DEPTH_TEST);
 
+    skybox.Draw(trackball_matrix * scale, view_matrix, projection_matrix);
+    water.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
     terrain.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
 
-    water.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
     //screenquad.Draw();
-    //perlin.Draw();
 
     // mirror the camera position
     vec3 mirror_cam_pos = eye;
@@ -133,15 +135,14 @@ void Display() {
     // create new VP for mirrored camera
     mat4 mirror_view = lookAt(mirror_cam_pos, center, up);
     // render the cube using the mirrored camera
+
     waterReflexion.Bind();
-    {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       skybox.Draw(trackball_matrix * cube_scale, mirror_view, projection_matrix);
       terrain.Draw(trackball_matrix * quad_model_matrix, mirror_view, projection_matrix);
-    }
     waterReflexion.Unbind();
 
-    glViewport(0, 0, window_width, window_height);
+    glDisable(GL_DEPTH_TEST);
 }
 
 // transforms glfw screen coordinates into normalized OpenGL coordinates.
@@ -208,7 +209,7 @@ void SetupProjection(GLFWwindow* window, int width, int height) {
     // projection_matrix = PerspectiveProjection(45.0f,
     //                                            (GLfloat)window_width / window_height,
     //                                            0.0000001f, 100.0f);
-    projection_matrix = glm::perspective(45.0f, (GLfloat)window_width / window_height, 0.00001f, 100.0f);
+    projection_matrix = glm::perspective(45.0f, (GLfloat)window_width / window_height, 0.1f, 100.0f);
     GLfloat top = 1.0f;
     GLfloat right = (GLfloat)window_width / window_height * top;
     //projection_matrix = OrthographicProjection(-right, right, -top, top, -10.0, 10.0f);

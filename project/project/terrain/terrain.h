@@ -176,5 +176,7 @@ class Terrain: public Light, Material  {
             // draw
             glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
 
+            glUseProgram(0);
+            glBindVertexArray(0);
         }
 };
