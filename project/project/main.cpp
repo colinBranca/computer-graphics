@@ -115,9 +115,13 @@ void Init() {
 void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    terrain.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
+    mat4 scale = IDENTITY_MATRIX;
+    scale[0][0] = 20.0f;
+    scale[1][1] = 20.0f;
+    scale[2][2] = 20.0f;
+    skybox.Draw(trackball_matrix * scale, view_matrix, projection_matrix);
 
-    skybox.Draw(trackball_matrix * cube_scale, view_matrix, projection_matrix);
+    terrain.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
 
     water.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
     //screenquad.Draw();
