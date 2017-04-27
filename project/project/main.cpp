@@ -119,7 +119,7 @@ void Display() {
 
     skybox.Draw(trackball_matrix * cube_scale, view_matrix, projection_matrix);
 
-    water.Draw(trackball_matrix * cube_scale, view_matrix, projection_matrix);
+    water.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
     //screenquad.Draw();
     //perlin.Draw();
 
@@ -133,7 +133,7 @@ void Display() {
     {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       skybox.Draw(trackball_matrix * cube_scale, mirror_view, projection_matrix);
-      terrain.Draw(trackball_matrix * cube_scale, mirror_view, projection_matrix);
+      terrain.Draw(trackball_matrix * quad_model_matrix, mirror_view, projection_matrix);
     }
     waterReflexion.Unbind();
 
