@@ -5,12 +5,49 @@
 class Cube {
 
     private:
-        GLuint vertex_array_id_;                // vertex array object
-        GLuint vertex_buffer_object_position_;  // memory buffer for positions
-        GLuint vertex_buffer_object_index_;     // memory buffer for indices
+        GLuint skybox_vbo_;
+        GLuint skybox_vao_;
+        GLuint cubemap_texture_;
         GLuint program_id_;                     // GLSL shader program ID
-        GLuint num_indices_;                    // number of vertices to render
         GLuint MVP_id_;                         // model, view, proj matrix ID
+
+        GLuint loadCubemap() {
+            GLuint textureID;
+            glGenTextures(1, &textureID);
+
+            int width, height, nb_component;
+            unsigned char* image;
+
+            vector<string> faces;
+            faces.push_back("right.jpg");
+            faces.push_back("left.jpg");
+            faces.push_back("top.jpg");
+            faces.push_back("bottom.jpg");
+            faces.push_back("back.jpg");
+            faces.push_back("front.jpg");
+
+            stbi_set_flip_vertically_on_load(1);
+
+            glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+            for(GLuint i = 0; i < faces.size(); i++) {
+                //image = SOIL_load_image(faces[i], &width, &height, 0, SOIL_LOAD_RGB);
+                image = stbi_load(faces[i].c_str(), &width, &height, &nb_component, 0); // TODO: fix image loading
+                if (image == nullptr) {
+                    std::cout << "fuck it\n";
+                }
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+                stbi_image_free(image);
+                //SOIL_free_image_data(image);
+            }
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+            return textureID;
+        }
 
     public:
         void Init() {
@@ -23,50 +60,59 @@ class Cube {
 
             glUseProgram(program_id_);
 
-            // vertex one vertex array
-            glGenVertexArrays(1, &vertex_array_id_);
-            glBindVertexArray(vertex_array_id_);
+            const GLfloat skyboxVertices[] = {
+                -1.0f,  1.0f, -1.0f,
+                -1.0f, -1.0f, -1.0f,
+                1.0f, -1.0f, -1.0f,
+                1.0f, -1.0f, -1.0f,
+                1.0f,  1.0f, -1.0f,
+                -1.0f,  1.0f, -1.0f,
 
-            // Position buffer
-            const GLfloat position[] = {-20.0f, -20.0f,  20.0f, // left, bottom, front
-                                        20.0f, -20.0f,  20.0f,  // right, bottom, front
-                                        20.0f,  20.0f,  20.0f,  // right, top, front
-                                        -20.0f,  20.0f,  20.0f, // left, top, front
-                                        -20.0f, -20.0f, -20.0f, // left, bottom, back
-                                        20.0f, -20.0f, -20.0f,  // right, bottom, back
-                                        20.0f,  20.0f, -20.0f,  // right, top, back
-                                        -20.0f,  20.0f, -20.0f};// left, top, back
+                -1.0f, -1.0f,  1.0f,
+                -1.0f, -1.0f, -1.0f,
+                -1.0f,  1.0f, -1.0f,
+                -1.0f,  1.0f, -1.0f,
+                -1.0f,  1.0f,  1.0f,
+                -1.0f, -1.0f,  1.0f,
 
-            glGenBuffers(1, &vertex_buffer_object_position_);
-            glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object_position_);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW);
+                1.0f, -1.0f, -1.0f,
+                1.0f, -1.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f,  1.0f, -1.0f,
+                1.0f, -1.0f, -1.0f,
 
-            // position shader attribute
-            // fetch attribute ID for vertex positions
-            GLuint loc_position = glGetAttribLocation(program_id_, "position");
-            glEnableVertexAttribArray(loc_position); // Enable it
-            glVertexAttribPointer(loc_position, 3, GL_FLOAT, DONT_NORMALIZE,
-                                  ZERO_STRIDE, ZERO_BUFFER_OFFSET);
+                -1.0f, -1.0f,  1.0f,
+                -1.0f,  1.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f, -1.0f,  1.0f,
+                -1.0f, -1.0f,  1.0f,
 
-            // index buffer
-            const GLuint index[] = {0, 1, 2,  // front face triangle 1
-                                    0, 2, 3,  // front face triangle 2
-                                    1, 5, 6,  // right face triangle 1
-                                    1, 6, 2,  // right face triangle 2
-                                    5, 4, 7,  // back face triangle 1
-                                    5, 7, 6,  // back face triangle 2
-                                    4, 0, 3,  // left face triangle 1
-                                    4, 3, 7,  // left face triangle 2
-                                    3, 2, 6,  // top face triangle 1
-                                    3, 6, 7,  // top face triangle 2
-                                    1, 0, 4,  // bottom face triangle 1
-                                    1, 4, 5}; // bottom face triangle 2
+                -1.0f,  1.0f, -1.0f,
+                1.0f,  1.0f, -1.0f,
+                1.0f,  1.0f,  1.0f,
+                1.0f,  1.0f,  1.0f,
+                -1.0f,  1.0f,  1.0f,
+                -1.0f,  1.0f, -1.0f,
 
-            num_indices_ = sizeof(index) / sizeof(GLuint);
+                -1.0f, -1.0f, -1.0f,
+                -1.0f, -1.0f,  1.0f,
+                1.0f, -1.0f, -1.0f,
+                1.0f, -1.0f, -1.0f,
+                -1.0f, -1.0f,  1.0f,
+                1.0f, -1.0f,  1.0f
+            };
 
-            glGenBuffers(1, &vertex_buffer_object_index_);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertex_buffer_object_index_);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index), index, GL_STATIC_DRAW);
+            glGenVertexArrays(1, &skybox_vao_);
+            glGenBuffers(1, &skybox_vbo_);
+            glBindVertexArray(skybox_vao_);
+            glBindBuffer(GL_ARRAY_BUFFER, skybox_vbo_);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+
+            cubemap_texture_ = loadCubemap();
 
             // other uniforms
             MVP_id_ = glGetUniformLocation(program_id_, "MVP");
@@ -79,26 +125,30 @@ class Cube {
         void Cleanup() {
             glBindVertexArray(0);
             glUseProgram(0);
-            glDeleteBuffers(1, &vertex_buffer_object_position_);
-            glDeleteBuffers(1, &vertex_buffer_object_index_);
+            glDeleteBuffers(1, &skybox_vbo_);
             glDeleteProgram(program_id_);
-            glDeleteVertexArrays(1, &vertex_array_id_);
+            glDeleteVertexArrays(1, &skybox_vao_);
         }
 
         void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
                   const glm::mat4 &view = IDENTITY_MATRIX,
                   const glm::mat4 &projection = IDENTITY_MATRIX) {
             glUseProgram(program_id_);
-            glBindVertexArray(vertex_array_id_);
+
+            glDepthMask(GL_FALSE);
 
             // setup MVP
             glm::mat4 MVP = projection*view*model;
             glUniformMatrix4fv(MVP_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(MVP));
 
-            // draw
-            glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
-
+            glBindVertexArray(skybox_vao_);
+            glActiveTexture(GL_TEXTURE0);
+            glUniform1i(glGetUniformLocation(program_id_, "skybox"), 0);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap_texture_);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
             glBindVertexArray(0);
+            glDepthMask(GL_TRUE);
+
             glUseProgram(0);
         }
 };
