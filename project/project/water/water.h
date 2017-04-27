@@ -10,9 +10,15 @@ class Water {
         GLuint vertex_buffer_object_;   // memory buffer
         GLuint texture_id_;             // texture ID
         GLuint texture_mirror_id_;      // texture mirror ID
+        GLuint vertex_buffer_object_index_;
+        int flattenCoord(int i, int j, int dim) {
+                return dim * i + j;
+        }
+        GLuint num_indices_;
+
 
     public:
-        void Init(GLuint tex_mirror = -1) {
+        void Init(GLuint tex_mirror = -1, size_t grid_dim = 1024) {
             // compile the shaders
             program_id_ = icg_helper::LoadShaders("water_vshader.glsl",
                                                   "water_fshader.glsl");
@@ -28,44 +34,49 @@ class Water {
 
             // vertex coordinates
             {
+                std::vector<GLfloat> vertices;
 
-                const GLfloat vertex_point[] = { /*V1*/ -5.0f, 0.05f, -5.0f,
-                                                 /*V2*/ +5.0f, 0.05f, -5.0f,
-                                                 /*V3*/ -5.0f, 0.05f, +5.0f,
-                                                 /*V4*/ +5.0f, 0.05f, +5.0f,};
+                // Generate vertices coordinates
+                float factor = 10.0f / ((float) grid_dim);
+                for (int row = 0; row < grid_dim; ++row) {
+                        float yCoord = factor * row -5.0f;
+                        for (int col = 0; col < grid_dim; ++col) {
+                                vertices.push_back(factor * col - 5.0f);
+                                vertices.push_back(yCoord);
+                        }
+                }
+                std::vector<GLuint> indices;
+                for (int row = 0; row < grid_dim -1; ++row) {
+                        for (int col = 0; col < grid_dim -1; ++col) {
+                                // Upper triangle
+                                indices.push_back(flattenCoord(row, col, grid_dim));
+                                indices.push_back(flattenCoord(row, col + 1, grid_dim));
+                                indices.push_back(flattenCoord(row + 1, col, grid_dim));
+                                // Lower triangle
+                                indices.push_back(flattenCoord(row, col + 1, grid_dim));
+                                indices.push_back(flattenCoord(row + 1, col + 1, grid_dim));
+                                indices.push_back(flattenCoord(row + 1, col, grid_dim));
+                        }
+                }
+                this->num_indices_ = indices.size();
+
                 // buffer
                 glGenBuffers(1, &vertex_buffer_object_);
                 glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object_);
-                glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(GLfloat),
-                             vertex_point, GL_STATIC_DRAW);
+                glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat),
+                             &vertices[0], GL_STATIC_DRAW);
+                //
+                // vertex indices
+                glGenBuffers(1, &vertex_buffer_object_index_);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertex_buffer_object_index_);
+                glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint),
+                             &indices[0], GL_STATIC_DRAW);
 
                 // attribute
-                GLuint vertex_point_id = glGetAttribLocation(program_id_, "vpoint");
+                GLuint vertex_point_id = glGetAttribLocation(program_id_, "position");
                 glEnableVertexAttribArray(vertex_point_id);
-                glVertexAttribPointer(vertex_point_id, 3, GL_FLOAT, DONT_NORMALIZE,
+                glVertexAttribPointer(vertex_point_id, 2, GL_FLOAT, DONT_NORMALIZE,
                                       ZERO_STRIDE, ZERO_BUFFER_OFFSET);
-            }
-
-            // texture coordinates
-            {
-                const GLfloat vertex_texture_coordinates[] = { /*V1*/ 0.0f, 0.0f,
-                                                               /*V2*/ 1.0f, 0.0f,
-                                                               /*V3*/ 0.0f, 1.0f,
-                                                               /*V4*/ 1.0f, 1.0f};
-
-                // buffer
-                glGenBuffers(1, &vertex_buffer_object_);
-                glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object_);
-                glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_texture_coordinates),
-                             vertex_texture_coordinates, GL_STATIC_DRAW);
-
-                // attribute
-                GLuint vertex_texture_coord_id = glGetAttribLocation(program_id_,
-                                                                     "vtexcoord");
-                glEnableVertexAttribArray(vertex_texture_coord_id);
-                glVertexAttribPointer(vertex_texture_coord_id, 2, GL_FLOAT,
-                                      DONT_NORMALIZE, ZERO_STRIDE,
-                                      ZERO_BUFFER_OFFSET);
             }
 
             {
@@ -147,7 +158,7 @@ class Water {
             glUniformMatrix4fv(MVP_id, 1, GL_FALSE, value_ptr(MVP));
 
             // draw
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
 
             glBindVertexArray(0);
             glUseProgram(0);
