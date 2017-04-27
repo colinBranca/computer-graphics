@@ -29,10 +29,10 @@ class Water {
             // vertex coordinates
             {
 
-                const GLfloat vertex_point[] = { /*V1*/ -10.0f, 0.05f, -10.0f,
-                                                 /*V2*/ +10.0f, 0.05f, -10.0f,
-                                                 /*V3*/ -10.0f, 0.05f, +10.0f,
-                                                 /*V4*/ +10.0f, 0.05f, +10.0f,};
+                const GLfloat vertex_point[] = { /*V1*/ -5.0f, 0.05f, -5.0f,
+                                                 /*V2*/ +5.0f, 0.05f, -5.0f,
+                                                 /*V3*/ -5.0f, 0.05f, +5.0f,
+                                                 /*V4*/ +5.0f, 0.05f, +5.0f,};
                 // buffer
                 glGenBuffers(1, &vertex_buffer_object_);
                 glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object_);
@@ -97,17 +97,17 @@ class Water {
                 // }
 
 
-                //texture_mirror_id_ = (tex_mirror==-1)? texture_id_ : tex_mirror;
+                texture_mirror_id_ = (tex_mirror==-1)? texture_id_ : tex_mirror;
 
                 // texture uniforms
                 // GLuint tex_id = glGetUniformLocation(program_id_, "tex");
                 // glUniform1i(tex_id, 0 /*GL_TEXTURE0*/);
                 GLuint tex_mirror_id = glGetUniformLocation(program_id_, "tex_mirror");
-                glUniform1i(tex_mirror_id, 1 /*GL_TEXTURE1*/);
+                glUniform1i(tex_mirror_id, 2 /*GL_TEXTURE2*/);
 
                 // cleanup
-                glBindTexture(GL_TEXTURE_2D, 0);
-                stbi_image_free(image);
+                //glBindTexture(GL_TEXTURE_2D, 0);
+                //stbi_image_free(image);
             }
 
             // to avoid the current object being polluted
@@ -139,7 +139,7 @@ class Water {
             // glBindTexture(GL_TEXTURE_2D, texture_id_);
             //
             // bind textures
-            glActiveTexture(GL_TEXTURE1);
+            glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, texture_mirror_id_);
 
             // setup MVP

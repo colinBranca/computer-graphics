@@ -22,6 +22,7 @@ ScreenQuad screenquad;
 PerlinNoise perlin;
 Cube skybox;
 Water water;
+FrameBuffer waterReflexion;
 
 int window_width = 800;
 int window_height = 600;
@@ -103,6 +104,9 @@ void Init() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
+    GLuint framebuffer_texture_id = waterReflexion.Init(window_width, window_height);
+    water.Init(framebuffer_texture_id);
+
     terrain.Init(1024, height_map_tex_id);
 
 }
@@ -118,6 +122,21 @@ void Display() {
     water.Draw(trackball_matrix * cube_scale, view_matrix, projection_matrix);
     //screenquad.Draw();
     //perlin.Draw();
+
+    // mirror the camera position
+    vec3 mirror_cam_pos = eye;
+    mirror_cam_pos.z = -mirror_cam_pos.z;
+    // create new VP for mirrored camera
+    mat4 mirror_view = lookAt(mirror_cam_pos, center, up);
+    // render the cube using the mirrored camera
+    waterReflexion.Bind();
+    {
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      skybox.Draw(mirror_view);
+      terrain.Draw(mirror_view);
+    }
+    waterReflexion.Unbind();
+
     glViewport(0, 0, window_width, window_height);
 }
 
