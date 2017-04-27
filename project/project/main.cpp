@@ -132,8 +132,8 @@ void Display() {
     waterReflexion.Bind();
     {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      skybox.Draw(mirror_view);
-      terrain.Draw(mirror_view);
+      skybox.Draw(trackball_matrix * cube_scale, mirror_view, projection_matrix);
+      terrain.Draw(trackball_matrix * cube_scale, mirror_view, projection_matrix);
     }
     waterReflexion.Unbind();
 
