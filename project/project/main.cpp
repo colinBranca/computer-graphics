@@ -42,6 +42,8 @@ vec3 up;
 
 float old_vertical_mouse_pos;
 
+float water_height;
+
 Trackball trackball;
 
 mat4 LookAt(vec3 eye, vec3 center, vec3 up) {
@@ -92,6 +94,7 @@ void Init() {
     view_matrix = LookAt(eye, center, up);
     //view_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, -2.0f));
 
+    water_height = 0.5f;
     trackball_matrix = IDENTITY_MATRIX;
 
     // scaling matrix to scale the cube down to a reasonable size.
@@ -103,7 +106,6 @@ void Init() {
     perlin.Compute();
     //screenquad.Init(window_width, window_height, height_map_tex_id);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
     GLuint framebuffer_texture_id = waterReflexion.Init(window_width, window_height);
     water.Init(framebuffer_texture_id);
@@ -124,7 +126,7 @@ void Display() {
     glEnable(GL_DEPTH_TEST);
 
     skybox.Draw(trackball_matrix * scale, view_matrix, projection_matrix);
-    water.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
+    water.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix, water_height);
     terrain.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
 
     //screenquad.Draw();
@@ -138,8 +140,8 @@ void Display() {
 
     waterReflexion.Bind();
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      skybox.Draw(trackball_matrix * cube_scale, mirror_view, projection_matrix);
-      terrain.Draw(trackball_matrix * quad_model_matrix, mirror_view, projection_matrix);
+      skybox.Draw(trackball_matrix * scale, mirror_view, projection_matrix);
+      terrain.Draw(trackball_matrix * quad_model_matrix, mirror_view, projection_matrix, water_height);
     waterReflexion.Unbind();
 
     glDisable(GL_DEPTH_TEST);
@@ -268,6 +270,12 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
       eye.y -= view.y;
       center.y -= view.y;
       view_matrix = lookAt(eye, center, up);
+    }
+    if (key == GLFW_KEY_F1) {
+      water_height += 0.1f;
+    }
+    if (key == GLFW_KEY_F2) {
+      water_height -= 0.1f;
     }
 }
 

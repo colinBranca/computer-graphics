@@ -138,7 +138,8 @@ class Water {
 
         void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
                   const glm::mat4 &view = IDENTITY_MATRIX,
-                  const glm::mat4 &projection = IDENTITY_MATRIX) {
+                  const glm::mat4 &projection = IDENTITY_MATRIX,
+                  float water_height = 0.0f) {
             glUseProgram(program_id_);
             glBindVertexArray(vertex_array_id_);
 
@@ -156,6 +157,10 @@ class Water {
             // setup MVP
             GLuint MVP_id = glGetUniformLocation(program_id_, "MVP");
             glUniformMatrix4fv(MVP_id, 1, GL_FALSE, value_ptr(MVP));
+
+            //setup water_height
+            GLuint WaterHeight_id = glGetUniformLocation(program_id_, "water_height");
+            glUniform1f(WaterHeight_id, water_height);
 
             // draw
             glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);

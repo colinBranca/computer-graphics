@@ -3,6 +3,7 @@
 uniform mat4 M;
 uniform mat4 V;
 uniform mat4 P;
+uniform float water_height;
 uniform sampler2D height_tex;
 
 in vec2 position;
@@ -15,6 +16,7 @@ out vec4 vpoint_mv;
 out vec3 normal;
 
 out vec2 uv;
+flat out int isVisible; //higher than water or not
 
 vec2 getTexCoord(vec2 position) {
     return (position + vec2(5.0f, 5.0f)) * 0.1f;
@@ -43,5 +45,6 @@ void main() {
     vpoint_mv = M * V * vec4(pos_3d, 1.0f);
     light_dir = normalize(light_pos - vpoint_mv.xyz);
     view_dir = normalize(- vpoint_mv.xyz);
-}
 
+    isVisible = (pos_3d.y >= water_height)? 1 : 0;
+}

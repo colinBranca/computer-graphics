@@ -157,7 +157,8 @@ class Terrain: public Light, Material  {
 
         void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
                   const glm::mat4 &view = IDENTITY_MATRIX,
-                  const glm::mat4 &projection = IDENTITY_MATRIX) {
+                  const glm::mat4 &projection = IDENTITY_MATRIX,
+                  float water_height = 0.0f) {
             glUseProgram(program_id_);
             glBindVertexArray(vertex_array_id_);
 
@@ -168,6 +169,10 @@ class Terrain: public Light, Material  {
             glUniformMatrix4fv(M_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(model));
             glUniformMatrix4fv(V_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(view));
             glUniformMatrix4fv(P_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(projection));
+
+            //setup water_height
+            GLuint WaterHeight_id = glGetUniformLocation(program_id_, "water_height");
+            glUniform1f(WaterHeight_id, water_height);
 
             // bind textures
             glActiveTexture(GL_TEXTURE1);

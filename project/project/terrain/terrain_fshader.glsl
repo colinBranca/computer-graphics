@@ -4,6 +4,7 @@ uniform vec3 ka, kd, ks;
 uniform float alpha;
 
 in vec2 uv;
+flat in int isVisible;
 
 out vec3 color;
 
@@ -35,5 +36,8 @@ void main() {
     //vec3 specular = ks * pow(rv, alpha) * Ls;
 
     color = ambient + diffuse /*+ specular*/ - 0.1;
-}
 
+    if(isVisible == 0) {
+      discard;
+    }
+}
