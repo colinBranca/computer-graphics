@@ -9,7 +9,7 @@
 #include <glm/gtx/rotate_vector.hpp>
 
 #include "terrain/terrain.h"
-#include "cube/cube.h"
+#include "skybox/skybox.h"
 #include "water/water.h"
 
 #include "trackball.h"
@@ -20,7 +20,7 @@
 Terrain terrain;
 ScreenQuad screenquad;
 PerlinNoise perlin;
-Cube skybox;
+Skybox skybox;
 Water water;
 FrameBuffer waterReflexion;
 

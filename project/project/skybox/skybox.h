@@ -2,7 +2,7 @@
 #include "icg_helper.h"
 #include "glm/gtc/type_ptr.hpp"
 
-class Cube {
+class Skybox {
 
     private:
         GLuint skybox_vbo_;
@@ -50,8 +50,8 @@ class Cube {
     public:
         void Init() {
             // compile the shaders.
-            program_id_ = icg_helper::LoadShaders("cube_vshader.glsl",
-                                                  "cube_fshader.glsl");
+            program_id_ = icg_helper::LoadShaders("skybox_vshader.glsl",
+                                                  "skybox_fshader.glsl");
             if(!program_id_) {
                 exit(EXIT_FAILURE);
             }
