@@ -130,14 +130,19 @@ class Cube {
 
         void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
                   const glm::mat4 &view = IDENTITY_MATRIX,
-                  const glm::mat4 &projection = IDENTITY_MATRIX) {
+                  const glm::mat4 &projection = IDENTITY_MATRIX,
+                  int reflexion = 0) {
             glUseProgram(program_id_);
 
-            glDepthMask(GL_FALSE);
+            //glDepthMask(GL_FALSE);
 
             // setup MVP
             glm::mat4 MVP = projection*view*model;
             glUniformMatrix4fv(MVP_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(MVP));
+
+            //setup water_height
+            GLuint Reflexion_id = glGetUniformLocation(program_id_, "reflexion");
+            glUniform1i(Reflexion_id, reflexion);
 
             glBindVertexArray(skybox_vao_);
             glActiveTexture(GL_TEXTURE0);
@@ -145,7 +150,7 @@ class Cube {
             glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap_texture_);
             glDrawArrays(GL_TRIANGLES, 0, 36);
             glBindVertexArray(0);
-            glDepthMask(GL_TRUE);
+            //glDepthMask(GL_TRUE);
 
             glUseProgram(0);
         }
