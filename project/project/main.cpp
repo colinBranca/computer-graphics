@@ -94,7 +94,7 @@ void Init() {
     view_matrix = LookAt(eye, center, up);
     //view_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, -2.0f));
 
-    water_height = 0.5f;
+    water_height = 0.0f;
     trackball_matrix = IDENTITY_MATRIX;
 
     // scaling matrix to scale the cube down to a reasonable size.
@@ -129,20 +129,23 @@ void Display() {
     water.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix, water_height);
     terrain.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
 
-    //screenquad.Draw();
 
     // mirror the camera position
     vec3 mirror_cam_pos = eye;
-    mirror_cam_pos.z = -mirror_cam_pos.z;
+    mirror_cam_pos.y = -mirror_cam_pos.y + 2*water_height;
+
     // create new VP for mirrored camera
-    mat4 mirror_view = lookAt(mirror_cam_pos, center, up);
+    mat4 mirror_view = LookAt(mirror_cam_pos, center, up);
     // render the cube using the mirrored camera
 
     waterReflexion.Bind();
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      skybox.Draw(trackball_matrix * scale, mirror_view, projection_matrix);
-      terrain.Draw(trackball_matrix * quad_model_matrix, mirror_view, projection_matrix, water_height);
+       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+       skybox.Draw(trackball_matrix * scale, mirror_view, projection_matrix, 1);
+       terrain.Draw(trackball_matrix * quad_model_matrix, mirror_view, projection_matrix, water_height);
     waterReflexion.Unbind();
+
+    //skybox.Draw(cube_scale, view_matrix, projection_matrix);
+    // water.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix, water_height);
 
     glDisable(GL_DEPTH_TEST);
 }
@@ -230,14 +233,14 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
       vec3 axis = normalize(cross(up, view));
       view = rotate(view, 0.1f, axis);
       center -= view;
-      view_matrix = lookAt(eye, center, up);
+      view_matrix = LookAt(eye, center, up);
     }
     if (key == GLFW_KEY_DOWN) {
       vec3 view = 0.1f*(center - eye);
       vec3 axis = normalize(cross(up, view));
       view = rotate(view, 0.1f, axis);
       center += view;
-      view_matrix = lookAt(eye, center, up);
+      view_matrix = LookAt(eye, center, up);
     }
     if (key == GLFW_KEY_RIGHT) {
       center.x += 0.1f;
@@ -251,25 +254,25 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
       vec3 viewDir = 0.1f*(center - eye);
       eye += viewDir;
       center += viewDir;
-      view_matrix = lookAt(eye, center, up);
+      view_matrix = LookAt(eye, center, up);
     }
     if (key == GLFW_KEY_S) {
       vec3 view = 0.1f*(center - eye);
       eye -= view;
       center -= view;
-      view_matrix = lookAt(eye, center, up);
+      view_matrix = LookAt(eye, center, up);
     }
     if (key == GLFW_KEY_A) {
       vec3 view = 0.1f*(eye - center);
       eye.y += view.y;
       center.y += view.y;
-      view_matrix = lookAt(eye, center, up);
+      view_matrix = LookAt(eye, center, up);
     }
     if (key == GLFW_KEY_D) {
       vec3 view = 0.1f*(eye - center);
       eye.y -= view.y;
       center.y -= view.y;
-      view_matrix = lookAt(eye, center, up);
+      view_matrix = LookAt(eye, center, up);
     }
     if (key == GLFW_KEY_F1) {
       water_height += 0.1f;
