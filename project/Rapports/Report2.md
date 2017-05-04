@@ -5,7 +5,11 @@
 We didn't have the time to do this part for the moment. So this part will be discussed in the next report.
 
 ## Part 2.2 - Sky Modeling
-TODO
+
+We used some open source texture resources as our skybox.
+The skybox itself is implemented with a cubemap: we have 6 different textures, one for each face of the cube,
+that we combined together using the cubemap.
+The size of the cube is then increased using a scaling matrix to simulate magnitude.
 
 ## Part 2.3 - Water Modeling
 To model the water we created a new grid with the same dimensions as the terrain.
