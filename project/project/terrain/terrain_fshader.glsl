@@ -2,6 +2,7 @@
 uniform vec3 La, Ld, Ls;
 uniform vec3 ka, kd, ks;
 uniform float alpha;
+uniform sampler2D ground_tex;
 
 in vec2 uv;
 flat in int isVisible;
@@ -14,13 +15,14 @@ in vec4 vpoint_mv;
 in vec3 normal;
 
 uniform sampler2D tex;
-uniform sampler1D colormap;
+//uniform sampler1D colormap;
 
 void main() {
     // color = texture(tex, uv).rgb;
     //color = vec3(0.0, 0.0, 0.0);
     float height = texture(tex, uv).r;
-    vec3 colorT = texture(colormap, height).rgb;
+    //vec3 colorT = texture(colormap, height).rgb;
+    vec3 colorT = texture(ground_tex, uv * 1024.0f).rgb;
 
     vec3 normal_mv = normal;
     /// 1) compute ambient term.

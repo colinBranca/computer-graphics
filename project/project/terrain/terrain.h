@@ -38,6 +38,7 @@ class Terrain: public Light, Material  {
         GLuint M_id_;                           // model matrix ID
         GLuint V_id_;                           // proj matrix ID
         GLuint P_id_;                           // view matrix ID
+        GLuint ground_texture; 
         int flattenCoord(int i, int j, int dim) {
                 return dim * i + j;
         }
@@ -124,12 +125,13 @@ class Terrain: public Light, Material  {
             P_id_ = glGetUniformLocation(program_id_, "P");
 
             // create 1D texture (colormap)
+            /*
             {
                 const int ColormapSize=4;
-                GLfloat colors[3*ColormapSize] = {/* dark brown  */ 184.0 / 255.0, 134.0 / 255.0, 11.0 / 255.0,
-                                                  /* light brown */ 218.0 / 255.0, 165.0 / 255.0, 32.0 / 255.0,
-                                                  /* green       */ 34.0  / 255.0, 139.0 / 255.0, 34.0 / 255.0,
-                                                  /* dark snow   */ 238.0 / 255.0, 233.0 / 255.0, 233  / 255.0 };
+                GLfloat colors[3*ColormapSize] = {184.0 / 255.0, 134.0 / 255.0, 11.0 / 255.0,
+                                                  218.0 / 255.0, 165.0 / 255.0, 32.0 / 255.0,
+                                                  34.0  / 255.0, 139.0 / 255.0, 34.0 / 255.0,
+                                                  238.0 / 255.0, 233.0 / 255.0, 233  / 255.0 };
                 glGenTextures(1, &colormap_texture_id_);
                 glBindTexture(GL_TEXTURE_1D, colormap_texture_id_);
                 glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, ColormapSize, 0, GL_RGB, GL_FLOAT, colors);
@@ -137,6 +139,25 @@ class Terrain: public Light, Material  {
                 glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                 glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glUniform1i(glGetUniformLocation(program_id_, "colormap"), 1);
+            }
+            */
+
+            // Import texture
+            {
+               GLuint ground_texture; 
+               glGenTextures(1, &ground_texture);
+               int width, height, nb_component;
+               unsigned char* image;
+               glBindTexture(GL_TEXTURE_2D, ground_texture);
+               image = stbi_load("ground.jpg", &width, &height, &nb_component, 0);
+               glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+               stbi_image_free(image);
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+               glBindTexture(GL_TEXTURE_2D, 0);
             }
 
             // to avoid the current object being polluted
@@ -174,9 +195,13 @@ class Terrain: public Light, Material  {
             GLuint WaterHeight_id = glGetUniformLocation(program_id_, "water_height");
             glUniform1f(WaterHeight_id, water_height);
 
+            //ground texture
+            //glActiveTexture(GL_TEXTURE0);
+            glUniform1i(glGetUniformLocation(program_id_, "ground_tex"), ground_texture);
+            glBindTexture(GL_TEXTURE_2D, ground_texture);
             // bind textures
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_1D, colormap_texture_id_);
+            //glActiveTexture(GL_TEXTURE1);
+            //glBindTexture(GL_TEXTURE_1D, colormap_texture_id_);
 
             // draw
             glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
