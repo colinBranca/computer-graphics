@@ -66,9 +66,9 @@ class Terrain: public Light, Material  {
                stbi_image_free(image);
                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
 
                glBindTexture(GL_TEXTURE_2D, 0);
                return id;
@@ -158,7 +158,7 @@ class Terrain: public Light, Material  {
 
            // Import textures
             {
-               grass_texture = loadTex("grass.jpg");
+               grass_texture = loadTex("grass1.png");
                glUniform1i(glGetUniformLocation(program_id_, "grass_tex"), 1);
 
                ground_texture = loadTex("ground.jpg");

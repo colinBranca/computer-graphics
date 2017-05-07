@@ -19,9 +19,10 @@ in vec4 vpoint_mv;
 in vec3 normal;
 
 vec3 texMix(float height) {
-  vec3 gro = texture(ground_tex, uv).rgb;
-  vec3 gra = texture(grass_tex, uv).rgb;
-  vec3 sno = texture(snow_tex, uv).rgb;
+  vec2 extCoods = 150.0f * uv;
+  vec3 gro = texture(ground_tex, extCoods).rgb;
+  vec3 gra = texture(grass_tex, extCoods).rgb;
+  vec3 sno = texture(snow_tex, extCoods).rgb;
 
   vec3 groGla = mix(gro, gra, 1.5*height);
   return mix(groGla, sno, 0.5*height);
