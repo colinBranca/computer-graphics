@@ -18,8 +18,20 @@ in vec3 view_dir;
 in vec4 vpoint_mv;
 in vec3 normal;
 
+vec3 texMix(float height) {
+  vec3 gro = texture(ground_tex, uv).rgb;
+  vec3 gra = texture(grass_tex, uv).rgb;
+  vec3 sno = texture(snow_tex, uv).rgb;
+
+  float len = length(gro + gra + sno);
+
+  return height * gro / len + height * gra / len + height * sno / len ;
+}
+
 void main() {
-    vec3 colorT = texture(snow_tex, uv).rgb;
+
+    vec3 colorT = texMix(texture(height_tex, uv).r);
+    //vec3 colorT = texture(snow_tex, uv).rgb;
     vec3 normal_mv = normal;
     /// 1) compute ambient term.
     vec3 ambient = ka * La;
