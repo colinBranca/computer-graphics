@@ -23,9 +23,9 @@ vec3 texMix(float height) {
   vec3 gra = texture(grass_tex, uv).rgb;
   vec3 sno = texture(snow_tex, uv).rgb;
 
-  float len = length(gro + gra + sno);
+  vec3 groGla = mix(gro, gra, 1.5*height);
+  return mix(groGla, sno, 0.5*height);
 
-  return height * gro / len + height * gra / len + height * sno / len ;
 }
 
 void main() {
