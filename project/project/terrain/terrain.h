@@ -2,6 +2,9 @@
 #include "icg_helper.h"
 #include <glm/gtc/type_ptr.hpp>
 #include "./../light.h"
+#include <string>
+#include <sstream>
+#include <iostream>
 
 struct Material {
         glm::vec3 ka = glm::vec3(0.18f, 0.1f, 0.1f);
@@ -38,9 +41,37 @@ class Terrain: public Light, Material  {
         GLuint M_id_;                           // model matrix ID
         GLuint V_id_;                           // proj matrix ID
         GLuint P_id_;                           // view matrix ID
+
         GLuint ground_texture; 
+        GLuint grass_texture; 
+        GLuint snow_texture; 
         int flattenCoord(int i, int j, int dim) {
                 return dim * i + j;
+        }
+        GLuint loadTex(string filename) {
+               int width, height, nb_component;
+               unsigned char* image;
+
+               GLuint id;
+               // Grass
+               glGenTextures(1, &id);
+               glBindTexture(GL_TEXTURE_2D, id);
+               stbi_set_flip_vertically_on_load(1);
+               image = stbi_load(filename.c_str(), &width, &height, &nb_component, 0);
+                if (image == nullptr) {
+                    printf("Error on %s load\n", filename.c_str());
+                    throw(string(stbi_failure_reason()));
+                }
+               glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+               stbi_image_free(image);
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+               glBindTexture(GL_TEXTURE_2D, 0);
+               return id;
         }
 
     public:
@@ -118,49 +149,27 @@ class Terrain: public Light, Material  {
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
                     glUniform1i(glGetUniformLocation(program_id_, "height_tex"), 0);
+                    glBindTexture(GL_TEXTURE_2D, 0);
             }
             // other uniforms
             M_id_ = glGetUniformLocation(program_id_, "M");
             V_id_ = glGetUniformLocation(program_id_, "V");
             P_id_ = glGetUniformLocation(program_id_, "P");
 
-            // create 1D texture (colormap)
-            /*
+           // Import textures
             {
-                const int ColormapSize=4;
-                GLfloat colors[3*ColormapSize] = {184.0 / 255.0, 134.0 / 255.0, 11.0 / 255.0,
-                                                  218.0 / 255.0, 165.0 / 255.0, 32.0 / 255.0,
-                                                  34.0  / 255.0, 139.0 / 255.0, 34.0 / 255.0,
-                                                  238.0 / 255.0, 233.0 / 255.0, 233  / 255.0 };
-                glGenTextures(1, &colormap_texture_id_);
-                glBindTexture(GL_TEXTURE_1D, colormap_texture_id_);
-                glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, ColormapSize, 0, GL_RGB, GL_FLOAT, colors);
-                glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glUniform1i(glGetUniformLocation(program_id_, "colormap"), 1);
-            }
-            */
+               grass_texture = loadTex("grass.jpg");
+               glUniform1i(glGetUniformLocation(program_id_, "grass_tex"), 1);
 
-            // Import texture
-            {
-               GLuint ground_texture; 
-               glGenTextures(1, &ground_texture);
-               int width, height, nb_component;
-               unsigned char* image;
-               glBindTexture(GL_TEXTURE_2D, ground_texture);
-               image = stbi_load("ground.jpg", &width, &height, &nb_component, 0);
-               glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-               stbi_image_free(image);
-               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-               glBindTexture(GL_TEXTURE_2D, 0);
+               ground_texture = loadTex("ground.jpg");
+               glUniform1i(glGetUniformLocation(program_id_, "ground_tex"), 2);
+
+               snow_texture = loadTex("snow.jpg");
+               glUniform1i(glGetUniformLocation(program_id_, "snow_tex"), 3);
             }
 
             // to avoid the current object being polluted
+            glBindTexture(GL_TEXTURE_2D, 0);
             glBindVertexArray(0);
             glUseProgram(0);
         }
@@ -173,7 +182,10 @@ class Terrain: public Light, Material  {
             glDeleteVertexArrays(1, &vertex_array_id_);
             glDeleteProgram(program_id_);
             glDeleteTextures(1, &height_texture_id_);
-            glDeleteTextures(1, &colormap_texture_id_);
+
+            glDeleteTextures(1, &ground_texture);
+            glDeleteTextures(1, &grass_texture);
+            glDeleteTextures(1, &snow_texture);
         }
 
         void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
@@ -195,17 +207,24 @@ class Terrain: public Light, Material  {
             GLuint WaterHeight_id = glGetUniformLocation(program_id_, "water_height");
             glUniform1f(WaterHeight_id, water_height);
 
-            //ground texture
-            //glActiveTexture(GL_TEXTURE0);
-            glUniform1i(glGetUniformLocation(program_id_, "ground_tex"), ground_texture);
-            glBindTexture(GL_TEXTURE_2D, ground_texture);
-            // bind textures
-            //glActiveTexture(GL_TEXTURE1);
-            //glBindTexture(GL_TEXTURE_1D, colormap_texture_id_);
+            // height
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, height_texture_id_);
 
+           //grass texture
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, grass_texture);
+            //ground texture
+            glActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, ground_texture);
+            //snow texture
+            glActiveTexture(GL_TEXTURE3);
+            glBindTexture(GL_TEXTURE_2D, snow_texture);
+ 
             // draw
             glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
 
+            glBindTexture(GL_TEXTURE_2D, 0);
             glUseProgram(0);
             glBindVertexArray(0);
         }
