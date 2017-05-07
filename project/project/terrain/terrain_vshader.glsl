@@ -43,7 +43,7 @@ void main() {
     vec3 pos_3d = vec3(position.x, texture(height_tex, uv).r, position.y);
     gl_Position = P * V * M * vec4(pos_3d, 1.0);
     vpoint_mv = V * M * vec4(pos_3d, 1.0f);
-    light_dir = normalize(light_pos - vpoint_mv.xyz);
+    light_dir = normalize((V * M * vec4(light_pos, 1.0f)).xyz - vpoint_mv.xyz);
     view_dir = normalize(- vpoint_mv.xyz);
 
     isVisible = (pos_3d.y >= water_height)? 1 : 0;
