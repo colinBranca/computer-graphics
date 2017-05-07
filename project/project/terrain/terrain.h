@@ -158,7 +158,7 @@ class Terrain: public Light, Material  {
         void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
                   const glm::mat4 &view = IDENTITY_MATRIX,
                   const glm::mat4 &projection = IDENTITY_MATRIX,
-                  float water_height = 0.0f) {
+                  float water_height = -10.0f) {
             glUseProgram(program_id_);
             glBindVertexArray(vertex_array_id_);
 

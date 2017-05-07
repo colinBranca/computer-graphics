@@ -34,8 +34,9 @@ void main() {
     vec3 r = normalize(2.0f * normal_mv * dot(normal_mv, light_dir) - light_dir);
     float rv = max(0.0f, dot(r, view_dir));
     //vec3 specular = ks * pow(rv, alpha) * Ls;
-
+    
     color = ambient + diffuse /*+ specular*/ - 0.1;
+
 
     if(isVisible == 0) {
       discard;

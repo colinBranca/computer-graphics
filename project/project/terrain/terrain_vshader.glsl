@@ -14,7 +14,7 @@ out vec3 light_dir;
 out vec3 view_dir;
 out vec4 vpoint_mv;
 out vec3 normal;
-
+out float height;
 out vec2 uv;
 flat out int isVisible; //higher than water or not
 
