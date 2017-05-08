@@ -19,14 +19,18 @@ in vec4 vpoint_mv;
 in vec3 normal;
 
 vec3 texMix(float height) {
+  vec3 mixed;
   vec2 extCoods = 150.0f * uv;
   vec3 gro = texture(ground_tex, extCoods).rgb;
   vec3 gra = texture(grass_tex, extCoods).rgb;
   vec3 sno = texture(snow_tex, extCoods).rgb;
 
-  vec3 groGla = mix(gro, gra, 1.5*height);
-  return mix(groGla, sno, 0.5*height);
+  if(height < 0.0f) mixed = gro;
+  else if(height <= 1.0f) mixed = mix(gro, gra, height);
+  else if (height <= 2.0f) mixed = mix(gra, sno, height-1.0f);
+  else mixed = sno;
 
+  return mixed;
 }
 
 void main() {
