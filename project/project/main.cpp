@@ -33,17 +33,12 @@ int window_height = 600;
 bool keys[1024];
 GLfloat lastX = 400, lastY = 300;
 bool firstMouse = true;
+int mouse_input_mode = GLFW_CURSOR_DISABLED;
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
 
-mat4 projection_matrix;
-mat4 view_matrix;
 mat4 quad_model_matrix;
-
-vec3 eye;
-vec3 center;
-vec3 up;
 
 float water_height;
 
@@ -84,7 +79,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
     camera.processMouseScroll(yoffset);
 }
 
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+void mouse_movement_callback(GLFWwindow* window, double xpos, double ypos)
 {
     if (firstMouse) {
         lastX = xpos;
@@ -101,7 +96,15 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     camera.processMouseMovement(xoffset, yoffset);
 }
 
-void do_movement()
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mod)
+{
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+        mouse_input_mode = mouse_input_mode == GLFW_CURSOR_NORMAL ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL;
+        glfwSetInputMode(window, GLFW_CURSOR, mouse_input_mode);
+    }
+}
+
+void update_camera()
 {
     // Camera controls
     if (keys[GLFW_KEY_W]) {
@@ -172,10 +175,6 @@ void Init() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
 
-    eye = vec3(2.0f, 2.0f, 4.0f);
-    center = vec3(0.0f, 0.0f, 0.0f);
-    up = vec3(0.0f, 1.0f, 0.0f);
-
     water_height = 0.0f;
 
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.25f, 0.0f));
@@ -200,20 +199,18 @@ void Display() {
     glViewport(0, 0, window_width, window_height);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
 
     mat4 view = mat4(mat3(camera.GetViewMatrix()));
     mat4 projection = perspective(camera.zoom_, (float) window_width / (float) window_height, 0.1f, 100.0f);
-
     mat4 scale = mat4(20.0f);
     scale[3][3] = 1.0f;
-
-    glEnable(GL_DEPTH_TEST);
 
     skybox.Draw(scale, view, projection);
 
     view = camera.GetViewMatrix();
-    water.Draw(IDENTITY_MATRIX, view, projection, water_height);
 
+    water.Draw(IDENTITY_MATRIX, view, projection, water_height);
     terrain.Draw(IDENTITY_MATRIX, view, projection);
 
     // mirror the camera position
@@ -230,29 +227,18 @@ void Display() {
         terrain.Draw(quad_model_matrix, mirror_view, projection, water_height);
     waterReflexion.Unbind();
 
-    // skybox.Draw(cube_scale, view_matrix, projection_matrix);
-    // water.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix, water_height);
+    // skybox.Draw(cube_scale, view, projection);
+    // water.Draw(trackball_matrix * quad_model_matrix, view, projection, water_height);
 
     glDisable(GL_DEPTH_TEST);
 }
 
 // Gets called when the windows/framebuffer is resized.
 void SetupProjection(GLFWwindow* window, int width, int height) {
-    window_width = width;
-    window_height = height;
-
     cout << "Window has been resized to "
-         << window_width << "x" << window_height << "." << endl;
+         << width << "x" << height << "." << endl;
 
-    glViewport(0, 0, window_width, window_height);
-
-    // projection_matrix = PerspectiveProjection(45.0f,
-    //                                            (GLfloat)window_width / window_height,
-    //                                            0.0000001f, 100.0f);
-    projection_matrix = glm::perspective(camera.zoom_, (GLfloat)window_width / window_height, 0.1f, 100.0f);
-    GLfloat top = 1.0f;
-    GLfloat right = (GLfloat)window_width / window_height * top;
-    //projection_matrix = OrthographicProjection(-right, right, -top, top, -10.0, 10.0f);
+    glViewport(0, 0, width, height);
 }
 
 void ErrorCallback(int error, const char* description) {
@@ -290,12 +276,12 @@ int main(int argc, char *argv[]) {
 
     // Set the required callback functions
     glfwSetKeyCallback(window, key_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetCursorPosCallback(window, mouse_movement_callback);
     glfwSetScrollCallback(window, scroll_callback);
-    //glfwSetMouseButtonCallback(window, MouseButton);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
 
     // Disable mouse pointer
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, mouse_input_mode);
 
     // set the framebuffer resize callback
     glfwSetFramebufferSizeCallback(window, SetupProjection);
@@ -316,8 +302,8 @@ int main(int argc, char *argv[]) {
 
     // update the window size with the framebuffer size (on hidpi screens the
     // framebuffer is bigger)
-    glfwGetFramebufferSize(window, &window_width, &window_height);
-    SetupProjection(window, window_width, window_height);
+    // glfwGetFramebufferSize(window, &window_width, &window_height);
+    // SetupProjection(window, window_width, window_height);
 
     // render loop
     while(!glfwWindowShouldClose(window)){
@@ -327,7 +313,7 @@ int main(int argc, char *argv[]) {
         lastFrame = currentFrame;
 
         glfwPollEvents();
-        do_movement();
+        update_camera();
         Display();
         glfwSwapBuffers(window);
     }
