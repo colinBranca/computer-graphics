@@ -8,14 +8,16 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
-#include "terrain/terrain.h"
 #include "skybox/skybox.h"
-#include "water/water.h"
-
-#include "trackball.h"
-#include "framebuffer.h"
 #include "perlin/PerlinNoise.h"
 #include "screenquad/screenquad.h"
+#include "terrain/terrain.h"
+#include "water/water.h"
+
+#include "camera.h"
+#include "framebuffer.h"
+
+using namespace glm;
 
 Terrain terrain;
 ScreenQuad screenquad;
@@ -23,28 +25,92 @@ PerlinNoise perlin;
 Skybox skybox;
 Water water;
 FrameBuffer waterReflexion;
+Camera camera(vec3(0.0f, 0.0f, 3.0f));
 
 int window_width = 800;
 int window_height = 600;
 
-using namespace glm;
+bool keys[1024];
+GLfloat lastX = 400, lastY = 300;
+bool firstMouse = true;
+
+GLfloat deltaTime = 0.0f;
+GLfloat lastFrame = 0.0f;
 
 mat4 projection_matrix;
 mat4 view_matrix;
-mat4 trackball_matrix;
-mat4 old_trackball_matrix;
 mat4 quad_model_matrix;
-mat4 cube_scale;
 
 vec3 eye;
 vec3 center;
 vec3 up;
 
-float old_vertical_mouse_pos;
-
 float water_height;
 
-Trackball trackball;
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, GL_TRUE);
+    }
+
+    if (action == GLFW_PRESS) {
+        keys[key] = true;
+    } else if (action == GLFW_RELEASE) {
+        keys[key] = false;
+    }
+
+    if (key == GLFW_KEY_F1) {
+        water_height += 0.1f;
+    }
+    if (key == GLFW_KEY_F2) {
+        water_height -= 0.1f;
+    }
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    camera.processMouseScroll(yoffset);
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    if (firstMouse) {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    GLfloat xoffset = xpos - lastX;
+    GLfloat yoffset = lastY - ypos;
+
+    lastX = xpos;
+    lastY = ypos;
+
+    camera.processMouseMovement(xoffset, yoffset);
+}
+
+void do_movement()
+{
+    // Camera controls
+    if (keys[GLFW_KEY_W]) {
+        camera.processKeyboard(FORWARD, deltaTime);
+    }
+    if (keys[GLFW_KEY_S]) {
+        camera.processKeyboard(BACKWARD, deltaTime);
+    }
+    if (keys[GLFW_KEY_A]) {
+        camera.processKeyboard(LEFT, deltaTime);
+    }
+    if (keys[GLFW_KEY_D]) {
+        camera.processKeyboard(RIGHT, deltaTime);
+    }
+    if (keys[GLFW_KEY_Q]) {
+        camera.processKeyboard(PITCH_UP, deltaTime);
+    }
+    if (keys[GLFW_KEY_E]) {
+        camera.processKeyboard(PITCH_DOWN, deltaTime);
+    }
+}
 
 mat4 LookAt(vec3 eye, vec3 center, vec3 up) {
     // we need a function that converts from world coordinates into camera coordiantes.
@@ -91,14 +157,9 @@ void Init() {
     eye = vec3(2.0f, 2.0f, 4.0f);
     center = vec3(0.0f, 0.0f, 0.0f);
     up = vec3(0.0f, 1.0f, 0.0f);
-    view_matrix = LookAt(eye, center, up);
-    //view_matrix = translate(mat4(1.0f), vec3(0.0f, 0.0f, -2.0f));
 
     water_height = 0.0f;
-    trackball_matrix = IDENTITY_MATRIX;
 
-    // scaling matrix to scale the cube down to a reasonable size.
-    cube_scale = IDENTITY_MATRIX;
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.25f, 0.0f));
 
     // Draw Perlin noise on framebuffer for later use
@@ -114,7 +175,6 @@ void Init() {
     water.Init(framebuffer_texture_id, water_wave_tex_id);
 
     terrain.Init(1024, height_map_tex_id);
-
 }
 
 // gets called for every frame.
@@ -122,16 +182,19 @@ void Display() {
     glViewport(0, 0, window_width, window_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    mat4 scale = IDENTITY_MATRIX;
-    scale[0][0] = 20.0f;
-    scale[1][1] = 20.0f;
-    scale[2][2] = 20.0f;
+    mat4 view = mat4(mat3(camera.GetViewMatrix()));
+    mat4 projection = perspective(camera.zoom_, (float) window_width / (float) window_height, 0.1f, 100.0f);
+
+    mat4 scale = mat4(20.0f);
+    scale[3][3] = 1.0f;
+
     glEnable(GL_DEPTH_TEST);
 
-    skybox.Draw(trackball_matrix * scale, view_matrix, projection_matrix);
-    water.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix, water_height);
-    terrain.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
+    skybox.Draw(scale, view, projection);
 
+    view = camera.GetViewMatrix();
+    water.Draw(IDENTITY_MATRIX, view, projection, water_height);
+    terrain.Draw(IDENTITY_MATRIX, view, projection);
 
     // mirror the camera position
     vec3 mirror_cam_pos = eye;
@@ -142,66 +205,15 @@ void Display() {
     // render the cube using the mirrored camera
 
     waterReflexion.Bind();
-       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-       skybox.Draw(trackball_matrix * scale, mirror_view, projection_matrix);
-       terrain.Draw(trackball_matrix * quad_model_matrix, mirror_view, projection_matrix, water_height);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        skybox.Draw(IDENTITY_MATRIX, mirror_view, projection);
+        terrain.Draw(quad_model_matrix, mirror_view, projection, water_height);
     waterReflexion.Unbind();
 
-    //skybox.Draw(cube_scale, view_matrix, projection_matrix);
+    // skybox.Draw(cube_scale, view_matrix, projection_matrix);
     // water.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix, water_height);
 
     glDisable(GL_DEPTH_TEST);
-}
-
-// transforms glfw screen coordinates into normalized OpenGL coordinates.
-vec2 TransformScreenCoords(GLFWwindow* window, int x, int y) {
-    // the framebuffer and the window doesn't necessarily have the same size
-    // i.e. hidpi screens. so we need to get the correct one
-    int width;
-    int height;
-    glfwGetWindowSize(window, &width, &height);
-    return vec2(2.0f * (float)x / width - 1.0f,
-                1.0f - 2.0f * (float)y / height);
-}
-
-void MouseButton(GLFWwindow* window, int button, int action, int mod) {
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        double x_i, y_i;
-        glfwGetCursorPos(window, &x_i, &y_i);
-        vec2 p = TransformScreenCoords(window, x_i, y_i);
-        trackball.BeingDrag(p.x, p.y);
-        old_trackball_matrix = trackball_matrix;
-        // Store the current state of the model matrix.
-    }
-    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-        double x_i, y_i;
-        glfwGetCursorPos(window, &x_i, &y_i);
-        // Store the mouse position to be able to determine the direction
-        // of the zoom.
-        old_vertical_mouse_pos = TransformScreenCoords(window, x_i, y_i).y;
-    }
-
-}
-
-void MousePos(GLFWwindow* window, double x, double y) {
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-        vec2 p = TransformScreenCoords(window, x, y);
-        // Compute new rotation matrix combining the latest transformation
-        // with the previous one.
-        trackball_matrix = trackball.Drag(p[0], p[1]) * old_trackball_matrix;
-    }
-
-    // zoom
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-        // Zoom is a simple translation of the view matrix.
-        // Direction chosen comparing current pointer position with its
-        // previous one.
-        float newPos = TransformScreenCoords(window, x, y).y;
-        float cursorY = 0.1f * (y / ((float) window_height)); // 0.1 is for fluidity
-        cursorY = newPos > old_vertical_mouse_pos ? -cursorY : cursorY; // decide direction
-        view_matrix = translate(view_matrix, vec3(0.0f, 0.0f, cursorY));
-        old_vertical_mouse_pos = newPos;
-    }
 }
 
 // Gets called when the windows/framebuffer is resized.
@@ -217,7 +229,7 @@ void SetupProjection(GLFWwindow* window, int width, int height) {
     // projection_matrix = PerspectiveProjection(45.0f,
     //                                            (GLfloat)window_width / window_height,
     //                                            0.0000001f, 100.0f);
-    projection_matrix = glm::perspective(45.0f, (GLfloat)window_width / window_height, 0.1f, 100.0f);
+    projection_matrix = glm::perspective(camera.zoom_, (GLfloat)window_width / window_height, 0.1f, 100.0f);
     GLfloat top = 1.0f;
     GLfloat right = (GLfloat)window_width / window_height * top;
     //projection_matrix = OrthographicProjection(-right, right, -top, top, -10.0, 10.0f);
@@ -226,65 +238,6 @@ void SetupProjection(GLFWwindow* window, int width, int height) {
 void ErrorCallback(int error, const char* description) {
     fputs(description, stderr);
 }
-
-void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, GL_TRUE);
-    }
-    if (key == GLFW_KEY_UP) {
-      vec3 view = 0.1f*(center - eye);
-      vec3 axis = normalize(cross(up, view));
-      view = rotate(view, 0.1f, axis);
-      center -= view;
-      view_matrix = LookAt(eye, center, up);
-    }
-    if (key == GLFW_KEY_DOWN) {
-      vec3 view = 0.1f*(center - eye);
-      vec3 axis = normalize(cross(up, view));
-      view = rotate(view, 0.1f, axis);
-      center += view;
-      view_matrix = LookAt(eye, center, up);
-    }
-    if (key == GLFW_KEY_RIGHT) {
-      center.x += 0.1f;
-      view_matrix = LookAt(eye, center, up);
-    }
-    if (key == GLFW_KEY_LEFT) {
-      center.x -= 0.1f;
-      view_matrix = LookAt(eye, center, up);
-    }
-    if(key == GLFW_KEY_W){
-      vec3 viewDir = 0.1f*(center - eye);
-      eye += viewDir;
-      center += viewDir;
-      view_matrix = LookAt(eye, center, up);
-    }
-    if (key == GLFW_KEY_S) {
-      vec3 view = 0.1f*(center - eye);
-      eye -= view;
-      center -= view;
-      view_matrix = LookAt(eye, center, up);
-    }
-    if (key == GLFW_KEY_A) {
-      vec3 view = 0.1f*(eye - center);
-      eye.y += view.y;
-      center.y += view.y;
-      view_matrix = LookAt(eye, center, up);
-    }
-    if (key == GLFW_KEY_D) {
-      vec3 view = 0.1f*(eye - center);
-      eye.y -= view.y;
-      center.y -= view.y;
-      view_matrix = LookAt(eye, center, up);
-    }
-    if (key == GLFW_KEY_F1) {
-      water_height += 0.1f;
-    }
-    if (key == GLFW_KEY_F2) {
-      water_height -= 0.1f;
-    }
-}
-
 
 int main(int argc, char *argv[]) {
     // GLFW Initialization
@@ -315,15 +268,17 @@ int main(int argc, char *argv[]) {
     // makes the OpenGL context of window current on the calling thread
     glfwMakeContextCurrent(window);
 
-    // set the callback for escape key
-    glfwSetKeyCallback(window, KeyCallback);
+    // Set the required callback functions
+    glfwSetKeyCallback(window, key_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+    //glfwSetMouseButtonCallback(window, MouseButton);
+
+    // Disable mouse pointer
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // set the framebuffer resize callback
     glfwSetFramebufferSizeCallback(window, SetupProjection);
-
-    // set the mouse press and position callback
-    glfwSetMouseButtonCallback(window, MouseButton);
-    glfwSetCursorPosCallback(window, MousePos);
 
     // GLEW Initialization (must have a context)
     // https://www.opengl.org/wiki/OpenGL_Loading_Library
@@ -333,7 +288,7 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-                check_error_gl();
+    check_error_gl();
     cout << "OpenGL" << glGetString(GL_VERSION) << endl;
 
     // initialize our OpenGL program
@@ -346,9 +301,15 @@ int main(int argc, char *argv[]) {
 
     // render loop
     while(!glfwWindowShouldClose(window)){
+        // Set frame time
+        GLfloat currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
+        glfwPollEvents();
+        do_movement();
         Display();
         glfwSwapBuffers(window);
-        glfwPollEvents();
     }
 
     perlin.Cleanup();
