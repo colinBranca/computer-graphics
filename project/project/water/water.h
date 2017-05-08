@@ -10,6 +10,7 @@ class Water {
         GLuint vertex_buffer_object_;   // memory buffer
         GLuint texture_id_;             // texture ID
         GLuint texture_mirror_id_;      // texture mirror ID
+        GLuint texture_wave_id_;         // PerlinNoise for waves
         GLuint vertex_buffer_object_index_;
         int flattenCoord(int i, int j, int dim) {
                 return dim * i + j;
@@ -18,7 +19,7 @@ class Water {
 
 
     public:
-        void Init(GLuint tex_mirror = -1, size_t grid_dim = 1024) {
+        void Init(GLuint tex_mirror = -1, GLuint tex_wave = -1, size_t grid_dim = 1024) {
             // compile the shaders
             program_id_ = icg_helper::LoadShaders("water_vshader.glsl",
                                                   "water_fshader.glsl");
@@ -77,6 +78,16 @@ class Water {
                 glEnableVertexAttribArray(vertex_point_id);
                 glVertexAttribPointer(vertex_point_id, 2, GL_FLOAT, DONT_NORMALIZE,
                                       ZERO_STRIDE, ZERO_BUFFER_OFFSET);
+            }
+            // Received texture (waves)
+            {
+                    texture_wave_id_ = (tex_wave==-1)? texture_id_ : tex_wave;
+                    glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+                    glUniform1i(glGetUniformLocation(program_id_, "wave_tex"), 3);
+                    glBindTexture(GL_TEXTURE_2D, 3);
             }
 
             {
@@ -153,6 +164,10 @@ class Water {
             // bind textures
             glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, texture_mirror_id_);
+
+            // bind textures
+            glActiveTexture(GL_TEXTURE3);
+            glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
 
             // setup MVP
             GLuint MVP_id = glGetUniformLocation(program_id_, "MVP");

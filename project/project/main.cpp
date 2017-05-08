@@ -104,11 +104,14 @@ void Init() {
     // Draw Perlin noise on framebuffer for later use
     int height_map_tex_id = perlin.Init(1024, 1024, 8);
     perlin.Compute();
+
+    int water_wave_tex_id = perlin.Init(1024, 1024, 1, 1.0f);
+    perlin.Compute();
     //screenquad.Init(window_width, window_height, height_map_tex_id);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     GLuint framebuffer_texture_id = waterReflexion.Init(window_width, window_height);
-    water.Init(framebuffer_texture_id);
+    water.Init(framebuffer_texture_id, water_wave_tex_id);
 
     terrain.Init(1024, height_map_tex_id);
 

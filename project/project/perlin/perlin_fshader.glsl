@@ -44,9 +44,8 @@ void main() {
 	for (int i = 0; i < octaves; ++i) {
 		sum += a * noise(pos.x * frequencyX, pos.y * frequencyY);
 		pos *= 2.0f;
-		a *= 0.5;
+		a *= 0.5f;
 	}
 
-        color = sum + 0.5;
+        color = sum + 0.5f;
 }
-

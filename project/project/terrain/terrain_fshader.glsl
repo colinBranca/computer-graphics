@@ -20,7 +20,7 @@ in vec3 normal;
 
 vec3 texMix(float height) {
   vec3 mixed;
-  vec2 extCoods = 150.0f * uv;
+  vec2 extCoods = 300.0f * uv;
   vec3 gro = texture(ground_tex, extCoods).rgb;
   vec3 gra = texture(grass_tex, extCoods).rgb;
   vec3 sno = texture(snow_tex, extCoods).rgb;
