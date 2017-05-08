@@ -49,21 +49,33 @@ float water_height;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, GL_TRUE);
-    }
-
     if (action == GLFW_PRESS) {
         keys[key] = true;
+
+        switch (key) {
+        case GLFW_KEY_ESCAPE:
+            glfwSetWindowShouldClose(window, GL_TRUE);
+            break;
+        case GLFW_KEY_F1:
+            water_height += 0.1f;
+            break;
+        case GLFW_KEY_F2:
+            water_height -= 0.1f;
+            break;
+        case GLFW_KEY_F3:
+            camera.switchCameraMode();
+            break;
+        case GLFW_KEY_0:
+        case GLFW_KEY_1:
+        case GLFW_KEY_2:
+        case GLFW_KEY_3:
+        case GLFW_KEY_4:
+            skybox.Cleanup();
+            skybox.Init(key - 48);
+            break;
+        }
     } else if (action == GLFW_RELEASE) {
         keys[key] = false;
-    }
-
-    if (key == GLFW_KEY_F1) {
-        water_height += 0.1f;
-    }
-    if (key == GLFW_KEY_F2) {
-        water_height -= 0.1f;
     }
 }
 
@@ -104,11 +116,17 @@ void do_movement()
     if (keys[GLFW_KEY_D]) {
         camera.processKeyboard(RIGHT, deltaTime);
     }
-    if (keys[GLFW_KEY_Q]) {
+    if (keys[GLFW_KEY_Q] || keys[GLFW_KEY_UP]) {
         camera.processKeyboard(PITCH_UP, deltaTime);
     }
-    if (keys[GLFW_KEY_E]) {
+    if (keys[GLFW_KEY_E] || keys[GLFW_KEY_DOWN]) {
         camera.processKeyboard(PITCH_DOWN, deltaTime);
+    }
+    if (keys[GLFW_KEY_LEFT]) {
+        camera.processKeyboard(YAW_LEFT, deltaTime);
+    }
+    if (keys[GLFW_KEY_RIGHT]) {
+        camera.processKeyboard(YAW_RIGHT, deltaTime);
     }
 }
 
@@ -180,6 +198,7 @@ void Init() {
 // gets called for every frame.
 void Display() {
     glViewport(0, 0, window_width, window_height);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     mat4 view = mat4(mat3(camera.GetViewMatrix()));
@@ -194,14 +213,15 @@ void Display() {
 
     view = camera.GetViewMatrix();
     water.Draw(IDENTITY_MATRIX, view, projection, water_height);
+
     terrain.Draw(IDENTITY_MATRIX, view, projection);
 
     // mirror the camera position
-    vec3 mirror_cam_pos = eye;
-    mirror_cam_pos.y = -mirror_cam_pos.y + 2.0f*water_height;
+    vec3 mirror_cam_pos = camera.position_;
+    mirror_cam_pos.y = -mirror_cam_pos.y + 2.0f * water_height;
 
     // create new VP for mirrored camera
-    mat4 mirror_view = LookAt(mirror_cam_pos, center, up);
+    mat4 mirror_view = LookAt(mirror_cam_pos, camera.position_ + camera.front_, camera.up_);
     // render the cube using the mirrored camera
 
     waterReflexion.Bind();
