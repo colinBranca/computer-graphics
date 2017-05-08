@@ -11,7 +11,14 @@ enum Camera_Movement {
     LEFT,
     RIGHT,
     PITCH_UP,
-    PITCH_DOWN
+    PITCH_DOWN,
+    YAW_LEFT,
+    YAW_RIGHT
+};
+
+enum Camera_Mode {
+    NORMAL,
+    FIRST_PERSON
 };
 
 const GLfloat YAW = -90.0f;
@@ -36,11 +43,14 @@ public:
     GLfloat movement_speed_;
     GLfloat mouse_sensitivity_;
     GLfloat zoom_;
+    // Mode
+    Camera_Mode mode_;
 
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
            glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
            GLfloat yaw = YAW, GLfloat pitch = PITCH)
-        : front_(glm::vec3(0.0f, 0.0f, -1.0f)), movement_speed_(SPEED), mouse_sensitivity_(SENSITIVTY), zoom_(ZOOM)
+        : front_(glm::vec3(0.0f, 0.0f, -1.0f)), movement_speed_(SPEED), mouse_sensitivity_(SENSITIVTY),
+          zoom_(ZOOM), mode_(NORMAL)
     {
         this->position_ = position;
         this->world_up_ = up;
@@ -75,6 +85,15 @@ public:
         if (direction == PITCH_DOWN) {
             processMouseMovement(0.0f, -10.0f);
         }
+        if (direction == YAW_LEFT) {
+            processMouseMovement(-10.0f, 0.0f);
+        }
+        if (direction == YAW_RIGHT) {
+            processMouseMovement(10.0f, 0.0f);
+        }
+        if (mode_ == FIRST_PERSON) {
+            this->position_.y = 0.0f; // TODO: replace by height
+        }
     }
 
     void processMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true)
@@ -108,6 +127,11 @@ public:
         if (this->zoom_ >= 45.0f) {
             this->zoom_ = 45.0f;
         }
+    }
+
+    void switchCameraMode()
+    {
+        mode_ = mode_ == NORMAL ? FIRST_PERSON : NORMAL;
     }
 
 private:
