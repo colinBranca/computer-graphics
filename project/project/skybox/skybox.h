@@ -26,7 +26,7 @@ class Skybox {
             faces.push_back("back.jpg");
             faces.push_back("front.jpg");
 
-            stbi_set_flip_vertically_on_load(1);
+            stbi_set_flip_vertically_on_load(0);
 
             glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
             for(GLuint i = 0; i < faces.size(); i++) {
