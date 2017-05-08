@@ -94,7 +94,7 @@ class ScreenQuad {
             glDeleteTextures(1, &texture_id_);
         }
 
-        void UpdateSize(int screenquad_width, int screenquad_height) {
+        void UpdateSize(float screenquad_width, float screenquad_height) {
             this->screenquad_width_ = screenquad_width;
             this->screenquad_height_ = screenquad_height;
         }
