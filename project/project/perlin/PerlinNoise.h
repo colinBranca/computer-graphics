@@ -16,6 +16,8 @@ class PerlinNoise {
         float noiseFreqY;
         float noiseAmplitude;
 
+        GLfloat *img_;
+
         void generateP() {
                 int permutation[] = { 151,160,137,91,90,15,
                    131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,
@@ -113,6 +115,9 @@ class PerlinNoise {
                                        GL_COLOR_ATTACHMENT0,
                                        GL_TEXTURE_2D, height_tex_id, 0);
                 glBindFramebuffer(GL_FRAMEBUFFER, 0); // avoid pollution
+
+                img_ = (GLfloat*) calloc(width_ * height_, sizeof(GLfloat));
+                glGetTexImage(GL_TEXTURE_2D, 0, GL_R32F, GL_FLOAT, img_);
             }
             return height_tex_id;
         }
@@ -146,6 +151,13 @@ class PerlinNoise {
                 glUseProgram(0);
         }
 
+        GLfloat getTerrainHeight(int x, int z)
+        {
+            // TODO: convert to terrain coordinates
+            size_t index = z * width_ + x;
+            return index >= width_ * height_ ? 0.0f : img_[index];
+        }
+
         void Cleanup() {
             //glEnableVertexAttribArray(vertex_point_id);
             glDeleteTextures(1, &height_tex_id);
@@ -156,6 +168,7 @@ class PerlinNoise {
             glDeleteBuffers(1, &vertex_buffer_object_);
             glDeleteProgram(program_id_);
             glDeleteVertexArrays(1, &vertex_array_id);
-        }
 
+            free(img_);
+        }
 };

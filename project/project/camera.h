@@ -72,31 +72,31 @@ public:
         return glm::lookAt(pos, this->position_ + this->front_, this->up_);
     }
 
-    void update(GLfloat delta_time)
+    void update(GLfloat delta_time, GLfloat terrain_height)
     {
         if (keys_[GLFW_KEY_W]) {
-            processKeyboard(FORWARD, delta_time);
+            processKeyboard(FORWARD, delta_time, terrain_height);
         }
         if (keys_[GLFW_KEY_S]) {
-            processKeyboard(BACKWARD, delta_time);
+            processKeyboard(BACKWARD, delta_time, terrain_height);
         }
         if (keys_[GLFW_KEY_A]) {
-            processKeyboard(LEFT, delta_time);
+            processKeyboard(LEFT, delta_time, terrain_height);
         }
         if (keys_[GLFW_KEY_D]) {
-            processKeyboard(RIGHT, delta_time);
+            processKeyboard(RIGHT, delta_time, terrain_height);
         }
         if (keys_[GLFW_KEY_Q] || keys_[GLFW_KEY_UP]) {
-            processKeyboard(PITCH_UP, delta_time);
+            processKeyboard(PITCH_UP, delta_time, terrain_height);
         }
         if (keys_[GLFW_KEY_E] || keys_[GLFW_KEY_DOWN]) {
-            processKeyboard(PITCH_DOWN, delta_time);
+            processKeyboard(PITCH_DOWN, delta_time, terrain_height);
         }
         if (keys_[GLFW_KEY_LEFT]) {
-            processKeyboard(YAW_LEFT, delta_time);
+            processKeyboard(YAW_LEFT, delta_time, terrain_height);
         }
         if (keys_[GLFW_KEY_RIGHT]) {
-            processKeyboard(YAW_RIGHT, delta_time);
+            processKeyboard(YAW_RIGHT, delta_time, terrain_height);
         }
     }
 
@@ -150,7 +150,7 @@ private:
         this->up_ = glm::normalize(glm::cross(this->right_, this->front_));
     }
 
-    void processKeyboard(Camera_Movement direction, GLfloat delta_time)
+    void processKeyboard(Camera_Movement direction, GLfloat delta_time, GLfloat terrain_height)
     {
         GLfloat velocity = this->movement_speed_ * delta_time;
 
@@ -182,7 +182,7 @@ private:
         }
 
         if (mode_ == FIRST_PERSON) {
-            this->position_.y = 0.0f; // TODO: replace by height of terrain + offset for pos of head
+            this->position_.y = terrain_height /*+ 2.0f*/; // TODO: replace by height of terrain + offset for pos of head
         }
     }
 };

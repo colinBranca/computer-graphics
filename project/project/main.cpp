@@ -247,7 +247,8 @@ int main(int argc, char *argv[]) {
         last_frame = current_frame;
 
         glfwPollEvents();
-        camera.update(delta_time);
+        GLfloat terrain_height = perlin.getTerrainHeight(camera.position_.x, camera.position_.z);
+        camera.update(delta_time, terrain_height);
         Display();
         glfwSwapBuffers(window);
     }
@@ -255,6 +256,7 @@ int main(int argc, char *argv[]) {
     perlin.Cleanup();
     terrain.Cleanup();
     skybox.Cleanup();
+    water.Cleanup();
 
     // close OpenGL window and terminate GLFW
     glfwDestroyWindow(window);
