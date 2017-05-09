@@ -102,36 +102,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mod)
     }
 }
 
-mat4 LookAt(vec3 eye, vec3 center, vec3 up) {
-    // we need a function that converts from world coordinates into camera coordiantes.
-    //
-    // cam coords to world coords is given by:
-    // X_world = R * X_cam + eye
-    //
-    // inverting it leads to:
-    //
-    // X_cam = R^T * X_world - R^T * eye
-    //
-    // or as a homogeneous matrix:
-    // [ r_00 r_10 r_20 -r_0*eye
-    //   r_01 r_11 r_21 -r_1*eye
-    //   r_02 r_12 r_22 -r_2*eye
-    //      0    0    0        1 ]
-
-    vec3 z_cam = normalize(eye - center);
-    vec3 x_cam = normalize(cross(up, z_cam));
-    vec3 y_cam = cross(z_cam, x_cam);
-
-    mat3 R(x_cam, y_cam, z_cam);
-    R = transpose(R);
-
-    mat4 look_at(vec4(R[0], 0.0f),
-                 vec4(R[1], 0.0f),
-                 vec4(R[2], 0.0f),
-                 vec4(-R * (eye), 1.0f));
-    return look_at;
-}
-
 void Init() {
     // sets background color
     // glClearColor(0.937, 0.937, 0.937 /*gray*/, 1.0 /*solid*/);

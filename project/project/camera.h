@@ -153,32 +153,36 @@ private:
     void processKeyboard(Camera_Movement direction, GLfloat delta_time)
     {
         GLfloat velocity = this->movement_speed_ * delta_time;
-        if (direction == FORWARD) {
+
+        switch (direction) {
+        case FORWARD:
             this->position_ += this->front_ * velocity;
-        }
-        if (direction == BACKWARD) {
+            break;
+        case BACKWARD:
             this->position_ -= this->front_ * velocity;
-        }
-        if (direction == LEFT) {
+            break;
+        case LEFT:
             this->position_ -= this->right_ * velocity;
-        }
-        if (direction == RIGHT) {
+            break;
+        case RIGHT:
             this->position_ += this->right_ * velocity;
-        }
-        if (direction == PITCH_UP) {
+            break;
+        case PITCH_UP:
             processMouseMovement(0.0f, 10.0f);
-        }
-        if (direction == PITCH_DOWN) {
+            break;
+        case PITCH_DOWN:
             processMouseMovement(0.0f, -10.0f);
-        }
-        if (direction == YAW_LEFT) {
+            break;
+        case YAW_LEFT:
             processMouseMovement(-10.0f, 0.0f);
-        }
-        if (direction == YAW_RIGHT) {
+            break;
+        case YAW_RIGHT:
             processMouseMovement(10.0f, 0.0f);
+            break;
         }
+
         if (mode_ == FIRST_PERSON) {
-            this->position_.y = 0.0f; // TODO: replace by height
+            this->position_.y = 0.0f; // TODO: replace by height of terrain + offset for pos of head
         }
     }
 };
