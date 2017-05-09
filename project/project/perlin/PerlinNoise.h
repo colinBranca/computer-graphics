@@ -41,7 +41,7 @@ class PerlinNoise {
     public:
         int Init(int width, int height,
                         int octaves=6,
-                        int noiseAmplitude = 2.0f,
+                        float noiseAmplitude = 2.0f,
                         float noiseFreqX = 1.0f / 400.0f,
                         float noiseFreqY = 1.0f / 300.0f) {
             // set screenquad size

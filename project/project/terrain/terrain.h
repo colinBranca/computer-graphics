@@ -97,9 +97,9 @@ class Terrain: public Light, Material  {
 
                 // Generate vertices coordinates
                 float factor = 10.0f / ((float) grid_dim);
-                for (int row = 0; row < grid_dim; ++row) {
+                for (size_t row = 0; row < grid_dim; ++row) {
                         float yCoord = factor * row -5.0f;
-                        for (int col = 0; col < grid_dim; ++col) {
+                        for (size_t col = 0; col < grid_dim; ++col) {
                                 vertices.push_back(factor * col - 5.0f);
                                 vertices.push_back(yCoord);
                         }
@@ -108,8 +108,8 @@ class Terrain: public Light, Material  {
                 // Associate indices to vertices.
                 // Please refer to readme.txt for explication
                 std::vector<GLuint> indices;
-                for (int row = 0; row < grid_dim -1; ++row) {
-                        for (int col = 0; col < grid_dim -1; ++col) {
+                for (size_t row = 0; row < grid_dim -1; ++row) {
+                        for (size_t col = 0; col < grid_dim -1; ++col) {
                                 // Upper triangle
                                 indices.push_back(flattenCoord(row, col, grid_dim));
                                 indices.push_back(flattenCoord(row, col + 1, grid_dim));

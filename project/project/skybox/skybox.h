@@ -11,22 +11,25 @@ class Skybox {
         GLuint program_id_;                     // GLSL shader program ID
         GLuint MVP_id_;                         // model, view, proj matrix ID
 
-        GLuint loadCubemap() {
+        GLuint loadCubemap(int skybox_id) {
             GLuint textureID;
             glGenTextures(1, &textureID);
 
             int width, height, nb_component;
             unsigned char* image;
 
+            string suffix = string("_") + std::to_string(skybox_id);
+            string ext = skybox_id == 0 ? string(".jpg") :
+                         skybox_id < 4 ? string(".png") : string(".tga");
             vector<string> faces;
-            faces.push_back("right.jpg");
-            faces.push_back("left.jpg");
-            faces.push_back("top.jpg");
-            faces.push_back("bottom.jpg");
-            faces.push_back("back.jpg");
-            faces.push_back("front.jpg");
+            faces.push_back("right" + suffix + ext);
+            faces.push_back("left" + suffix + ext);
+            faces.push_back("top" + suffix + ext);
+            faces.push_back("bottom" + suffix + ext);
+            faces.push_back("back" + suffix + ext);
+            faces.push_back("front" + suffix + ext);
 
-            stbi_set_flip_vertically_on_load(1);
+            stbi_set_flip_vertically_on_load(0);
 
             glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
             for(GLuint i = 0; i < faces.size(); i++) {
@@ -48,7 +51,7 @@ class Skybox {
         }
 
     public:
-        void Init() {
+        void Init(int skybox_id = 0) {
             // compile the shaders.
             program_id_ = icg_helper::LoadShaders("skybox_vshader.glsl",
                                                   "skybox_fshader.glsl");
@@ -110,7 +113,7 @@ class Skybox {
             glEnableVertexAttribArray(0);
             glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 
-            cubemap_texture_ = loadCubemap();
+            cubemap_texture_ = loadCubemap(skybox_id);
 
             // other uniforms
             MVP_id_ = glGetUniformLocation(program_id_, "MVP");
