@@ -234,11 +234,14 @@ void Display() {
 }
 
 // Gets called when the windows/framebuffer is resized.
-void SetupProjection(GLFWwindow* window, int width, int height) {
-    cout << "Window has been resized to "
-         << width << "x" << height << "." << endl;
+void buffer_resize_callback(GLFWwindow* window, int width, int height) {
+    window_width = width;
+    window_height = height;
 
-    glViewport(0, 0, width, height);
+    cout << "Window has been resized to "
+         << window_width << "x" << window_height << "." << endl;
+
+    glViewport(0, 0, window_width, window_height);
 }
 
 void ErrorCallback(int error, const char* description) {
@@ -284,7 +287,7 @@ int main(int argc, char *argv[]) {
     glfwSetInputMode(window, GLFW_CURSOR, mouse_input_mode);
 
     // set the framebuffer resize callback
-    glfwSetFramebufferSizeCallback(window, SetupProjection);
+    glfwSetFramebufferSizeCallback(window, buffer_resize_callback);
 
     // GLEW Initialization (must have a context)
     // https://www.opengl.org/wiki/OpenGL_Loading_Library
@@ -299,11 +302,6 @@ int main(int argc, char *argv[]) {
 
     // initialize our OpenGL program
     Init();
-
-    // update the window size with the framebuffer size (on hidpi screens the
-    // framebuffer is bigger)
-    // glfwGetFramebufferSize(window, &window_width, &window_height);
-    // SetupProjection(window, window_width, window_height);
 
     // render loop
     while(!glfwWindowShouldClose(window)){
