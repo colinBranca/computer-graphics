@@ -218,8 +218,7 @@ void Display() {
     mirror_cam_pos.y = -mirror_cam_pos.y + 2.0f * water_height;
 
     // create new VP for mirrored camera
-    mat4 mirror_view = LookAt(mirror_cam_pos, camera.position_ + camera.front_, camera.up_);
-    // render the cube using the mirrored camera
+    mat4 mirror_view = glm::lookAt(mirror_cam_pos, camera.position_ + camera.front_, camera.up_);
 
     waterReflexion.Bind();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
