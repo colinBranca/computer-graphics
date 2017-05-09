@@ -214,16 +214,12 @@ void Display() {
     terrain.Draw(IDENTITY_MATRIX, view, projection);
 
     // mirror the camera position
-    vec3 mirror_cam_pos = camera.position_;
-    mirror_cam_pos.y = -mirror_cam_pos.y + 2.0f * water_height;
-
-    // create new VP for mirrored camera
-    mat4 mirror_view = glm::lookAt(mirror_cam_pos, camera.position_ + camera.front_, camera.up_);
+   mat4 mirror_view = camera.GetReversedViewMatrix(water_height);
 
     waterReflexion.Bind();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         skybox.Draw(IDENTITY_MATRIX, mirror_view, projection);
-        terrain.Draw(quad_model_matrix, mirror_view, projection, water_height);
+        terrain.Draw(IDENTITY_MATRIX, mirror_view, projection, water_height);
     waterReflexion.Unbind();
 
     // skybox.Draw(cube_scale, view, projection);
