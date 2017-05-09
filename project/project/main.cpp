@@ -25,6 +25,8 @@ PerlinNoise perlin;
 Skybox skybox;
 Water water;
 FrameBuffer waterReflexion;
+GLuint waterReflexion_id;
+GLuint water_wave_tex_id;
 Camera camera(vec3(0.0f, 0.0f, 3.0f));
 
 int window_width = 800;
@@ -122,13 +124,13 @@ void Init() {
     int height_map_tex_id = perlin.Init(1024, 1024, 8);
     perlin.Compute();
 
-    int water_wave_tex_id = perlin.Init(1024, 1024, 1, 1.0f);
+    water_wave_tex_id = perlin.Init(1024, 1024, 1, 1.0f);
     perlin.Compute();
     //screenquad.Init(window_width, window_height, height_map_tex_id);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    GLuint framebuffer_texture_id = waterReflexion.Init(window_width, window_height);
-    water.Init(framebuffer_texture_id, water_wave_tex_id);
+    waterReflexion_id = waterReflexion.Init(window_width, window_height);
+    water.Init(waterReflexion_id, water_wave_tex_id);
 
     terrain.Init(1024, height_map_tex_id);
 }
@@ -159,7 +161,7 @@ void Display() {
 
     waterReflexion.Bind();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        skybox.Draw(IDENTITY_MATRIX, mirror_view, projection);
+        //skybox.Draw(scale, mirror_view, projection);
         terrain.Draw(IDENTITY_MATRIX, mirror_view, projection, water_height);
     waterReflexion.Unbind();
 
@@ -176,6 +178,9 @@ void buffer_resize_callback(GLFWwindow* window, int width, int height) {
 
     cout << "Window has been resized to "
          << window_width << "x" << window_height << "." << endl;
+
+    waterReflexion_id = waterReflexion.Init(window_width, window_height);
+    water.Init(waterReflexion_id, water_wave_tex_id);
 
     glViewport(0, 0, window_width, window_height);
 }

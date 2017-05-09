@@ -67,9 +67,11 @@ public:
 
     glm::mat4 getReversedViewMatrix(float water_height)
     {
-        glm::vec3 pos = this->position_;
-        pos.y = 2.0f * water_height - pos.y;
-        return glm::lookAt(pos, this->position_ + this->front_, this->up_);
+        glm::vec3 pos = glm::vec3(this->position_.x, 2.0f * water_height - this->position_.y, this->position_.z);
+        glm::vec3 center = this->position_ + this->front_;
+        center.y = 2.0f*water_height - center.y;
+        //pos.z = 2.0f * water_height - pos.z;
+        return glm::lookAt(pos, center, this->up_);
     }
 
     void update(GLfloat delta_time, GLfloat terrain_height)
