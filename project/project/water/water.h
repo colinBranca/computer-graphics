@@ -150,7 +150,7 @@ class Water {
         void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
                   const glm::mat4 &view = IDENTITY_MATRIX,
                   const glm::mat4 &projection = IDENTITY_MATRIX,
-                  float water_height = 0.0f) {
+                  float water_height = 0.0f, float time = 1.0f) {
             glUseProgram(program_id_);
             glBindVertexArray(vertex_array_id_);
 
@@ -161,6 +161,8 @@ class Water {
             // glActiveTexture(GL_TEXTURE0);
             // glBindTexture(GL_TEXTURE_2D, texture_id_);
             //
+            // pass the current time stamp to the shader.
+            glUniform1f(glGetUniformLocation(program_id_, "time"), time);
             // bind textures
             glActiveTexture(GL_TEXTURE2);
             glBindTexture(GL_TEXTURE_2D, texture_mirror_id_);

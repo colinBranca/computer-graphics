@@ -42,9 +42,9 @@ class Terrain: public Light, Material  {
         GLuint V_id_;                           // proj matrix ID
         GLuint P_id_;                           // view matrix ID
 
-        GLuint ground_texture; 
-        GLuint grass_texture; 
-        GLuint snow_texture; 
+        GLuint ground_texture;
+        GLuint grass_texture;
+        GLuint snow_texture;
         int flattenCoord(int i, int j, int dim) {
                 return dim * i + j;
         }
@@ -220,7 +220,7 @@ class Terrain: public Light, Material  {
             //snow texture
             glActiveTexture(GL_TEXTURE3);
             glBindTexture(GL_TEXTURE_2D, snow_texture);
- 
+
             // draw
             glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
 

@@ -119,6 +119,9 @@ void Init() {
 
 // gets called for every frame.
 void Display() {
+
+    const float time = glfwGetTime();
+
     glViewport(0, 0, window_width, window_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -129,7 +132,7 @@ void Display() {
     glEnable(GL_DEPTH_TEST);
 
     skybox.Draw(trackball_matrix * scale, view_matrix, projection_matrix);
-    water.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix, water_height);
+    water.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix, water_height, time);
     terrain.Draw(trackball_matrix * quad_model_matrix, view_matrix, projection_matrix);
 
 
@@ -139,7 +142,6 @@ void Display() {
 
     // create new VP for mirrored camera
     mat4 mirror_view = LookAt(mirror_cam_pos, center, up);
-    // render the cube using the mirrored camera
 
     waterReflexion.Bind();
        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
