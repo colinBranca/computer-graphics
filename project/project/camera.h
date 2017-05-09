@@ -64,6 +64,13 @@ public:
         return glm::lookAt(this->position_, this->position_ + this->front_, this->up_);
     }
 
+    glm::mat4 GetReversedViewMatrix(float water_height)
+    {
+        glm::vec3 pos = this->position_;
+        pos.y = 2*water_height - pos.y;
+        return glm::lookAt(pos, this->position_ + this->front_, this->up_);
+    }
+
     void processKeyboard(Camera_Movement direction, GLfloat deltaTime)
     {
         GLfloat velocity = this->movement_speed_ * deltaTime;
