@@ -30,13 +30,11 @@ Camera camera(vec3(0.0f, 0.0f, 3.0f));
 int window_width = 800;
 int window_height = 600;
 
-bool keys[1024];
 GLfloat lastX = 400, lastY = 300;
 bool firstMouse = true;
 int mouse_input_mode = GLFW_CURSOR_DISABLED;
 
-GLfloat deltaTime = 0.0f;
-GLfloat lastFrame = 0.0f;
+GLfloat last_frame = 0.0f;
 
 mat4 quad_model_matrix;
 
@@ -45,7 +43,7 @@ float water_height;
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
     if (action == GLFW_PRESS) {
-        keys[key] = true;
+        camera.keys_[key] = true;
 
         switch (key) {
         case GLFW_KEY_ESCAPE:
@@ -70,7 +68,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             break;
         }
     } else if (action == GLFW_RELEASE) {
-        keys[key] = false;
+        camera.keys_[key] = false;
     }
 }
 
@@ -101,35 +99,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mod)
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         mouse_input_mode = mouse_input_mode == GLFW_CURSOR_NORMAL ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL;
         glfwSetInputMode(window, GLFW_CURSOR, mouse_input_mode);
-    }
-}
-
-void update_camera()
-{
-    // Camera controls
-    if (keys[GLFW_KEY_W]) {
-        camera.processKeyboard(FORWARD, deltaTime);
-    }
-    if (keys[GLFW_KEY_S]) {
-        camera.processKeyboard(BACKWARD, deltaTime);
-    }
-    if (keys[GLFW_KEY_A]) {
-        camera.processKeyboard(LEFT, deltaTime);
-    }
-    if (keys[GLFW_KEY_D]) {
-        camera.processKeyboard(RIGHT, deltaTime);
-    }
-    if (keys[GLFW_KEY_Q] || keys[GLFW_KEY_UP]) {
-        camera.processKeyboard(PITCH_UP, deltaTime);
-    }
-    if (keys[GLFW_KEY_E] || keys[GLFW_KEY_DOWN]) {
-        camera.processKeyboard(PITCH_DOWN, deltaTime);
-    }
-    if (keys[GLFW_KEY_LEFT]) {
-        camera.processKeyboard(YAW_LEFT, deltaTime);
-    }
-    if (keys[GLFW_KEY_RIGHT]) {
-        camera.processKeyboard(YAW_RIGHT, deltaTime);
     }
 }
 
@@ -165,7 +134,7 @@ mat4 LookAt(vec3 eye, vec3 center, vec3 up) {
 
 void Init() {
     // sets background color
-    //glClearColor(0.937, 0.937, 0.937 /*gray*/, 1.0 /*solid*/);
+    // glClearColor(0.937, 0.937, 0.937 /*gray*/, 1.0 /*solid*/);
     glClearColor(0, 0, 0 /*gray*/, 1.0 /*solid*/);
 
     skybox.Init();
@@ -196,7 +165,6 @@ void Init() {
 
 // gets called for every frame.
 void Display() {
-
     const float time = glfwGetTime();
 
     glViewport(0, 0, window_width, window_height);
@@ -204,22 +172,20 @@ void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
-
-    mat4 view = mat4(mat3(camera.GetViewMatrix()));
+    mat4 view = mat4(mat3(camera.getViewMatrix()));
     mat4 projection = perspective(camera.zoom_, (float) window_width / (float) window_height, 0.1f, 100.0f);
     mat4 scale = mat4(20.0f);
     scale[3][3] = 1.0f;
 
     skybox.Draw(scale, view, projection);
 
-    view = camera.GetViewMatrix();
+    view = camera.getViewMatrix();
 
     water.Draw(IDENTITY_MATRIX, view, projection, water_height, time);
     terrain.Draw(IDENTITY_MATRIX, view, projection);
 
-
     // mirror the camera position
-   mat4 mirror_view = camera.GetReversedViewMatrix(water_height);
+    mat4 mirror_view = camera.getReversedViewMatrix(water_height);
 
     waterReflexion.Bind();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -286,7 +252,7 @@ int main(int argc, char *argv[]) {
     // Disable mouse pointer
     glfwSetInputMode(window, GLFW_CURSOR, mouse_input_mode);
 
-    // set the framebuffer resize callback
+    // Set the framebuffer resize callback
     glfwSetFramebufferSizeCallback(window, buffer_resize_callback);
 
     // GLEW Initialization (must have a context)
@@ -306,12 +272,12 @@ int main(int argc, char *argv[]) {
     // render loop
     while(!glfwWindowShouldClose(window)){
         // Set frame time
-        GLfloat currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
+        GLfloat current_frame = glfwGetTime();
+        GLfloat delta_time = current_frame - last_frame;
+        last_frame = current_frame;
 
         glfwPollEvents();
-        update_camera();
+        camera.update(delta_time);
         Display();
         glfwSwapBuffers(window);
     }

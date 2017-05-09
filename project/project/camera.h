@@ -45,6 +45,7 @@ public:
     GLfloat zoom_;
     // Mode
     Camera_Mode mode_;
+    bool keys_[1024];
 
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
            glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
@@ -59,51 +60,47 @@ public:
         this->updateCameraVectors();
     }
 
-    glm::mat4 GetViewMatrix()
+    glm::mat4 getViewMatrix()
     {
         return glm::lookAt(this->position_, this->position_ + this->front_, this->up_);
     }
 
-    glm::mat4 GetReversedViewMatrix(float water_height)
+    glm::mat4 getReversedViewMatrix(float water_height)
     {
         glm::vec3 pos = this->position_;
-        pos.y = 2*water_height - pos.y;
+        pos.y = 2.0f * water_height - pos.y;
         return glm::lookAt(pos, this->position_ + this->front_, this->up_);
     }
 
-    void processKeyboard(Camera_Movement direction, GLfloat deltaTime)
+    void update(GLfloat delta_time)
     {
-        GLfloat velocity = this->movement_speed_ * deltaTime;
-        if (direction == FORWARD) {
-            this->position_ += this->front_ * velocity;
+        if (keys_[GLFW_KEY_W]) {
+            processKeyboard(FORWARD, delta_time);
         }
-        if (direction == BACKWARD) {
-            this->position_ -= this->front_ * velocity;
+        if (keys_[GLFW_KEY_S]) {
+            processKeyboard(BACKWARD, delta_time);
         }
-        if (direction == LEFT) {
-            this->position_ -= this->right_ * velocity;
+        if (keys_[GLFW_KEY_A]) {
+            processKeyboard(LEFT, delta_time);
         }
-        if (direction == RIGHT) {
-            this->position_ += this->right_ * velocity;
+        if (keys_[GLFW_KEY_D]) {
+            processKeyboard(RIGHT, delta_time);
         }
-        if (direction == PITCH_UP) {
-            processMouseMovement(0.0f, 10.0f);
+        if (keys_[GLFW_KEY_Q] || keys_[GLFW_KEY_UP]) {
+            processKeyboard(PITCH_UP, delta_time);
         }
-        if (direction == PITCH_DOWN) {
-            processMouseMovement(0.0f, -10.0f);
+        if (keys_[GLFW_KEY_E] || keys_[GLFW_KEY_DOWN]) {
+            processKeyboard(PITCH_DOWN, delta_time);
         }
-        if (direction == YAW_LEFT) {
-            processMouseMovement(-10.0f, 0.0f);
+        if (keys_[GLFW_KEY_LEFT]) {
+            processKeyboard(YAW_LEFT, delta_time);
         }
-        if (direction == YAW_RIGHT) {
-            processMouseMovement(10.0f, 0.0f);
-        }
-        if (mode_ == FIRST_PERSON) {
-            this->position_.y = 0.0f; // TODO: replace by height
+        if (keys_[GLFW_KEY_RIGHT]) {
+            processKeyboard(YAW_RIGHT, delta_time);
         }
     }
 
-    void processMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true)
+    void processMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrain_pitch = true)
     {
         xoffset *= this->mouse_sensitivity_;
         yoffset *= this->mouse_sensitivity_;
@@ -111,7 +108,7 @@ public:
         this->yaw_ += xoffset;
         this->pitch_ += yoffset;
 
-        if (constrainPitch) {
+        if (constrain_pitch) {
             if (this->pitch_ > 89.0f) {
                 this->pitch_ = 89.0f;
             }
@@ -151,5 +148,37 @@ private:
         this->front_ = glm::normalize(front);
         this->right_ = glm::normalize(glm::cross(this->front_, this->world_up_));
         this->up_ = glm::normalize(glm::cross(this->right_, this->front_));
+    }
+
+    void processKeyboard(Camera_Movement direction, GLfloat delta_time)
+    {
+        GLfloat velocity = this->movement_speed_ * delta_time;
+        if (direction == FORWARD) {
+            this->position_ += this->front_ * velocity;
+        }
+        if (direction == BACKWARD) {
+            this->position_ -= this->front_ * velocity;
+        }
+        if (direction == LEFT) {
+            this->position_ -= this->right_ * velocity;
+        }
+        if (direction == RIGHT) {
+            this->position_ += this->right_ * velocity;
+        }
+        if (direction == PITCH_UP) {
+            processMouseMovement(0.0f, 10.0f);
+        }
+        if (direction == PITCH_DOWN) {
+            processMouseMovement(0.0f, -10.0f);
+        }
+        if (direction == YAW_LEFT) {
+            processMouseMovement(-10.0f, 0.0f);
+        }
+        if (direction == YAW_RIGHT) {
+            processMouseMovement(10.0f, 0.0f);
+        }
+        if (mode_ == FIRST_PERSON) {
+            this->position_.y = 0.0f; // TODO: replace by height
+        }
     }
 };
