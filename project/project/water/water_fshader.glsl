@@ -3,15 +3,14 @@ out vec3 color;
 in vec2 uv;
 in vec3 Normal;
 in vec3 Position;
+in vec3 view_dir;
 
 uniform sampler2D tex_wave;
 uniform sampler2D tex_terrain;
 uniform sampler2D tex_sky;
-uniform vec3 cameraPos;
 
 void main() {
-    vec3 I = normalize(Position - cameraPos);
-    vec3 Reflect = reflect(I, normalize(Normal));
+    vec3 Reflect = reflect(view_dir, normalize(Normal));
 
     vec3 terrain_reflection_color = texture(tex_terrain, Reflect.xy).rgb;
     vec3 sky_reflection_color = texture(tex_sky, Reflect.xy).rgb;
