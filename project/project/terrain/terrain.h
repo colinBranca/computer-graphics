@@ -39,8 +39,8 @@ class Terrain: public Light, Material  {
         GLuint colormap_texture_id_;            // texture ID
         GLuint num_indices_;                    // number of vertices to render
         GLuint M_id_;                           // model matrix ID
-        GLuint V_id_;                           // proj matrix ID
-        GLuint P_id_;                           // view matrix ID
+        GLuint V_id_;                           // view matrix ID
+        GLuint P_id_;                           // projection matrix ID
 
         GLuint ground_texture;
         GLuint grass_texture;

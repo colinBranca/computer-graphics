@@ -5,12 +5,16 @@
 class Water {
 
     private:
-        GLuint vertex_array_id_;        // vertex array object
-        GLuint program_id_;             // GLSL shader program ID
-        GLuint vertex_buffer_object_;   // memory buffer
-        GLuint texture_id_;             // texture ID
-        GLuint texture_mirror_id_;      // texture mirror ID
+        GLuint vertex_array_id_;         // vertex array object
+        GLuint program_id_;              // GLSL shader program ID
+        GLuint vertex_buffer_object_;    // memory buffer
+        GLuint texture_id_;              // texture ID
+        GLuint texture_terrain_id_;      // texture of terrain
+        GLuint texture_skybox_id_;       // texture of skybox
         GLuint texture_wave_id_;         // PerlinNoise for waves
+        GLuint M_id_;                    // model matrix ID
+        GLuint V_id_;                    // view matrix ID
+        GLuint P_id_;                    // projection matrix ID
         GLuint vertex_buffer_object_index_;
         int flattenCoord(int i, int j, int dim) {
                 return dim * i + j;
@@ -19,7 +23,7 @@ class Water {
 
 
     public:
-        void Init(GLuint tex_mirror = -1, GLuint tex_wave = -1, size_t grid_dim = 1024) {
+        void Init(GLuint tex_terrain = -1, GLuint tex_sky = -1, GLuint tex_wave = -1, size_t grid_dim = 1024) {
             // compile the shaders
             program_id_ = icg_helper::LoadShaders("water_vshader.glsl",
                                                   "water_fshader.glsl");
@@ -79,16 +83,7 @@ class Water {
                 glVertexAttribPointer(vertex_point_id, 2, GL_FLOAT, DONT_NORMALIZE,
                                       ZERO_STRIDE, ZERO_BUFFER_OFFSET);
             }
-            // Received texture (waves)
-            {
-                    texture_wave_id_ = (tex_wave==-1)? texture_id_ : tex_wave;
-                    glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-                    glUniform1i(glGetUniformLocation(program_id_, "wave_tex"), 3);
-                    glBindTexture(GL_TEXTURE_2D, 3);
-            }
 
             {
                 // // load texture
@@ -119,13 +114,33 @@ class Water {
                 // }
 
 
-                texture_mirror_id_ = (tex_mirror==-1)? texture_id_ : tex_mirror;
+                texture_terrain_id_ = (tex_terrain==-1)? texture_id_ : tex_terrain;
+                texture_skybox_id_ = (tex_sky==-1)? texture_id_ : tex_sky;
+
+                // other uniforms
+                M_id_ = glGetUniformLocation(program_id_, "M");
+                V_id_ = glGetUniformLocation(program_id_, "V");
+                P_id_ = glGetUniformLocation(program_id_, "P");
 
                 // texture uniforms
                 // GLuint tex_id = glGetUniformLocation(program_id_, "tex");
                 // glUniform1i(tex_id, 0 /*GL_TEXTURE0*/);
-                GLuint tex_mirror_id = glGetUniformLocation(program_id_, "tex_mirror");
-                glUniform1i(tex_mirror_id, 2 /*GL_TEXTURE2*/);
+                GLuint tex_terrain_id = glGetUniformLocation(program_id_, "tex_terain");
+                glUniform1i(tex_terrain_id, 0 /*GL_TEXTURE0*/);
+
+                GLuint tex_sky_id = glGetUniformLocation(program_id_, "tex_sky");
+                glUniform1i(tex_sky_id, 1 /*GL_TEXTURE1*/);
+
+                // Received texture (waves)
+                {
+                        texture_wave_id_ = (tex_wave==-1)? texture_id_ : tex_wave;
+                        glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+                        glUniform1i(glGetUniformLocation(program_id_, "tex_wave"), 2);
+                        glBindTexture(GL_TEXTURE_2D, 2);
+                }
 
                 // cleanup
                 //glBindTexture(GL_TEXTURE_2D, 0);
@@ -144,7 +159,9 @@ class Water {
             glDeleteProgram(program_id_);
             glDeleteVertexArrays(1, &vertex_array_id_);
             // glDeleteTextures(1, &texture_id_);
-            glDeleteTextures(1, &texture_mirror_id_);
+            glDeleteTextures(1, &texture_terrain_id_);
+            glDeleteTextures(1, &texture_skybox_id_);
+            glDeleteTextures(1, &texture_wave_id_);
         }
 
         void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
@@ -154,8 +171,11 @@ class Water {
             glUseProgram(program_id_);
             glBindVertexArray(vertex_array_id_);
 
+
             // setup MVP
-            glm::mat4 MVP = projection*view*model;
+            glUniformMatrix4fv(M_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(model));
+            glUniformMatrix4fv(V_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(view));
+            glUniformMatrix4fv(P_id_, ONE, DONT_TRANSPOSE, glm::value_ptr(projection));
 
             // // bind textures
             // glActiveTexture(GL_TEXTURE0);
@@ -164,16 +184,12 @@ class Water {
             // pass the current time stamp to the shader.
             glUniform1f(glGetUniformLocation(program_id_, "time"), time);
             // bind textures
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texture_terrain_id_);
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, texture_skybox_id_);
             glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, texture_mirror_id_);
-
-            // bind textures
-            glActiveTexture(GL_TEXTURE3);
             glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
-
-            // setup MVP
-            GLuint MVP_id = glGetUniformLocation(program_id_, "MVP");
-            glUniformMatrix4fv(MVP_id, 1, GL_FALSE, value_ptr(MVP));
 
             //setup water_height
             GLuint WaterHeight_id = glGetUniformLocation(program_id_, "water_height");

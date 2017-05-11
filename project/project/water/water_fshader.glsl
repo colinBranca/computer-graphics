@@ -1,18 +1,24 @@
 #version 330 core
 out vec3 color;
 in vec2 uv;
-//uniform sampler2D tex;
-uniform sampler2D tex_mirror;
+in vec3 Normal;
+in vec3 Position;
+
+uniform sampler2D tex_wave;
+uniform sampler2D tex_terrain;
+uniform sampler2D tex_sky;
+uniform vec3 cameraPos;
 
 void main() {
-    ivec2 window_dimensions = textureSize(tex_mirror, 0);
-    float window_width = float(window_dimensions.x);
-    float window_height = float(window_dimensions.y);
+    vec3 I = normalize(Position - cameraPos);
+    vec3 Reflect = reflect(I, normalize(Normal));
 
-    float u = gl_FragCoord.x / window_width ;
-    float v = 1.0f - gl_FragCoord.y / window_height;
+    vec3 terrain_reflection_color = texture(tex_terrain, Reflect.xy).rgb;
+    vec3 sky_reflection_color = texture(tex_sky, Reflect.xy).rgb;
+    vec3 reflexion_mix = mix(terrain_reflection_color, sky_reflection_color, vec3(.8));
 
-    vec3 water_color = vec3(100.0/255.0, 149.0/255.0, 237.0/255.0);
-    vec3 color_from_mirror = texture(tex_mirror, vec2(u, v)).rgb;
-    color = mix(water_color, color_from_mirror, vec3(.15));
+    vec3 water_color = vec3(57.0f/255.0f, 88.0f/255.0f, 121.0f/255.0f);
+
+    //color = mix(water_color, reflexion_mix, vec3(.15));
+    color = sky_reflection_color;
 }

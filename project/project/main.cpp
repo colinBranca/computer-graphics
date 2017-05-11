@@ -24,9 +24,12 @@ ScreenQuad screenquad;
 PerlinNoise perlin;
 Skybox skybox;
 Water water;
-FrameBuffer waterReflexion;
+FrameBuffer skyReflexion;
+FrameBuffer terrainReflexion;
 GLuint waterReflexion_id;
 GLuint water_wave_tex_id;
+GLuint terrainReflexion_id;
+GLuint skyReflexion_id;
 Camera camera(vec3(0.0f, 0.0f, 3.0f));
 
 int window_width = 800;
@@ -110,7 +113,6 @@ void Init() {
     glClearColor(0, 0, 0 /*gray*/, 1.0 /*solid*/);
 
     skybox.Init();
-    water.Init();
 
     // enable depth test.
     glEnable(GL_DEPTH_TEST);
@@ -129,10 +131,33 @@ void Init() {
     //screenquad.Init(window_width, window_height, height_map_tex_id);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    waterReflexion_id = waterReflexion.Init(window_width, window_height);
-    water.Init(waterReflexion_id, water_wave_tex_id);
+    //terrain.Init(1024, height_map_tex_id);
 
-    terrain.Init(1024, height_map_tex_id);
+    mat4 projection = perspective(camera.zoom_, (float) window_width / (float) window_height, 0.1f, 100.0f);
+
+    terrainReflexion_id = terrainReflexion.Init(window_width, window_height);
+    terrainReflexion.Bind();
+    {
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      terrain.Draw(IDENTITY_MATRIX, camera.getViewMatrix(), projection);
+    }
+    terrainReflexion.Unbind();
+
+    skyReflexion_id = skyReflexion.Init(window_width, window_height);
+    skyReflexion.Bind();
+    {
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      mat4 view = mat4(mat3(camera.getViewMatrix()));
+      mat4 scale = mat4(20.0f);
+      scale[3][3] = 1.0f;
+
+      skybox.Draw(scale, view, projection);
+    }
+    skyReflexion.Unbind();
+
+    water.Init(terrainReflexion_id, skyReflexion_id, water_wave_tex_id);
+
+
 }
 
 // gets called for every frame.
@@ -159,11 +184,11 @@ void Display() {
     // mirror the camera position
     mat4 mirror_view = camera.getReversedViewMatrix(water_height);
 
-    waterReflexion.Bind();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        //skybox.Draw(scale, mirror_view, projection);
-        terrain.Draw(IDENTITY_MATRIX, mirror_view, projection, water_height);
-    waterReflexion.Unbind();
+    // waterReflexion.Bind();
+    //     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //     //skybox.Draw(scale, mirror_view, projection);
+    //     terrain.Draw(IDENTITY_MATRIX, mirror_view, projection, water_height);
+    // waterReflexion.Unbind();
 
     // skybox.Draw(cube_scale, view, projection);
     // water.Draw(trackball_matrix * quad_model_matrix, view, projection, water_height);
@@ -179,8 +204,7 @@ void buffer_resize_callback(GLFWwindow* window, int width, int height) {
     cout << "Window has been resized to "
          << window_width << "x" << window_height << "." << endl;
 
-    waterReflexion_id = waterReflexion.Init(window_width, window_height);
-    water.Init(waterReflexion_id, water_wave_tex_id);
+    water.Init(terrainReflexion_id, skyReflexion_id, water_wave_tex_id);
 
     glViewport(0, 0, window_width, window_height);
 }
