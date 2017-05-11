@@ -45,6 +45,7 @@ class Terrain: public Light, Material  {
         GLuint ground_texture;
         GLuint grass_texture;
         GLuint snow_texture;
+        GLuint sand_texture;
         int flattenCoord(int i, int j, int dim) {
                 return dim * i + j;
         }
@@ -64,8 +65,9 @@ class Terrain: public Light, Material  {
                 }
                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
                stbi_image_free(image);
-               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+               glGenerateMipmap(GL_TEXTURE_2D);
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+               glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
@@ -166,6 +168,9 @@ class Terrain: public Light, Material  {
 
                snow_texture = loadTex("snow.jpg");
                glUniform1i(glGetUniformLocation(program_id_, "snow_tex"), 3);
+
+               sand_texture = loadTex("sand.jpg");
+               glUniform1i(glGetUniformLocation(program_id_, "sand_tex"), 4);
             }
 
             // to avoid the current object being polluted
@@ -186,6 +191,7 @@ class Terrain: public Light, Material  {
             glDeleteTextures(1, &ground_texture);
             glDeleteTextures(1, &grass_texture);
             glDeleteTextures(1, &snow_texture);
+            glDeleteTextures(1, &sand_texture);
         }
 
         void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
@@ -220,6 +226,9 @@ class Terrain: public Light, Material  {
             //snow texture
             glActiveTexture(GL_TEXTURE3);
             glBindTexture(GL_TEXTURE_2D, snow_texture);
+            //sand texture
+            glActiveTexture(GL_TEXTURE4);
+            glBindTexture(GL_TEXTURE_2D, sand_texture);
 
             // draw
             glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);

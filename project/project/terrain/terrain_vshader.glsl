@@ -36,7 +36,9 @@ void main() {
     vec3 b1 = right - left;
     vec3 b2 = down - up;
 
-    normal = normalize((transpose(inverse(M * V)) * vec4(cross(b1, b2), 1.0f)).xyz);
+    //normal = normalize((transpose(inverse(M * V)) * vec4(cross(b1, b2), 1.0f)).xyz);
+    normal = normalize((transpose(inverse(M)) * vec4(cross(b1, b2), 1.0f)).xyz);
+    //normal = normalize(cross(b1, b2));
 
     // convert the 2D position into 3D positions that all lay in a horizontal
     // plane.
