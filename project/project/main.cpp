@@ -121,7 +121,7 @@ void Init() {
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.25f, 0.0f));
 
     // Draw Perlin noise on framebuffer for later use
-    int height_map_tex_id = perlin.Init(1024, 1024, 8);
+    int height_map_tex_id = perlin.Init(1024, 1024, 8, 1.0f);
     perlin.Compute();
 
     water_wave_tex_id = perlin.Init(1024, 1024, 1, 1.0f);
