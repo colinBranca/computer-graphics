@@ -10,7 +10,6 @@
 
 #include "skybox/skybox.h"
 #include "perlin/PerlinNoise.h"
-// #include "screenquad/screenquad.h"
 #include "terrain/terrain.h"
 #include "water/water.h"
 
@@ -18,16 +17,6 @@
 #include "framebuffer.h"
 
 using namespace glm;
-
-Terrain terrain;
-// ScreenQuad screenquad;
-// PerlinNoise perlin;
-Skybox skybox;
-Water water;
-
-//FrameBuffer waterReflexion;
-// GLuint waterReflexion_id;
-// GLuint water_wave_tex_id;
 
 Camera camera(vec3(0.0f, 0.0f, 3.0f));
 
@@ -37,12 +26,15 @@ int window_height = 600;
 GLfloat lastX = 400, lastY = 300;
 bool firstMouse = true;
 int mouse_input_mode = GLFW_CURSOR_DISABLED;
-
 GLfloat last_frame = 0.0f;
 
-// mat4 quad_model_matrix;
+PerlinNoise perlin;
+Terrain terrain;
+Skybox skybox;
+Water water;
 
-float water_height;
+GLuint water_wave_tex_id;
+float water_height = 0.0f;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
@@ -54,10 +46,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             glfwSetWindowShouldClose(window, GL_TRUE);
             break;
         case GLFW_KEY_F1:
-            water_height += 0.1f;
+            water_height += 0.05f;
             break;
         case GLFW_KEY_F2:
-            water_height -= 0.1f;
+            water_height -= 0.05f;
             break;
         case GLFW_KEY_F3:
             camera.switchCameraMode();
@@ -107,34 +99,18 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mod)
 }
 
 void Init() {
-    // sets background color
-    // glClearColor(0.937, 0.937, 0.937 /*gray*/, 1.0 /*solid*/);
-    glClearColor(0, 0, 0 /*gray*/, 1.0 /*solid*/);
-
-    skybox.Init();
-    water.Init();
-
-    // enable depth test.
-    glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
 
-    water_height = 0.0f;
-
-    // quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.25f, 0.0f));
-
     // Draw Perlin noise on framebuffer for later use
-    // int height_map_tex_id = perlin.Init(1024, 1024, 8, 1.3f);
-    // perlin.Compute();
-    //
-    // water_wave_tex_id = perlin.Init(1024, 1024, 1, 1.0f);
-    // perlin.Compute();
-    //screenquad.Init(window_width, window_height, height_map_tex_id);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    int height_map_tex_id = perlin.Init(1024, 1024, 8, 1.3f);
+    perlin.Compute();
 
-    // waterReflexion_id = waterReflexion.Init(window_width, window_height);
-    // water.Init(waterReflexion_id, water_wave_tex_id);
+    water_wave_tex_id = perlin.Init(1024, 1024, 1, 1.0f);
+    perlin.Compute();
 
-    // terrain.Init(1024, height_map_tex_id);
+    skybox.Init();
+    water.Init(water_wave_tex_id);
+    terrain.Init(1024, height_map_tex_id);
 }
 
 // gets called for every frame.
@@ -142,7 +118,7 @@ void Display() {
     const float time = glfwGetTime();
 
     glViewport(0, 0, window_width, window_height);
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
@@ -154,21 +130,11 @@ void Display() {
     skybox.Draw(scale, view, projection);
 
     view = camera.getViewMatrix();
+    scale = mat4(5.0f);
+    scale[3][3] = 1.0f;
 
-    water.Draw(IDENTITY_MATRIX, view, projection, camera.position_, water_height, time);
-    // terrain.Draw(IDENTITY_MATRIX, view, projection);
-
-    // mirror the camera position
-    // mat4 mirror_view = camera.getReversedViewMatrix(water_height);
-    //
-    // waterReflexion.Bind();
-    //     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //     //skybox.Draw(scale, mirror_view, projection);
-    //     terrain.Draw(IDENTITY_MATRIX, mirror_view, projection, water_height);
-    // waterReflexion.Unbind();
-
-    // skybox.Draw(cube_scale, view, projection);
-    // water.Draw(trackball_matrix * quad_model_matrix, view, projection, water_height);
+    water.Draw(scale, view, projection, camera.position_, skybox.getTextureId(), water_height, time);
+    terrain.Draw(IDENTITY_MATRIX, view, projection);
 
     glDisable(GL_DEPTH_TEST);
 }
@@ -180,9 +146,6 @@ void buffer_resize_callback(GLFWwindow* window, int width, int height) {
 
     cout << "Window has been resized to "
          << window_width << "x" << window_height << "." << endl;
-
-    // waterReflexion_id = waterReflexion.Init(window_width, window_height);
-    // water.Init(waterReflexion_id, water_wave_tex_id);
 
     glViewport(0, 0, window_width, window_height);
 }
@@ -260,8 +223,8 @@ int main(int argc, char *argv[]) {
         glfwSwapBuffers(window);
     }
 
-    // perlin.Cleanup();
-    // terrain.Cleanup();
+    perlin.Cleanup();
+    terrain.Cleanup();
     skybox.Cleanup();
     water.Cleanup();
 

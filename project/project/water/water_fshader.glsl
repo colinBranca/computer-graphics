@@ -3,24 +3,19 @@
 in vec3 Normal;
 in vec3 Position;
 out vec4 color;
-// in vec2 uv;
-//uniform sampler2D tex;
-// uniform sampler2D tex_mirror;
 
 uniform vec3 camera_position;
 uniform samplerCube skybox;
 
 void main() {
-    // ivec2 window_dimensions = textureSize(tex_mirror, 0);
-    // float window_width = float(window_dimensions.x);
-    // float window_height = float(window_dimensions.y);
-    //
-    // float u = gl_FragCoord.x / window_width ;
-    // float v = 1.0f - gl_FragCoord.y / window_height;
+    vec3 view_direction = normalize(Position - camera_position);
+    vec3 reflection = reflect(view_direction, normalize(Normal));
+    float ratio = 1.00f / 1.33f;
+    vec3 refraction = refract(view_direction, normalize(Normal), ratio);
 
-    vec3 I = normalize(Position - camera_position);
-    vec3 R = reflect(I, normalize(Normal));
-    color = texture(skybox, R);
-    // vec3 color_from_mirror = texture(tex_mirror, vec2(u, v)).rgb;
-    // color = mix(water_color, color_from_mirror, vec3(.15));
+    vec4 reflection_color = texture(skybox, reflection);
+    vec4 refraction_color = texture(skybox, refraction);
+    vec4 water_color = vec4(0.45f, 0.8f, 0.96f, 1.0f);
+
+    color = mix(water_color, reflection_color, vec4(0.5f));
 }

@@ -2,194 +2,102 @@
 #include "icg_helper.h"
 #include "glm/gtc/type_ptr.hpp"
 
-class Water {
+class Water
+{
+private:
+    GLuint water_vao_;
+    GLuint water_vbo_;
+    GLuint texture_wave_id_;         // PerlinNoise for waves
+    GLuint program_id_;
 
-    private:
-        GLuint vertex_array_id_;        // vertex array object
-        GLuint program_id_;             // GLSL shader program ID
-        GLuint vertex_buffer_object_;   // memory buffer
-        GLuint texture_id_;             // texture ID
-        // GLuint texture_mirror_id_;      // texture mirror ID
-        // GLuint texture_wave_id_;         // PerlinNoise for waves
-        GLuint vertex_buffer_object_index_;
-        int flattenCoord(int i, int j, int dim) {
-                return dim * i + j;
-        }
-        GLuint num_indices_;
-
-    public:
-        void Init(GLuint tex_mirror = -1, GLuint tex_wave = -1, size_t grid_dim = 1024) {
-            // compile the shaders
-            program_id_ = icg_helper::LoadShaders("water_vshader.glsl",
-                                                  "water_fshader.glsl");
-            if(!program_id_) {
-                exit(EXIT_FAILURE);
-            }
-
-            glUseProgram(program_id_);
-
-            // vertex one vertex Array
-            glGenVertexArrays(1, &vertex_array_id_);
-            glBindVertexArray(vertex_array_id_);
-
-            // vertex coordinates
-            {
-                std::vector<GLfloat> vertices;
-
-                // Generate vertices coordinates
-                float factor = 10.0f / ((float) grid_dim);
-                for (size_t row = 0; row < grid_dim; ++row) {
-                        float yCoord = factor * row -5.0f;
-                        for (size_t col = 0; col < grid_dim; ++col) {
-                                vertices.push_back(factor * col - 5.0f);
-                                vertices.push_back(yCoord);
-                        }
-                }
-                std::vector<GLuint> indices;
-                for (size_t row = 0; row < grid_dim -1; ++row) {
-                        for (size_t col = 0; col < grid_dim -1; ++col) {
-                                // Upper triangle
-                                indices.push_back(flattenCoord(row, col, grid_dim));
-                                indices.push_back(flattenCoord(row, col + 1, grid_dim));
-                                indices.push_back(flattenCoord(row + 1, col, grid_dim));
-                                // Lower triangle
-                                indices.push_back(flattenCoord(row, col + 1, grid_dim));
-                                indices.push_back(flattenCoord(row + 1, col + 1, grid_dim));
-                                indices.push_back(flattenCoord(row + 1, col, grid_dim));
-                        }
-                }
-                this->num_indices_ = indices.size();
-
-                // buffer
-                glGenBuffers(1, &vertex_buffer_object_);
-                glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object_);
-                glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat),
-                             &vertices[0], GL_STATIC_DRAW);
-                //
-                // vertex indices
-                glGenBuffers(1, &vertex_buffer_object_index_);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertex_buffer_object_index_);
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint),
-                             &indices[0], GL_STATIC_DRAW);
-
-                // attribute
-                // GLuint vertex_point_id = glGetAttribLocation(program_id_, "position");
-                // glEnableVertexAttribArray(vertex_point_id);
-                // glVertexAttribPointer(vertex_point_id, 2, GL_FLOAT, DONT_NORMALIZE,
-                //                       ZERO_STRIDE, ZERO_BUFFER_OFFSET);
-            }
-            // Received texture (waves)
-            // {
-            //         texture_wave_id_ = (tex_wave==-1)? texture_id_ : tex_wave;
-            //         glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
-            //         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            //         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            //
-            //         glUniform1i(glGetUniformLocation(program_id_, "wave_tex"), 3);
-            //         glBindTexture(GL_TEXTURE_2D, 3);
-            // }
-
-            {
-                // // load texture
-                // int width;
-                // int height;
-                // int nb_component;
-                // string filename = "floor_texture.tga";
-                // // set stb_image to have the same coordinates as OpenGL
-                // stbi_set_flip_vertically_on_load(1);
-                // unsigned char* image = stbi_load(filename.c_str(), &width,
-                //                                  &height, &nb_component, 0);
-                //
-                // if(image == nullptr) {
-                //     throw(string("Failed to load texture"));
-                // }
-                //
-                // glGenTextures(1, &texture_id_);
-                // glBindTexture(GL_TEXTURE_2D, texture_id_);
-                // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                //
-                // if(nb_component == 3) {
-                //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
-                //                  GL_RGB, GL_UNSIGNED_BYTE, image);
-                // } else if(nb_component == 4) {
-                //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-                //                  GL_RGBA, GL_UNSIGNED_BYTE, image);
-                // }
-
-
-                // texture_mirror_id_ = (tex_mirror==-1)? texture_id_ : tex_mirror;
-
-                // texture uniforms
-                // GLuint tex_id = glGetUniformLocation(program_id_, "tex");
-                // glUniform1i(tex_id, 0 /*GL_TEXTURE0*/);
-                // GLuint tex_mirror_id = glGetUniformLocation(program_id_, "tex_mirror");
-                // glUniform1i(tex_mirror_id, 2 /*GL_TEXTURE2*/);
-
-                // cleanup
-                //glBindTexture(GL_TEXTURE_2D, 0);
-                //stbi_image_free(image);
-            }
-
-            // to avoid the current object being polluted
-            glBindVertexArray(0);
-            glUseProgram(0);
+public:
+    void Init(GLuint tex_wave) {
+        // compile the shaders
+        program_id_ = icg_helper::LoadShaders("water_vshader.glsl",
+                                              "water_fshader.glsl");
+        if(!program_id_) {
+            exit(EXIT_FAILURE);
         }
 
-        void Cleanup() {
-            glBindVertexArray(0);
-            glUseProgram(0);
-            glDeleteBuffers(1, &vertex_buffer_object_);
-            glDeleteProgram(program_id_);
-            glDeleteVertexArrays(1, &vertex_array_id_);
-            // glDeleteTextures(1, &texture_id_);
-            // glDeleteTextures(1, &texture_mirror_id_);
-        }
+        glUseProgram(program_id_);
 
-        void Draw(const glm::mat4 &model,
-                  const glm::mat4 &view,
-                  const glm::mat4 &projection,
-                  const glm::vec3 &camera_position,
-                  float water_height = 0.0f, float time = 1.0f) {
-            glUseProgram(program_id_);
-            glBindVertexArray(vertex_array_id_);
+        const GLfloat water_vertices[] = {
+            -1.0f, 0.0f, -1.0f,
+            -1.0f, 0.0f, 1.0f,
+            1.0f, 0.0f, -1.0f,
+            1.0f, 0.0f, -1.0f,
+            -1.0f, 0.0f, 1.0f,
+            1.0f, 0.0f, 1.0f,
+        };
 
-            // setup MVP
-            // glm::mat4 MVP = projection*view*model;
+        glGenVertexArrays(1, &water_vao_);
+        glBindVertexArray(water_vao_);
+        glGenBuffers(1, &water_vbo_);
+        glBindBuffer(GL_ARRAY_BUFFER, water_vbo_);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(water_vertices), &water_vertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, DONT_NORMALIZE, ZERO_STRIDE, ZERO_BUFFER_OFFSET);
 
-            // // bind textures
-            // glActiveTexture(GL_TEXTURE0);
-            // glBindTexture(GL_TEXTURE_2D, texture_id_);
-            //
-            // pass the current time stamp to the shader.
-            glUniform1f(glGetUniformLocation(program_id_, "time"), time);
-            // bind textures
-            // glActiveTexture(GL_TEXTURE2);
-            // glBindTexture(GL_TEXTURE_2D, texture_mirror_id_);
+        // Received texture (waves)
+        texture_wave_id_ = tex_wave;
+        glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-            // bind textures
-            // glActiveTexture(GL_TEXTURE3);
-            // glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
+        glUniform1i(glGetUniformLocation(program_id_, "wave_tex"), 3);
+        glBindTexture(GL_TEXTURE_2D, 3);
 
-            // setup MVP
-            GLuint model_id = glGetUniformLocation(program_id_, "model");
-            glUniformMatrix4fv(model_id, 1, GL_FALSE, value_ptr(model));
-            GLuint view_id = glGetUniformLocation(program_id_, "view");
-            glUniformMatrix4fv(view_id, 1, GL_FALSE, value_ptr(view));
-            GLuint projection_id = glGetUniformLocation(program_id_, "projection");
-            glUniformMatrix4fv(projection_id, 1, GL_FALSE, value_ptr(projection));
+        // to avoid the current object being polluted
+        glBindVertexArray(0);
+        glUseProgram(0);
+    }
 
-            GLuint position_id = glGetUniformLocation(program_id_, "camera_position");
-            glUniform3f(position_id, camera_position.x, camera_position.y, camera_position.z);
+    void Cleanup() {
+        glBindVertexArray(0);
+        glUseProgram(0);
+        glDeleteBuffers(1, &water_vbo_);
+        glDeleteProgram(program_id_);
+        glDeleteVertexArrays(1, &water_vao_);
+    }
 
-            //setup water_height
-            GLuint WaterHeight_id = glGetUniformLocation(program_id_, "water_height");
-            glUniform1f(WaterHeight_id, water_height);
+    void Draw(const glm::mat4 &model,
+              const glm::mat4 &view,
+              const glm::mat4 &projection,
+              const glm::vec3 &camera_position,
+              GLuint skybox_cubemap_id,
+              float water_height = 0.0f,
+              float time = 1.0f) {
+        glUseProgram(program_id_);
 
-            // draw
-            glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
+        // pass the current time stamp to the shader.
+        glUniform1f(glGetUniformLocation(program_id_, "time"), time);
 
-            glBindVertexArray(0);
-            glUseProgram(0);
-        }
+        // setup MVP
+        GLuint model_id = glGetUniformLocation(program_id_, "model");
+        glUniformMatrix4fv(model_id, 1, GL_FALSE, value_ptr(model));
+        GLuint view_id = glGetUniformLocation(program_id_, "view");
+        glUniformMatrix4fv(view_id, 1, GL_FALSE, value_ptr(view));
+        GLuint projection_id = glGetUniformLocation(program_id_, "projection");
+        glUniformMatrix4fv(projection_id, 1, GL_FALSE, value_ptr(projection));
+
+        GLuint position_id = glGetUniformLocation(program_id_, "camera_position");
+        glUniform3f(position_id, camera_position.x, camera_position.y, camera_position.z);
+
+        //setup water_height
+        GLuint water_height_id = glGetUniformLocation(program_id_, "water_height");
+        glUniform1f(water_height_id, water_height);
+
+        glBindVertexArray(water_vao_);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_cubemap_id);
+
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        glBindVertexArray(0);
+        glUseProgram(0);
+    }
 };
