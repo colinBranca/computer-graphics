@@ -10,7 +10,7 @@
 
 #include "skybox/skybox.h"
 #include "perlin/PerlinNoise.h"
-#include "screenquad/screenquad.h"
+// #include "screenquad/screenquad.h"
 #include "terrain/terrain.h"
 #include "water/water.h"
 
@@ -20,13 +20,15 @@
 using namespace glm;
 
 Terrain terrain;
-ScreenQuad screenquad;
-PerlinNoise perlin;
+// ScreenQuad screenquad;
+// PerlinNoise perlin;
 Skybox skybox;
 Water water;
-FrameBuffer waterReflexion;
-GLuint waterReflexion_id;
-GLuint water_wave_tex_id;
+
+//FrameBuffer waterReflexion;
+// GLuint waterReflexion_id;
+// GLuint water_wave_tex_id;
+
 Camera camera(vec3(0.0f, 0.0f, 3.0f));
 
 int window_width = 800;
@@ -38,7 +40,7 @@ int mouse_input_mode = GLFW_CURSOR_DISABLED;
 
 GLfloat last_frame = 0.0f;
 
-mat4 quad_model_matrix;
+// mat4 quad_model_matrix;
 
 float water_height;
 
@@ -118,21 +120,21 @@ void Init() {
 
     water_height = 0.0f;
 
-    quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.25f, 0.0f));
+    // quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.25f, 0.0f));
 
     // Draw Perlin noise on framebuffer for later use
-    int height_map_tex_id = perlin.Init(1024, 1024, 8, 1.3f);
-    perlin.Compute();
-
-    water_wave_tex_id = perlin.Init(1024, 1024, 1, 1.0f);
-    perlin.Compute();
+    // int height_map_tex_id = perlin.Init(1024, 1024, 8, 1.3f);
+    // perlin.Compute();
+    //
+    // water_wave_tex_id = perlin.Init(1024, 1024, 1, 1.0f);
+    // perlin.Compute();
     //screenquad.Init(window_width, window_height, height_map_tex_id);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    waterReflexion_id = waterReflexion.Init(window_width, window_height);
-    water.Init(waterReflexion_id, water_wave_tex_id);
+    // waterReflexion_id = waterReflexion.Init(window_width, window_height);
+    // water.Init(waterReflexion_id, water_wave_tex_id);
 
-    terrain.Init(1024, height_map_tex_id);
+    // terrain.Init(1024, height_map_tex_id);
 }
 
 // gets called for every frame.
@@ -153,17 +155,17 @@ void Display() {
 
     view = camera.getViewMatrix();
 
-    water.Draw(IDENTITY_MATRIX, view, projection, water_height, time);
-    terrain.Draw(IDENTITY_MATRIX, view, projection);
+    water.Draw(IDENTITY_MATRIX, view, projection, camera.position_, water_height, time);
+    // terrain.Draw(IDENTITY_MATRIX, view, projection);
 
     // mirror the camera position
-    mat4 mirror_view = camera.getReversedViewMatrix(water_height);
-
-    waterReflexion.Bind();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        //skybox.Draw(scale, mirror_view, projection);
-        terrain.Draw(IDENTITY_MATRIX, mirror_view, projection, water_height);
-    waterReflexion.Unbind();
+    // mat4 mirror_view = camera.getReversedViewMatrix(water_height);
+    //
+    // waterReflexion.Bind();
+    //     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //     //skybox.Draw(scale, mirror_view, projection);
+    //     terrain.Draw(IDENTITY_MATRIX, mirror_view, projection, water_height);
+    // waterReflexion.Unbind();
 
     // skybox.Draw(cube_scale, view, projection);
     // water.Draw(trackball_matrix * quad_model_matrix, view, projection, water_height);
@@ -179,8 +181,8 @@ void buffer_resize_callback(GLFWwindow* window, int width, int height) {
     cout << "Window has been resized to "
          << window_width << "x" << window_height << "." << endl;
 
-    waterReflexion_id = waterReflexion.Init(window_width, window_height);
-    water.Init(waterReflexion_id, water_wave_tex_id);
+    // waterReflexion_id = waterReflexion.Init(window_width, window_height);
+    // water.Init(waterReflexion_id, water_wave_tex_id);
 
     glViewport(0, 0, window_width, window_height);
 }
@@ -252,14 +254,14 @@ int main(int argc, char *argv[]) {
         last_frame = current_frame;
 
         glfwPollEvents();
-        GLfloat terrain_height = perlin.getTerrainHeight(camera.position_.x, camera.position_.z);
-        camera.update(delta_time, terrain_height);
+        // GLfloat terrain_height = perlin.getTerrainHeight(camera.position_.x, camera.position_.z);
+        camera.update(delta_time, /*terrain_height*/0.0f);
         Display();
         glfwSwapBuffers(window);
     }
 
-    perlin.Cleanup();
-    terrain.Cleanup();
+    // perlin.Cleanup();
+    // terrain.Cleanup();
     skybox.Cleanup();
     water.Cleanup();
 

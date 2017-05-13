@@ -9,14 +9,13 @@ class Water {
         GLuint program_id_;             // GLSL shader program ID
         GLuint vertex_buffer_object_;   // memory buffer
         GLuint texture_id_;             // texture ID
-        GLuint texture_mirror_id_;      // texture mirror ID
-        GLuint texture_wave_id_;         // PerlinNoise for waves
+        // GLuint texture_mirror_id_;      // texture mirror ID
+        // GLuint texture_wave_id_;         // PerlinNoise for waves
         GLuint vertex_buffer_object_index_;
         int flattenCoord(int i, int j, int dim) {
                 return dim * i + j;
         }
         GLuint num_indices_;
-
 
     public:
         void Init(GLuint tex_mirror = -1, GLuint tex_wave = -1, size_t grid_dim = 1024) {
@@ -74,21 +73,21 @@ class Water {
                              &indices[0], GL_STATIC_DRAW);
 
                 // attribute
-                GLuint vertex_point_id = glGetAttribLocation(program_id_, "position");
-                glEnableVertexAttribArray(vertex_point_id);
-                glVertexAttribPointer(vertex_point_id, 2, GL_FLOAT, DONT_NORMALIZE,
-                                      ZERO_STRIDE, ZERO_BUFFER_OFFSET);
+                // GLuint vertex_point_id = glGetAttribLocation(program_id_, "position");
+                // glEnableVertexAttribArray(vertex_point_id);
+                // glVertexAttribPointer(vertex_point_id, 2, GL_FLOAT, DONT_NORMALIZE,
+                //                       ZERO_STRIDE, ZERO_BUFFER_OFFSET);
             }
             // Received texture (waves)
-            {
-                    texture_wave_id_ = (tex_wave==-1)? texture_id_ : tex_wave;
-                    glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-                    glUniform1i(glGetUniformLocation(program_id_, "wave_tex"), 3);
-                    glBindTexture(GL_TEXTURE_2D, 3);
-            }
+            // {
+            //         texture_wave_id_ = (tex_wave==-1)? texture_id_ : tex_wave;
+            //         glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
+            //         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            //         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            //
+            //         glUniform1i(glGetUniformLocation(program_id_, "wave_tex"), 3);
+            //         glBindTexture(GL_TEXTURE_2D, 3);
+            // }
 
             {
                 // // load texture
@@ -119,13 +118,13 @@ class Water {
                 // }
 
 
-                texture_mirror_id_ = (tex_mirror==-1)? texture_id_ : tex_mirror;
+                // texture_mirror_id_ = (tex_mirror==-1)? texture_id_ : tex_mirror;
 
                 // texture uniforms
                 // GLuint tex_id = glGetUniformLocation(program_id_, "tex");
                 // glUniform1i(tex_id, 0 /*GL_TEXTURE0*/);
-                GLuint tex_mirror_id = glGetUniformLocation(program_id_, "tex_mirror");
-                glUniform1i(tex_mirror_id, 2 /*GL_TEXTURE2*/);
+                // GLuint tex_mirror_id = glGetUniformLocation(program_id_, "tex_mirror");
+                // glUniform1i(tex_mirror_id, 2 /*GL_TEXTURE2*/);
 
                 // cleanup
                 //glBindTexture(GL_TEXTURE_2D, 0);
@@ -144,18 +143,19 @@ class Water {
             glDeleteProgram(program_id_);
             glDeleteVertexArrays(1, &vertex_array_id_);
             // glDeleteTextures(1, &texture_id_);
-            glDeleteTextures(1, &texture_mirror_id_);
+            // glDeleteTextures(1, &texture_mirror_id_);
         }
 
-        void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
-                  const glm::mat4 &view = IDENTITY_MATRIX,
-                  const glm::mat4 &projection = IDENTITY_MATRIX,
+        void Draw(const glm::mat4 &model,
+                  const glm::mat4 &view,
+                  const glm::mat4 &projection,
+                  const glm::vec3 &camera_position,
                   float water_height = 0.0f, float time = 1.0f) {
             glUseProgram(program_id_);
             glBindVertexArray(vertex_array_id_);
 
             // setup MVP
-            glm::mat4 MVP = projection*view*model;
+            // glm::mat4 MVP = projection*view*model;
 
             // // bind textures
             // glActiveTexture(GL_TEXTURE0);
@@ -164,16 +164,23 @@ class Water {
             // pass the current time stamp to the shader.
             glUniform1f(glGetUniformLocation(program_id_, "time"), time);
             // bind textures
-            glActiveTexture(GL_TEXTURE2);
-            glBindTexture(GL_TEXTURE_2D, texture_mirror_id_);
+            // glActiveTexture(GL_TEXTURE2);
+            // glBindTexture(GL_TEXTURE_2D, texture_mirror_id_);
 
             // bind textures
-            glActiveTexture(GL_TEXTURE3);
-            glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
+            // glActiveTexture(GL_TEXTURE3);
+            // glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
 
             // setup MVP
-            GLuint MVP_id = glGetUniformLocation(program_id_, "MVP");
-            glUniformMatrix4fv(MVP_id, 1, GL_FALSE, value_ptr(MVP));
+            GLuint model_id = glGetUniformLocation(program_id_, "model");
+            glUniformMatrix4fv(model_id, 1, GL_FALSE, value_ptr(model));
+            GLuint view_id = glGetUniformLocation(program_id_, "view");
+            glUniformMatrix4fv(view_id, 1, GL_FALSE, value_ptr(view));
+            GLuint projection_id = glGetUniformLocation(program_id_, "projection");
+            glUniformMatrix4fv(projection_id, 1, GL_FALSE, value_ptr(projection));
+
+            GLuint position_id = glGetUniformLocation(program_id_, "camera_position");
+            glUniform3f(position_id, camera_position.x, camera_position.y, camera_position.z);
 
             //setup water_height
             GLuint WaterHeight_id = glGetUniformLocation(program_id_, "water_height");
