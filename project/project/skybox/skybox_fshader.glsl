@@ -1,15 +1,10 @@
 #version 330
 
-in vec3 TexCoords;
-flat in int isVisible;
+in vec3 texture_coordinates;
 out vec4 color;
 
 uniform samplerCube skybox;
 
 void main() {
-    color = texture(skybox, TexCoords);
-
-    // if(isVisible == 0) {
-    //   discard;
-    // }
+    color = texture(skybox, texture_coordinates);
 }
