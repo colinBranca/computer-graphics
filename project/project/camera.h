@@ -10,6 +10,8 @@ enum Camera_Movement {
     BACKWARD,
     LEFT,
     RIGHT,
+    UP,
+    DOWN,
     PITCH_UP,
     PITCH_DOWN,
     YAW_LEFT,
@@ -88,10 +90,16 @@ public:
         if (keys_[GLFW_KEY_D]) {
             processKeyboard(RIGHT, delta_time, terrain_height);
         }
-        if (keys_[GLFW_KEY_Q] || keys_[GLFW_KEY_UP]) {
+        if (keys_[GLFW_KEY_Q]) {
+            processKeyboard(DOWN, delta_time, terrain_height);
+        }
+        if (keys_[GLFW_KEY_E]) {
+            processKeyboard(UP, delta_time, terrain_height);
+        }
+        if (keys_[GLFW_KEY_UP]) {
             processKeyboard(PITCH_UP, delta_time, terrain_height);
         }
-        if (keys_[GLFW_KEY_E] || keys_[GLFW_KEY_DOWN]) {
+        if (keys_[GLFW_KEY_DOWN]) {
             processKeyboard(PITCH_DOWN, delta_time, terrain_height);
         }
         if (keys_[GLFW_KEY_LEFT]) {
@@ -168,6 +176,12 @@ private:
             break;
         case RIGHT:
             this->position_ += this->right_ * velocity;
+            break;
+        case UP:
+            this->position_ += this->up_ * velocity;
+            break;
+        case DOWN:
+            this->position_ -= this->up_ * velocity;
             break;
         case PITCH_UP:
             processMouseMovement(0.0f, 10.0f);
