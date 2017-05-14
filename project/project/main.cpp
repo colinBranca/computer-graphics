@@ -131,15 +131,15 @@ void Init() {
     //screenquad.Init(window_width, window_height, height_map_tex_id);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //terrain.Init(1024, height_map_tex_id);
+    terrain.Init(1024, height_map_tex_id);
 
     mat4 projection = perspective(camera.zoom_, (float) window_width / (float) window_height, 0.1f, 100.0f);
 
-    terrainReflexion_id = terrainReflexion.Init(window_width, window_height);
+    terrainReflexion_id = terrainReflexion.Init(1024, 1024);//(window_width, window_height);
     terrainReflexion.Bind();
     {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      terrain.Draw(IDENTITY_MATRIX, camera.getViewMatrix(), projection);
+      terrain.Draw(IDENTITY_MATRIX, camera.getViewMatrix(), projection, water_height);
     }
     terrainReflexion.Unbind();
 
@@ -151,7 +151,7 @@ void Init() {
       mat4 scale = mat4(20.0f);
       scale[3][3] = 1.0f;
 
-      skybox.Draw(scale, view, projection);
+      skybox.Draw(IDENTITY_MATRIX, view, projection);
     }
     skyReflexion.Unbind();
 

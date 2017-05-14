@@ -21,10 +21,8 @@ vec2 getTexCoord(vec2 position) {
 
 void main() {
     uv = getTexCoord(position);
-
-    vec2 uvWave = uv;
-    uvWave.x = 0.1f*time+uvWave.x;
-    float wave = texture(tex_wave, uvWave).x / 10.0f ;
+    uv.x = 0.1f*time+uv.x;
+    float wave = texture(tex_wave, uv).x / 10.0f ;
 
     vec3 pos_3d = vec3(position.x, water_height + wave, position.y);
     gl_Position = P * V * M * vec4(pos_3d, 1.0);

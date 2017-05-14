@@ -10,7 +10,7 @@ uniform sampler2D tex_terrain;
 uniform sampler2D tex_sky;
 
 void main() {
-    vec3 Reflect = reflect(view_dir, normalize(Normal));
+    vec2 Reflect = reflect(uv, normalize(Normal).xy);
 
     vec3 terrain_reflection_color = texture(tex_terrain, Reflect.xy).rgb;
     vec3 sky_reflection_color = texture(tex_sky, Reflect.xy).rgb;
@@ -19,5 +19,5 @@ void main() {
     vec3 water_color = vec3(57.0f/255.0f, 88.0f/255.0f, 121.0f/255.0f);
 
     //color = mix(water_color, reflexion_mix, vec3(.15));
-    color = sky_reflection_color;
+    color = terrain_reflection_color;
 }
