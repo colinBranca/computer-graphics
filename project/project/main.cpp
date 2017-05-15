@@ -154,7 +154,7 @@ void Display() {
     view = camera.getViewMatrix();
 
     water.Draw(IDENTITY_MATRIX, view, projection, water_height, time);
-    terrain.Draw(IDENTITY_MATRIX, view, projection);
+    terrain.Draw(IDENTITY_MATRIX, view, projection, water_height);
 
     // mirror the camera position
     mat4 mirror_view = camera.getReversedViewMatrix(water_height);
