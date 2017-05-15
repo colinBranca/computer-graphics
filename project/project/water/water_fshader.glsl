@@ -17,5 +17,5 @@ void main() {
     vec4 refraction_color = texture(skybox, refraction);
     vec4 water_color = vec4(0.45f, 0.8f, 0.96f, 1.0f);
 
-    color = mix(water_color, reflection_color, vec4(0.5f));
+    color = mix(water_color, reflection_color, vec4(0.8f));
 }

@@ -18,7 +18,7 @@
 
 using namespace glm;
 
-Camera camera(vec3(0.0f, 0.0f, 3.0f));
+Camera camera(vec3(0.0f, 3.0f, 5.0f));
 
 int window_width = 800;
 int window_height = 600;
@@ -33,7 +33,6 @@ Terrain terrain;
 Skybox skybox;
 Water water;
 
-GLuint water_wave_tex_id;
 float water_height = 0.0f;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
@@ -101,22 +100,19 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mod)
 void Init() {
     glEnable(GL_MULTISAMPLE);
 
-    // Draw Perlin noise on framebuffer for later use
-    int height_map_tex_id = perlin.Init(1024, 1024, 8, 1.3f);
-    perlin.Compute();
+    size_t grid_dim = 1024;
 
-    water_wave_tex_id = perlin.Init(1024, 1024, 1, 1.0f);
+    // Draw Perlin noise on framebuffer for later use
+    int height_map_tex_id = perlin.Init(grid_dim, grid_dim, 8, 1.3f);
     perlin.Compute();
 
     skybox.Init();
-    water.Init(water_wave_tex_id);
-    terrain.Init(1024, height_map_tex_id);
+    water.Init(grid_dim);
+    terrain.Init(grid_dim, height_map_tex_id);
 }
 
 // gets called for every frame.
 void Display() {
-    const float time = glfwGetTime();
-
     glViewport(0, 0, window_width, window_height);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -130,10 +126,8 @@ void Display() {
     skybox.Draw(scale, view, projection);
 
     view = camera.getViewMatrix();
-    scale = mat4(5.0f);
-    scale[3][3] = 1.0f;
 
-    water.Draw(scale, view, projection, camera.position_, skybox.getTextureId(), water_height, time);
+    water.Draw(IDENTITY_MATRIX, view, projection, camera.position_, skybox.getTextureId(), water_height, glfwGetTime());
     terrain.Draw(IDENTITY_MATRIX, view, projection);
 
     glDisable(GL_DEPTH_TEST);

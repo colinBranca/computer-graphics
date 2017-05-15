@@ -7,11 +7,16 @@ class Water
 private:
     GLuint water_vao_;
     GLuint water_vbo_;
-    GLuint texture_wave_id_;         // PerlinNoise for waves
+    GLuint water_vbo_indices_;
+    GLuint num_indices_;
     GLuint program_id_;
 
+    size_t flattenCoordinates(size_t row, size_t col, size_t dim) {
+        return dim * row + col;
+    }
+
 public:
-    void Init(GLuint tex_wave) {
+    void Init(size_t grid_dim = 1024) {
         // compile the shaders
         program_id_ = icg_helper::LoadShaders("water_vshader.glsl",
                                               "water_fshader.glsl");
@@ -21,31 +26,47 @@ public:
 
         glUseProgram(program_id_);
 
-        const GLfloat water_vertices[] = {
-            -1.0f, 0.0f, -1.0f,
-            -1.0f, 0.0f, 1.0f,
-            1.0f, 0.0f, -1.0f,
-            1.0f, 0.0f, -1.0f,
-            -1.0f, 0.0f, 1.0f,
-            1.0f, 0.0f, 1.0f,
-        };
+        std::vector<GLfloat> water_vertices;
+        float cell_size = 10.0f / grid_dim;
+        for (size_t row = 0; row < grid_dim; ++row) {
+            float z_coord = cell_size * row - 5.0f;
+            for (size_t col = 0; col < grid_dim; ++col) {
+                water_vertices.push_back(cell_size * col - 5.0f);
+                water_vertices.push_back(0.0f);
+                water_vertices.push_back(z_coord);
+            }
+        }
+
+        std::vector<GLuint> indices;
+        for (size_t row = 0; row < grid_dim - 1; ++row) {
+            for (size_t col = 0; col < grid_dim - 1; ++col) {
+                indices.push_back(flattenCoordinates(row, col, grid_dim));
+                indices.push_back(flattenCoordinates(row, col + 1, grid_dim));
+                indices.push_back(flattenCoordinates(row + 1, col, grid_dim));
+
+                indices.push_back(flattenCoordinates(row, col + 1, grid_dim));
+                indices.push_back(flattenCoordinates(row + 1, col, grid_dim));
+                indices.push_back(flattenCoordinates(row + 1, col + 1, grid_dim));
+            }
+        }
+
+        num_indices_ = indices.size();
+
+        glUniform1f(glGetUniformLocation(program_id_, "cell_size"), cell_size);
 
         glGenVertexArrays(1, &water_vao_);
         glBindVertexArray(water_vao_);
         glGenBuffers(1, &water_vbo_);
         glBindBuffer(GL_ARRAY_BUFFER, water_vbo_);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(water_vertices), &water_vertices, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, DONT_NORMALIZE, ZERO_STRIDE, ZERO_BUFFER_OFFSET);
+        glBufferData(GL_ARRAY_BUFFER, water_vertices.size() * sizeof(GLfloat), &water_vertices[0], GL_STATIC_DRAW);
 
-        // Received texture (waves)
-        texture_wave_id_ = tex_wave;
-        glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glGenBuffers(1, &water_vbo_indices_);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, water_vbo_indices_);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
 
-        glUniform1i(glGetUniformLocation(program_id_, "wave_tex"), 3);
-        glBindTexture(GL_TEXTURE_2D, 3);
+        GLuint vertex_point_id = glGetAttribLocation(program_id_, "position");
+        glEnableVertexAttribArray(vertex_point_id);
+        glVertexAttribPointer(vertex_point_id, 3, GL_FLOAT, DONT_NORMALIZE, ZERO_STRIDE, ZERO_BUFFER_OFFSET);
 
         // to avoid the current object being polluted
         glBindVertexArray(0);
@@ -56,6 +77,7 @@ public:
         glBindVertexArray(0);
         glUseProgram(0);
         glDeleteBuffers(1, &water_vbo_);
+        glDeleteBuffers(1, &water_vbo_indices_);
         glDeleteProgram(program_id_);
         glDeleteVertexArrays(1, &water_vao_);
     }
@@ -68,11 +90,12 @@ public:
               float water_height = 0.0f,
               float time = 1.0f) {
         glUseProgram(program_id_);
+        glBindVertexArray(water_vao_);
 
         // pass the current time stamp to the shader.
         glUniform1f(glGetUniformLocation(program_id_, "time"), time);
 
-        // setup MVP
+        // Setup MVP
         GLuint model_id = glGetUniformLocation(program_id_, "model");
         glUniformMatrix4fv(model_id, 1, GL_FALSE, value_ptr(model));
         GLuint view_id = glGetUniformLocation(program_id_, "view");
@@ -80,22 +103,17 @@ public:
         GLuint projection_id = glGetUniformLocation(program_id_, "projection");
         glUniformMatrix4fv(projection_id, 1, GL_FALSE, value_ptr(projection));
 
+        // Setup camera position
         GLuint position_id = glGetUniformLocation(program_id_, "camera_position");
         glUniform3f(position_id, camera_position.x, camera_position.y, camera_position.z);
 
-        //setup water_height
-        GLuint water_height_id = glGetUniformLocation(program_id_, "water_height");
-        glUniform1f(water_height_id, water_height);
-
-        glBindVertexArray(water_vao_);
+        // Setup water_height
+        glUniform1f(glGetUniformLocation(program_id_, "water_height"), water_height);
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
-
-        glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_cubemap_id);
 
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
 
         glBindVertexArray(0);
         glUseProgram(0);
