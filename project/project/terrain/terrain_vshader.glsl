@@ -48,5 +48,6 @@ void main() {
     light_dir = normalize((V * M * vec4(light_pos, 1.0f)).xyz - vpoint_mv.xyz);
     view_dir = normalize(- vpoint_mv.xyz);
 
-    isVisible = (pos_3d.y >= water_height)? 1 : 0;
+    //isVisible = (pos_3d.y >= water_height)? 1 : 0;
+    isVisible = 1;
 }
