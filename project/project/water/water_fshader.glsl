@@ -6,8 +6,16 @@ out vec4 color;
 
 uniform vec3 camera_position;
 uniform samplerCube skybox;
+uniform sampler2D terrain;
 
 void main() {
+    ivec2 window_dimensions = textureSize(terrain, 0);
+    float window_width = float(window_dimensions.x);
+    float window_height = float(window_dimensions.y);
+
+    float u = gl_FragCoord.x / window_width;
+    float v = 1.0f - gl_FragCoord.y / window_height;
+
     vec3 view_direction = normalize(Position - camera_position);
     vec3 reflection = reflect(view_direction, normalize(Normal));
     float ratio = 1.00f / 1.33f;
@@ -15,7 +23,9 @@ void main() {
 
     vec4 reflection_color = texture(skybox, reflection);
     vec4 refraction_color = texture(skybox, refraction);
+    vec4 terrain_reflection = texture(terrain, vec2(u, v));
     vec4 water_color = vec4(0.45f, 0.8f, 0.96f, 1.0f);
 
-    color = mix(water_color, reflection_color, vec4(0.8f));
+    // color = mix(water_color, reflection_color, vec4(0.8f));
+    color = terrain_reflection;
 }

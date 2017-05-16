@@ -14,11 +14,9 @@ uniform float cell_size;
 uniform float water_height;
 uniform float time;
 
-vec3 wave_position = vec3(0.0f, water_height, 0.0f);
-
 float computeHeight(float x, float z) {
-  x += 0.005f*time;
-  return texture(tex_wave, vec2(x,z)).x /50.0f;
+    x += 0.005f * time;
+    return texture(tex_wave, vec2(x, z)).x / 50.0f;
 }
 
 vec2 getTexCoord(vec2 position) {

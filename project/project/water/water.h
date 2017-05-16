@@ -9,15 +9,15 @@ private:
     GLuint water_vbo_;
     GLuint water_vbo_indices_;
     GLuint num_indices_;
-    GLuint program_id_;
     GLuint texture_wave_id_; // PerlinNoise for waves
+    GLuint program_id_;
 
     size_t flattenCoordinates(size_t row, size_t col, size_t dim) {
         return dim * row + col;
     }
 
 public:
-    void Init(size_t grid_dim = 1024, int texture_wave_id = -1) {
+    void Init(GLuint texture_wave_id, size_t grid_dim = 1024) {
         // compile the shaders
         program_id_ = icg_helper::LoadShaders("water_vshader.glsl",
                                               "water_fshader.glsl");
@@ -70,14 +70,13 @@ public:
         glVertexAttribPointer(vertex_point_id, 3, GL_FLOAT, DONT_NORMALIZE, ZERO_STRIDE, ZERO_BUFFER_OFFSET);
 
         {
-          //texture_wave_id_ = (tex_wave==-1)? texture_id_ : tex_wave;
-          glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
-          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-          glUniform1i(glGetUniformLocation(program_id_, "tex_wave"), 2);
-          glBindTexture(GL_TEXTURE_2D, GL_TEXTURE1);
-         }
+            glUniform1i(glGetUniformLocation(program_id_, "tex_wave"), 2);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
 
         // to avoid the current object being polluted
         glBindVertexArray(0);
@@ -99,6 +98,7 @@ public:
               const glm::mat4 &projection,
               const glm::vec3 &camera_position,
               GLuint skybox_cubemap_id,
+              GLuint terrain_texture_id,
               float water_height = 0.0f,
               float time = 1.0f) {
         glUseProgram(program_id_);
@@ -127,6 +127,9 @@ public:
 
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
+
+        glActiveTexture(GL_TEXTURE2);
+        glUniform1i(glGetUniformLocation(program_id_, "terrain"), 2);
 
         glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
 

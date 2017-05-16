@@ -33,6 +33,9 @@ Terrain terrain;
 Skybox skybox;
 Water water;
 
+FrameBuffer terrain_reflection;
+GLuint terrain_texture_id;
+
 float water_height = 0.0f;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
@@ -111,8 +114,9 @@ void Init() {
     perlin.Compute();
 
     skybox.Init();
-    water.Init(grid_dim, water_wave_tex_id);
+    water.Init(water_wave_tex_id, grid_dim);
     terrain.Init(grid_dim, height_map_tex_id);
+    terrain_texture_id = terrain_reflection.Init(window_width, window_height);
 }
 
 // gets called for every frame.
@@ -131,7 +135,12 @@ void Display() {
 
     view = camera.getViewMatrix();
 
-    water.Draw(IDENTITY_MATRIX, view, projection, camera.position_, skybox.getTextureId(), water_height, glfwGetTime());
+    terrain_reflection.Bind();
+        terrain.Draw(IDENTITY_MATRIX, view, projection);
+    terrain_reflection.Unbind();
+
+    water.Draw(IDENTITY_MATRIX, view, projection, camera.position_, skybox.getTextureId(),
+               terrain_texture_id, water_height, glfwGetTime());
     terrain.Draw(IDENTITY_MATRIX, view, projection);
 
     glDisable(GL_DEPTH_TEST);
@@ -145,6 +154,8 @@ void buffer_resize_callback(GLFWwindow* window, int width, int height) {
     cout << "Window has been resized to "
          << window_width << "x" << window_height << "." << endl;
 
+    terrain_reflection.Cleanup();
+    terrain_texture_id = terrain_reflection.Init(window_width, window_height);
     glViewport(0, 0, window_width, window_height);
 }
 
@@ -225,6 +236,7 @@ int main(int argc, char *argv[]) {
     terrain.Cleanup();
     skybox.Cleanup();
     water.Cleanup();
+    terrain_reflection.Cleanup();
 
     // close OpenGL window and terminate GLFW
     glfwDestroyWindow(window);
