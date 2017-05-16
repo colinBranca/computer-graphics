@@ -17,8 +17,12 @@ const float amplitude = 0.1f;
 const float phase = 1.0f;
 vec3 wave_position = vec3(0.0f, water_height, 0.0f);
 
+// float computeHeight(float x, float z, vec2 direction) {
+//     return amplitude * sin(dot(direction, vec2(x, mod(z, 2.0f))) * weight + time * phase);
+// }
+//
 float computeHeight(float x, float z, vec2 direction) {
-    return amplitude * sin(dot(direction, vec2(x, z)) * weight + time * phase);
+    return amplitude * sin(x * weight + time * phase);
 }
 
 vec3 computeNormal(float x, float z, vec2 direction) {
