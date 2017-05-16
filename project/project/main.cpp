@@ -106,8 +106,12 @@ void Init() {
     int height_map_tex_id = perlin.Init(grid_dim, grid_dim, 8, 1.3f);
     perlin.Compute();
 
+    //Draw Perlin noise for water waves
+    GLuint water_wave_tex_id = perlin.Init(grid_dim, grid_dim, 1, 1.0f);
+    perlin.Compute();
+
     skybox.Init();
-    water.Init(grid_dim);
+    water.Init(grid_dim, water_wave_tex_id);
     terrain.Init(grid_dim, height_map_tex_id);
 }
 

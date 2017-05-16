@@ -10,13 +10,14 @@ private:
     GLuint water_vbo_indices_;
     GLuint num_indices_;
     GLuint program_id_;
+    GLuint texture_wave_id_; // PerlinNoise for waves
 
     size_t flattenCoordinates(size_t row, size_t col, size_t dim) {
         return dim * row + col;
     }
 
 public:
-    void Init(size_t grid_dim = 1024) {
+    void Init(size_t grid_dim = 1024, int texture_wave_id = -1) {
         // compile the shaders
         program_id_ = icg_helper::LoadShaders("water_vshader.glsl",
                                               "water_fshader.glsl");
@@ -68,6 +69,16 @@ public:
         glEnableVertexAttribArray(vertex_point_id);
         glVertexAttribPointer(vertex_point_id, 3, GL_FLOAT, DONT_NORMALIZE, ZERO_STRIDE, ZERO_BUFFER_OFFSET);
 
+        {
+          //texture_wave_id_ = (tex_wave==-1)? texture_id_ : tex_wave;
+          glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
+          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+          glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+          glUniform1i(glGetUniformLocation(program_id_, "tex_wave"), 2);
+          glBindTexture(GL_TEXTURE_2D, GL_TEXTURE1);
+         }
+
         // to avoid the current object being polluted
         glBindVertexArray(0);
         glUseProgram(0);
@@ -80,6 +91,7 @@ public:
         glDeleteBuffers(1, &water_vbo_indices_);
         glDeleteProgram(program_id_);
         glDeleteVertexArrays(1, &water_vao_);
+        glDeleteTextures(1, &texture_wave_id_);
     }
 
     void Draw(const glm::mat4 &model,
@@ -112,6 +124,9 @@ public:
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_cubemap_id);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
 
         glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
 
