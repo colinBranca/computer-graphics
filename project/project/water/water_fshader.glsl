@@ -13,8 +13,11 @@ void main() {
     float window_width = float(window_dimensions.x);
     float window_height = float(window_dimensions.y);
 
-    float u = gl_FragCoord.x / window_width;
-    float v = 1.0f - gl_FragCoord.y / window_height;
+    // float u = gl_FragCoord.x / window_width;
+    // float v = 1.0f - gl_FragCoord.y / window_height;
+
+    float u = Position.x;
+    float v = Position.z;
 
     vec3 view_direction = normalize(Position - camera_position);
     vec3 reflection = reflect(view_direction, normalize(Normal));

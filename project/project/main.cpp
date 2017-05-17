@@ -136,7 +136,7 @@ void Display() {
     view = camera.getViewMatrix();
 
     terrain_reflection.Bind();
-        terrain.Draw(IDENTITY_MATRIX, view, projection);
+        terrain.Draw(IDENTITY_MATRIX, camera.getReversedViewMatrix(water_height), projection);
     terrain_reflection.Unbind();
 
     water.Draw(IDENTITY_MATRIX, view, projection, camera.position_, skybox.getTextureId(),

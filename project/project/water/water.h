@@ -74,8 +74,8 @@ public:
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-            glUniform1i(glGetUniformLocation(program_id_, "tex_wave"), 2);
-            glBindTexture(GL_TEXTURE_2D, 0);
+            glUniform1i(glGetUniformLocation(program_id_, "tex_wave"), 3);
+            glBindTexture(GL_TEXTURE_2D, 3);
         }
 
         // to avoid the current object being polluted
@@ -129,7 +129,8 @@ public:
         glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
 
         glActiveTexture(GL_TEXTURE2);
-        glUniform1i(glGetUniformLocation(program_id_, "terrain"), 2);
+        glBindTexture(GL_TEXTURE_2D, terrain_texture_id);
+        //glUniform1i(glGetUniformLocation(program_id_, "terrain"), 5);
 
         glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);
 
