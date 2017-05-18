@@ -13,11 +13,11 @@ void main() {
     float window_width = float(window_dimensions.x);
     float window_height = float(window_dimensions.y);
 
-    // float u = gl_FragCoord.x / window_width;
-    // float v = 1.0f - gl_FragCoord.y / window_height;
+    float u = gl_FragCoord.x / window_width;
+    float v = 1.0f - gl_FragCoord.y / window_height;
 
-    float u = Position.x;
-    float v = Position.z;
+    // float u = Position.x;
+    // float v = Position.z;
 
     vec3 view_direction = normalize(Position - camera_position);
     vec3 reflection = reflect(view_direction, normalize(Normal));
@@ -26,9 +26,9 @@ void main() {
 
     vec4 reflection_color = texture(skybox, reflection);
     vec4 refraction_color = texture(skybox, refraction);
-    vec4 terrain_reflection = texture(terrain, vec2(u, v));
+    vec4 terrain_reflection = texture(terrain,vec2(u,v));
     vec4 water_color = vec4(0.45f, 0.8f, 0.96f, 1.0f);
 
-    // color = mix(water_color, reflection_color, vec4(0.8f));
-    color = terrain_reflection;
+    vec4 color_reflection = (terrain_reflection.xyz != vec3(1,1,1))? terrain_reflection : reflection_color;
+    color = mix(water_color, color_reflection, vec4(0.8f));
 }

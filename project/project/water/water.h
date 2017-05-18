@@ -10,6 +10,7 @@ private:
     GLuint water_vbo_indices_;
     GLuint num_indices_;
     GLuint texture_wave_id_; // PerlinNoise for waves
+    GLuint texture_terrain_id_;
     GLuint program_id_;
 
     size_t flattenCoordinates(size_t row, size_t col, size_t dim) {
@@ -17,7 +18,7 @@ private:
     }
 
 public:
-    void Init(GLuint texture_wave_id, size_t grid_dim = 1024) {
+    void Init(GLuint texture_wave_id, GLuint terrain_texture_id, size_t grid_dim = 1024) {
         // compile the shaders
         program_id_ = icg_helper::LoadShaders("water_vshader.glsl",
                                               "water_fshader.glsl");
@@ -78,6 +79,10 @@ public:
             glBindTexture(GL_TEXTURE_2D, 3);
         }
 
+        texture_terrain_id_ = terrain_texture_id;
+        GLuint tex_terrain_id = glGetUniformLocation(program_id_, "terrain");
+        glUniform1i(tex_terrain_id, 2 /*GL_TEXTURE2*/);
+
         // to avoid the current object being polluted
         glBindVertexArray(0);
         glUseProgram(0);
@@ -98,7 +103,6 @@ public:
               const glm::mat4 &projection,
               const glm::vec3 &camera_position,
               GLuint skybox_cubemap_id,
-              GLuint terrain_texture_id,
               float water_height = 0.0f,
               float time = 1.0f) {
         glUseProgram(program_id_);
@@ -129,7 +133,7 @@ public:
         glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
 
         glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, terrain_texture_id);
+        glBindTexture(GL_TEXTURE_2D, texture_terrain_id_);
         //glUniform1i(glGetUniformLocation(program_id_, "terrain"), 5);
 
         glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);

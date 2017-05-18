@@ -16,7 +16,7 @@ uniform float time;
 
 float computeHeight(float x, float z) {
     x += 0.005f * time;
-    return texture(tex_wave, vec2(x, z)).x / 50.0f;
+    return texture(tex_wave, vec2(x, z)).x / 10.0f;
 }
 
 vec2 getTexCoord(vec2 position) {

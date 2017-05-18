@@ -114,9 +114,11 @@ void Init() {
     perlin.Compute();
 
     skybox.Init();
-    water.Init(water_wave_tex_id, grid_dim);
+
     terrain.Init(grid_dim, height_map_tex_id);
     terrain_texture_id = terrain_reflection.Init(window_width, window_height);
+
+    water.Init(water_wave_tex_id, terrain_texture_id, grid_dim);
 }
 
 // gets called for every frame.
@@ -136,11 +138,11 @@ void Display() {
     view = camera.getViewMatrix();
 
     terrain_reflection.Bind();
-        terrain.Draw(IDENTITY_MATRIX, camera.getReversedViewMatrix(water_height), projection);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        terrain.Draw(IDENTITY_MATRIX, camera.getReversedViewMatrix(water_height), projection, water_height, 1);
     terrain_reflection.Unbind();
 
-    water.Draw(IDENTITY_MATRIX, view, projection, camera.position_, skybox.getTextureId(),
-               terrain_texture_id, water_height, glfwGetTime());
+    water.Draw(IDENTITY_MATRIX, view, projection, camera.position_, skybox.getTextureId(), water_height, glfwGetTime());
     terrain.Draw(IDENTITY_MATRIX, view, projection);
 
     glDisable(GL_DEPTH_TEST);
