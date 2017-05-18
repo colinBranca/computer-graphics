@@ -116,8 +116,6 @@ class PerlinNoise {
                                        GL_TEXTURE_2D, height_tex_id, 0);
                 glBindFramebuffer(GL_FRAMEBUFFER, 0); // avoid pollution
 
-                img_ = (GLfloat*) calloc(width_ * height_, sizeof(GLfloat));
-                glGetTexImage(GL_TEXTURE_2D, 0, GL_R32F, GL_FLOAT, img_);
             }
             return height_tex_id;
         }
@@ -146,6 +144,12 @@ class PerlinNoise {
                 glBindVertexArray(vertex_array_id);
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
+                glBindTexture(GL_TEXTURE_2D, height_tex_id);
+                img_ = (GLfloat*) calloc(width_ * height_, sizeof(GLfloat));
+ 
+                glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, img_);
+                glBindTexture(GL_TEXTURE_2D, 0);
+                
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
                 glBindVertexArray(0);
                 glUseProgram(0);
