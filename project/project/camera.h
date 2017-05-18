@@ -198,7 +198,9 @@ private:
         }
 
         if (mode_ == FIRST_PERSON) {
-            this->position_.y = terrain_height /*+ 2.0f*/; // TODO: replace by height of terrain + offset for pos of head
+            cout << "x= " << this->position_.x << " y= " << this->position_.y << endl;
+
+            this->position_.z = terrain_height > 0 ? terrain_height : 0; /*+ 2.0f*/; // TODO: replace by height of terrain + offset for pos of head
         }
     }
 };

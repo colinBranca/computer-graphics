@@ -120,13 +120,14 @@ void Init() {
 
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.25f, 0.0f));
 
+    water_wave_tex_id = perlin.Init(1024, 1024, 1, 1.0f);
+    perlin.Compute();
+ 
     // Draw Perlin noise on framebuffer for later use
     int height_map_tex_id = perlin.Init(1024, 1024, 8, 1.3f);
     perlin.Compute();
 
-    water_wave_tex_id = perlin.Init(1024, 1024, 1, 1.0f);
-    perlin.Compute();
-    //screenquad.Init(window_width, window_height, height_map_tex_id);
+   //screenquad.Init(window_width, window_height, height_map_tex_id);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     waterReflexion_id = waterReflexion.Init(window_width, window_height);

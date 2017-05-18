@@ -155,11 +155,18 @@ class PerlinNoise {
                 glUseProgram(0);
         }
 
-        GLfloat getTerrainHeight(int x, int z)
+        GLfloat getTerrainHeight(int x, int y)
         {
             // TODO: convert to terrain coordinates
-            size_t index = z * width_ + x;
-            return index >= width_ * height_ ? 0.0f : img_[index];
+
+            float xp = floor(x + 5.0f * 102.4);
+            float yp = floor(y + 5.0f * 102.4);
+            cout << "DDD " << xp << " " << yp << endl;
+            //size_t index = (size_t) floor( * width_) * hwidth_ + floor(x * height_);
+            size_t index = yp * width_ + xp;
+            //cout << "CCC " << index << " against tot = " << width_ * height_ << endl;
+            return img_[index] ;
+            //return index >= width_ * height_ ? 0.0f : img_[index];
         }
 
         void Cleanup() {
