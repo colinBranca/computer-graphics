@@ -76,37 +76,58 @@ public:
         return glm::lookAt(pos, center, this->up_);
     }
 
-    void update(GLfloat delta_time, GLfloat terrain_height)
+    void accelerate(int movement, GLfloat velocity, GLfloat terrain_height) {
+      // if (movement == 1) processKeyboard(FORWARD, velocity, terrain_height);
+      // else if (movement == -1) processKeyboard(BACKWARD, velocity, terrain_height);
+      // else if (movement == 2) processKeyboard(RIGHT, velocity, terrain_height);
+      // else if (movement == -2) processKeyboard(LEFT, velocity, terrain_height);
+      switch (movement) {
+        case 1:
+            processKeyboard(FORWARD, velocity, terrain_height);
+            break;
+        case 2:
+            processKeyboard(BACKWARD, velocity, terrain_height);
+            break;
+        case 3:
+            processKeyboard(RIGHT, velocity, terrain_height);
+            break;
+        case 4:
+            processKeyboard(LEFT, velocity, terrain_height);
+            break;
+      }
+    }
+
+    void update(GLfloat velocity, GLfloat terrain_height)
     {
         if (keys_[GLFW_KEY_W]) {
-            processKeyboard(FORWARD, delta_time, terrain_height);
+            processKeyboard(FORWARD, velocity, terrain_height);
         }
         if (keys_[GLFW_KEY_S]) {
-            processKeyboard(BACKWARD, delta_time, terrain_height);
+            processKeyboard(BACKWARD, velocity, terrain_height);
         }
         if (keys_[GLFW_KEY_A]) {
-            processKeyboard(LEFT, delta_time, terrain_height);
+            processKeyboard(LEFT, velocity, terrain_height);
         }
         if (keys_[GLFW_KEY_D]) {
-            processKeyboard(RIGHT, delta_time, terrain_height);
+            processKeyboard(RIGHT, velocity, terrain_height);
         }
         if (keys_[GLFW_KEY_Q]) {
-            processKeyboard(DOWN, delta_time, terrain_height);
+            processKeyboard(DOWN, velocity, terrain_height);
         }
         if (keys_[GLFW_KEY_E]) {
-            processKeyboard(UP, delta_time, terrain_height);
+            processKeyboard(UP, velocity, terrain_height);
         }
         if (keys_[GLFW_KEY_UP]) {
-            processKeyboard(PITCH_UP, delta_time, terrain_height);
+            processKeyboard(PITCH_UP, velocity, terrain_height);
         }
         if (keys_[GLFW_KEY_DOWN]) {
-            processKeyboard(PITCH_DOWN, delta_time, terrain_height);
+            processKeyboard(PITCH_DOWN, velocity, terrain_height);
         }
         if (keys_[GLFW_KEY_LEFT]) {
-            processKeyboard(YAW_LEFT, delta_time, terrain_height);
+            processKeyboard(YAW_LEFT, velocity, terrain_height);
         }
         if (keys_[GLFW_KEY_RIGHT]) {
-            processKeyboard(YAW_RIGHT, delta_time, terrain_height);
+            processKeyboard(YAW_RIGHT, velocity, terrain_height);
         }
     }
 
@@ -160,10 +181,8 @@ private:
         this->up_ = glm::normalize(glm::cross(this->right_, this->front_));
     }
 
-    void processKeyboard(Camera_Movement direction, GLfloat delta_time, GLfloat terrain_height)
+    void processKeyboard(Camera_Movement direction, GLfloat velocity, GLfloat terrain_height)
     {
-        GLfloat velocity = this->movement_speed_ * delta_time;
-
         switch (direction) {
         case FORWARD:
             this->position_ += this->front_ * velocity;

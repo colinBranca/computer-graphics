@@ -122,7 +122,7 @@ void Init() {
 
     water_wave_tex_id = perlin.Init(1024, 1024, 1, 1.0f);
     perlin.Compute();
- 
+
     // Draw Perlin noise on framebuffer for later use
     int height_map_tex_id = perlin.Init(1024, 1024, 8, 1.3f);
     perlin.Compute();
@@ -244,17 +244,39 @@ int main(int argc, char *argv[]) {
 
     // initialize our OpenGL program
     Init();
+    int movement = 0;
+    float velocity = 0.05f;
 
     // render loop
     while(!glfwWindowShouldClose(window)){
-        // Set frame time
-        GLfloat current_frame = glfwGetTime();
-        GLfloat delta_time = current_frame - last_frame;
-        last_frame = current_frame;
+
+        GLfloat terrain_height = perlin.getTerrainHeight(camera.position_.x, camera.position_.z);
 
         glfwPollEvents();
-        GLfloat terrain_height = perlin.getTerrainHeight(camera.position_.x, camera.position_.z);
-        camera.update(delta_time, terrain_height);
+        
+        if (movement != 0) {
+            if (camera.keys_[GLFW_KEY_W] || camera.keys_[GLFW_KEY_S] || camera.keys_[GLFW_KEY_D] || camera.keys_[GLFW_KEY_A]) {
+              std::cout << "accelerate   " << velocity <<'\n';
+              velocity = std::min(velocity + 0.002f, 0.05f);
+              camera.accelerate(movement, velocity, terrain_height);
+            }
+            else {
+              std::cout << "decelerate   " << velocity <<'\n';
+              velocity -= 0.001f;
+              camera.accelerate(movement, velocity, terrain_height);
+              movement = (velocity <= 0.0f)? 0 : movement;
+            }
+        }
+        else {
+            velocity = 0.005f;
+            if(camera.keys_[GLFW_KEY_W]) movement = 1;
+            else if(camera.keys_[GLFW_KEY_S]) movement = 2;
+            else if(camera.keys_[GLFW_KEY_D]) movement = 3;
+            else if(camera.keys_[GLFW_KEY_A]) movement = 4;
+
+            camera.update(velocity, terrain_height);
+        }
+
         Display();
         glfwSwapBuffers(window);
     }
