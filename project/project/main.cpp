@@ -21,7 +21,8 @@ using namespace glm;
 
 Terrain terrain;
 ScreenQuad screenquad;
-PerlinNoise perlin;
+PerlinNoise terrain_perlin;
+PerlinNoise water_perlin;
 Skybox skybox;
 Water water;
 FrameBuffer waterReflexion;
@@ -120,12 +121,12 @@ void Init() {
 
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.25f, 0.0f));
 
-    water_wave_tex_id = perlin.Init(512, 512, 1, 1.0);
-    perlin.Compute();
+    water_wave_tex_id = water_perlin.Init(512, 512, 1, 1.0);
+    water_perlin.Compute();
 
     // Draw Perlin noise on framebuffer for later use
-    int height_map_tex_id = perlin.Init(512, 512, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
-    perlin.Compute();
+    int height_map_tex_id = terrain_perlin.Init(512, 512, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
+    terrain_perlin.Compute();
 
    //screenquad.Init(window_width, window_height, height_map_tex_id);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -139,6 +140,19 @@ void Init() {
 // gets called for every frame.
 void Display() {
     const float time = glfwGetTime();
+    if (camera.position_.x > terrain.minX_ + terrain.size_) {// && camera.position_.z < 10.0f && camera.position_.z > -10.0f) {//|| camera.position_.x < -10 || camera.position_.z > 10.0f || camera.position_.z < -10.0f) {
+        terrain.Init(512, terrain_perlin.getHeightTexId(), 20.f, terrain.minX_ + terrain.size_);
+        water.Init(waterReflexion_id, water_wave_tex_id, 512, 20.0f, water.minX_ + water.size_);
+    } else if (camera.position_.x < terrain.minX_) {
+        terrain.Init(512, terrain_perlin.getHeightTexId(), 20.f, terrain.minX_ - terrain.size_);
+        water.Init(waterReflexion_id, water_wave_tex_id, 512, 20.0f, water.minX_ - water.size_);
+    } else if (camera.position_.z > terrain.minY_ + terrain.size_) {
+        terrain.Init(512, terrain_perlin.getHeightTexId(), 20.f, terrain.minX_, terrain.minY_ + terrain.size_);
+        water.Init(waterReflexion_id, water_wave_tex_id, 512, 20.0f, water.minX_, water.minY_ + water.size_);
+    } else if (camera.position_.z < terrain.minY_) {
+        terrain.Init(512, terrain_perlin.getHeightTexId(), 20.f, terrain.minX_, terrain.minY_ - terrain.size_);
+        water.Init(waterReflexion_id, water_wave_tex_id, 512, 20.0f, water.minX_, water.minY_ - water.size_);
+    }
 
     glViewport(0, 0, window_width, window_height);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -250,7 +264,7 @@ int main(int argc, char *argv[]) {
     // render loop
     while(!glfwWindowShouldClose(window)){
 
-        GLfloat terrain_height = perlin.getTerrainHeight(camera.position_.x, camera.position_.z);
+        GLfloat terrain_height = terrain_perlin.getTerrainHeight(camera.position_.x, camera.position_.z);
 
         glfwPollEvents();
         
@@ -281,7 +295,8 @@ int main(int argc, char *argv[]) {
         glfwSwapBuffers(window);
     }
 
-    perlin.Cleanup();
+    terrain_perlin.Cleanup();
+    water_perlin.Cleanup();
     terrain.Cleanup();
     skybox.Cleanup();
     water.Cleanup();
