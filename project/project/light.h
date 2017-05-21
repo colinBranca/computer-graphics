@@ -4,7 +4,7 @@ struct Light {
         glm::vec3 Ld = glm::vec3(1.0f, 1.0f, 1.0f);
         glm::vec3 Ls = glm::vec3(1.0f, 1.0f, 1.0f);
 
-        glm::vec3 light_pos = glm::vec3(0.0f, 0.0f, 2.0f);
+        glm::vec3 light_pos = glm::vec3(0.0f, 10.0f, 5.0f);
 
         // pass light properties to the shader
         void Setup(GLuint program_id) {

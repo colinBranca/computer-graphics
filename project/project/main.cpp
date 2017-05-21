@@ -27,10 +27,10 @@ Water water;
 FrameBuffer waterReflexion;
 GLuint waterReflexion_id;
 GLuint water_wave_tex_id;
-Camera camera(vec3(0.0f, 0.0f, 3.0f));
+Camera camera(vec3(-5.0f, 5.0f, 5.0f));
 
-int window_width = 800;
-int window_height = 600;
+int window_width = 1200;
+int window_height = 800;
 
 GLfloat lastX = 400, lastY = 300;
 bool firstMouse = true;
@@ -120,11 +120,11 @@ void Init() {
 
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.25f, 0.0f));
 
-    water_wave_tex_id = perlin.Init(1024, 1024, 1, 1.0f);
+    water_wave_tex_id = perlin.Init(512, 512, 1, 1.0);
     perlin.Compute();
 
     // Draw Perlin noise on framebuffer for later use
-    int height_map_tex_id = perlin.Init(1024, 1024, 8, 1.3f);
+    int height_map_tex_id = perlin.Init(512, 512, 6, 1.8f, 1 / 300.0f, 1 / 300.0f);
     perlin.Compute();
 
    //screenquad.Init(window_width, window_height, height_map_tex_id);
@@ -133,7 +133,7 @@ void Init() {
     waterReflexion_id = waterReflexion.Init(window_width, window_height);
     water.Init(waterReflexion_id, water_wave_tex_id);
 
-    terrain.Init(1024, height_map_tex_id);
+    terrain.Init(512, height_map_tex_id);
 }
 
 // gets called for every frame.
@@ -256,12 +256,12 @@ int main(int argc, char *argv[]) {
         
         if (movement != 0) {
             if (camera.keys_[GLFW_KEY_W] || camera.keys_[GLFW_KEY_S] || camera.keys_[GLFW_KEY_D] || camera.keys_[GLFW_KEY_A]) {
-              std::cout << "accelerate   " << velocity <<'\n';
+              //std::cout << "accelerate   " << velocity <<'\n';
               velocity = std::min(velocity + 0.002f, 0.05f);
               camera.accelerate(movement, velocity, terrain_height);
             }
             else {
-              std::cout << "decelerate   " << velocity <<'\n';
+              //std::cout << "decelerate   " << velocity <<'\n';
               velocity -= 0.001f;
               camera.accelerate(movement, velocity, terrain_height);
               movement = (velocity <= 0.0f)? 0 : movement;

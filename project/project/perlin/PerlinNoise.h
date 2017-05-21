@@ -159,9 +159,8 @@ class PerlinNoise {
         {
             // TODO: convert to terrain coordinates
 
-            float xp = floor(x + 5.0f * 102.4);
-            float yp = floor(y + 5.0f * 102.4);
-            cout << "DDD " << xp << " " << yp << endl;
+            float xp = floor(x + 5.0f * 51.2);
+            float yp = floor(y + 5.0f * 51.2);
             //size_t index = (size_t) floor( * width_) * hwidth_ + floor(x * height_);
             size_t index = yp * width_ + xp;
             //cout << "CCC " << index << " against tot = " << width_ * height_ << endl;

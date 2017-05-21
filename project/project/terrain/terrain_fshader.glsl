@@ -46,7 +46,6 @@ vec3 texMix(float height) {
 
 void main() {
 
-    //vec3 colorT = texture(snow_tex, uv).rgb;
     vec3 colorT = texMix(texture(height_tex, uv).r);
     /// 1) compute ambient term.
     vec3 ambient = ka * La;
@@ -56,13 +55,12 @@ void main() {
     /// 3) compute specular term.
     vec3 r = normalize(2.0f * normal * dot(normal, light_dir) - light_dir);
     float rv = max(0.0f, dot(r, view_dir));
-    //vec3 specular = ks * pow(rv, alpha) * Ls;
 
-
-    color = ambient + diffuse- 0.1;
+    color = ambient + diffuse ;//- 0.1;
     if (colorT == vec3(0,0,0)) color = vec3(0,1,0);
 
 
+    //color = colorT;
     if(isVisible == 0) {
       discard;
     }
