@@ -181,4 +181,8 @@ class PerlinNoise {
 
             free(img_);
         }
+
+        GLuint getHeightTexId() {
+                return this->height_tex_id;
+        }
 };
