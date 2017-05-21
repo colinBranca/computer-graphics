@@ -138,18 +138,33 @@ void Init() {
 }
 
 // gets called for every frame.
+float seedX = 1.0f;
+float seedY = 1.0f;
 void Display() {
     const float time = glfwGetTime();
     if (camera.position_.x > terrain.minX_ + terrain.size_) {// && camera.position_.z < 10.0f && camera.position_.z > -10.0f) {//|| camera.position_.x < -10 || camera.position_.z > 10.0f || camera.position_.z < -10.0f) {
+        //right
+        seedX++;
+        terrain_perlin.Compute(seedX, seedY);
+        water_perlin.Compute(seedX, seedY);
         terrain.Init(512, terrain_perlin.getHeightTexId(), 20.f, terrain.minX_ + terrain.size_);
         water.Init(waterReflexion_id, water_wave_tex_id, 512, 20.0f, water.minX_ + water.size_);
     } else if (camera.position_.x < terrain.minX_) {
+        seedX--;
+        terrain_perlin.Compute(seedX, seedY);
+        water_perlin.Compute(seedX, seedY);
         terrain.Init(512, terrain_perlin.getHeightTexId(), 20.f, terrain.minX_ - terrain.size_);
         water.Init(waterReflexion_id, water_wave_tex_id, 512, 20.0f, water.minX_ - water.size_);
     } else if (camera.position_.z > terrain.minY_ + terrain.size_) {
+        seedY++;
+        terrain_perlin.Compute(seedX, seedY);
+        water_perlin.Compute(seedX, seedY);
         terrain.Init(512, terrain_perlin.getHeightTexId(), 20.f, terrain.minX_, terrain.minY_ + terrain.size_);
         water.Init(waterReflexion_id, water_wave_tex_id, 512, 20.0f, water.minX_, water.minY_ + water.size_);
     } else if (camera.position_.z < terrain.minY_) {
+        seedY--;
+        terrain_perlin.Compute(seedX, seedY);
+        water_perlin.Compute(seedX, seedY);
         terrain.Init(512, terrain_perlin.getHeightTexId(), 20.f, terrain.minX_, terrain.minY_ - terrain.size_);
         water.Init(waterReflexion_id, water_wave_tex_id, 512, 20.0f, water.minX_, water.minY_ - water.size_);
     }
