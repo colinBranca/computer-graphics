@@ -124,7 +124,7 @@ void Init() {
     perlin.Compute();
 
     // Draw Perlin noise on framebuffer for later use
-    int height_map_tex_id = perlin.Init(512, 512, 6, 1.8f, 1 / 300.0f, 1 / 300.0f);
+    int height_map_tex_id = perlin.Init(512, 512, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
     perlin.Compute();
 
    //screenquad.Init(window_width, window_height, height_map_tex_id);

@@ -38,11 +38,11 @@ class Water {
                 std::vector<GLfloat> vertices;
 
                 // Generate vertices coordinates
-                float factor = 10.0f / ((float) grid_dim);
+                float factor = 20.0f / ((float) grid_dim);
                 for (size_t row = 0; row < grid_dim; ++row) {
-                        float yCoord = factor * row -5.0f;
+                        float yCoord = factor * row -10.0f;
                         for (size_t col = 0; col < grid_dim; ++col) {
-                                vertices.push_back(factor * col - 5.0f);
+                                vertices.push_back(factor * col - 10.0f);
                                 vertices.push_back(yCoord);
                         }
                 }
