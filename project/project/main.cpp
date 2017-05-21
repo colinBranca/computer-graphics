@@ -30,11 +30,12 @@ vector<PerlinNoise*> water_perlins;
 int current = 0;
 int seedX = 1;
 int seedY = 1;
-int x, y = 0;
+pair<int, int> gridCoords = {0, 0};
 
 map<pair<int, int>, int> chunks;
 
 float chunk_size = 20.0f;
+int grid_resolution = 512;
 
 
 ScreenQuad screenquad;
@@ -134,21 +135,16 @@ void Init() {
 
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.25f, 0.0f));
 
-    //water_wave_tex_id = water_perlin.Init(512, 512, 1, 1.0);
-    //water_perlin.Compute();
     water_perlins.push_back(new PerlinNoise());
-    water_perlins[current]->Init(512, 512, 1, 1.0);
+    water_perlins[current]->Init(grid_resolution, grid_resolution, 1, 1.0);
     water_perlins[current]->Compute();
 
-//int height_map_tex_id = terrain_perlin.Init(512, 512, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
-    //terrain_perlin.Compute();
     terrain_perlins.push_back(new PerlinNoise());
-    terrain_perlins[current]->Init(512, 512, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
+    terrain_perlins[current]->Init(grid_resolution, grid_resolution, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
     terrain_perlins[current]->Compute();
 
     waterReflexion_id = waterReflexion.Init(window_width, window_height);
 
-    //water.Init(waterReflexion_id, water_wave_tex_id);
     waters.push_back(new Water());
     waters[current]->Init(waterReflexion_id, water_wave_tex_id);
 
@@ -159,85 +155,85 @@ void Init() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-    //terrain.Init(512, height_map_tex_id);
     terrains.push_back(new Terrain());
     terrains[0]->Init(512, terrain_perlins[current]->getHeightTexId());
 
 }
 
-// gets called for every frame.
-void createChunks() {
+enum ChunkRelativePosition {C_LEFT, C_RIGHT, C_UP, C_DOWN, C_STILL};
+
+pair<int, int> getCoefs(ChunkRelativePosition pos) {
+    switch (pos) {
+        case C_LEFT:
+            return {-1, 0};
+        case C_RIGHT:
+            return {1, 0};
+        case C_UP:
+            return {0, 1};
+        case C_DOWN:
+            return {0, -1};
+        case C_STILL:
+            return {0, 0};
+    }
+}
+
+int createChunk(ChunkRelativePosition pos) {
     terrain_perlins.push_back(new PerlinNoise());
-    terrain_perlins.back()->Init(512, 512, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
+    terrain_perlins.back()->Init(grid_resolution, grid_resolution, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
     terrain_perlins.back()->Compute(seedX, seedY);
     water_perlins.push_back(new PerlinNoise());
-    water_perlins.back()->Init(512, 512, 1, 1.0);
+    water_perlins.back()->Init(grid_resolution, grid_resolution, 1, 1.0);
     water_perlins.back()->Compute();
 
     terrains.push_back(new Terrain());
     waters.push_back(new Water());
-    current = terrains.size() - 1;
+
+    pair<int, int> coefs = getCoefs(pos);
+
+    terrains.back()->Init(grid_resolution, terrain_perlins.back()->getHeightTexId(), 20.f, terrains[current]->minX_ + coefs.first * chunk_size, terrains[current]->minY_ + coefs.second * chunk_size);
+    waters.back()->Init(waterReflexion_id, water_wave_tex_id, grid_resolution, 20.0f, waters[current]->minX_ + coefs.first * chunk_size, waters[current]->minY_ + coefs.second * chunk_size);
+
+    return terrains.size() - 1;
+}
+
+ChunkRelativePosition getChunkCoordinates() {
+    if (camera.position_.x > terrains[current]->minX_ + chunk_size) {
+        return C_RIGHT;
+    }
+    else if (camera.position_.x < terrains[current]->minX_) {
+        return C_LEFT;
+    }
+    else if (camera.position_.z > terrains[current]->minY_ + chunk_size) {
+        return C_UP;
+    }
+    else if (camera.position_.z < terrains[current]->minY_){
+        return C_DOWN;
+    } 
+    else {
+        return C_STILL;
+    }
+}
+
+pair<int, int> operator+(pair<int, int> a, pair<int, int> b) {
+    return {a.first + b.first, a.second + b.second};
+}
+
+void checkChunk() {
+    ChunkRelativePosition position = getChunkCoordinates();
+    gridCoords = getCoefs(position) + gridCoords;
+    if (chunks.count(gridCoords) < 1) {
+        current = createChunk(position);
+        chunks[gridCoords] = current;
+    } else {
+        current = chunks[gridCoords];
+    }
 }
 
 void Display() {
+
+    checkChunk();
     const float time = glfwGetTime();
-    if (camera.position_.x > terrains[current]->minX_ + chunk_size) {
-        // right
-        pair<int, int> coords = {x + 1, y};
-        if  (chunks.count(coords) < 1) {
-            seedX++;
-            createChunks();
-            terrains.back()->Init(512, terrain_perlins[current - 1]->getHeightTexId(), 20.f, terrains[current - 1]->minX_ + chunk_size, terrains[current]->minY_);
-            waters.back()->Init(waterReflexion_id, water_wave_tex_id, 512, 20.0f, waters[current - 1]->minX_ + chunk_size, waters[current - 1]->minY_);
-            chunks[coords] = terrains.size() - 1;
-        } else {
-            current = chunks.at(coords);
-        }
-        x++;
-
-    } else if (camera.position_.x < terrains[current]->minX_) {
-        // left
-        pair<int, int> coords = {x - 1, y};
-        if (chunks.count(coords) < 1) {
-            seedX--;
-            createChunks();
-            terrains.back()->Init(512, terrain_perlins[current - 1]->getHeightTexId(), 20.f, terrains[current - 1]->minX_ - chunk_size);
-            waters.back()->Init(waterReflexion_id, water_wave_tex_id, 512, 20.0f, waters[current - 1]->minX_ - chunk_size);
-            chunks[coords] = terrains.size() - 1;
-        } else {
-            current = chunks.at(coords);
-        }
-        x--;
-    } else if (camera.position_.z > terrains[current]->minY_ + chunk_size) {
-        // up        
-        pair<int, int> coords = {x, y + 1};
-        if (chunks.count(coords) < 1) {
-            seedY++;
-            createChunks();
-            terrains[current]->Init(512, terrain_perlins[current - 1]->getHeightTexId(), 20.f, terrains[current - 1]->minX_, terrains[current - 1]->minY_ + chunk_size);
-            waters[current]->Init(waterReflexion_id, water_wave_tex_id, 512, 20.0f, waters[current - 1]->minX_, waters[current - 1]->minY_ + chunk_size);
-            chunks[coords] = terrains.size() - 1;
-        } else {
-            current = chunks.at(coords);
-        }
-        y++;
-
-    } else if (camera.position_.z < terrains[current]->minY_) {
-        // down
-        pair<int, int> coords = {x, y - 1};
-        if (chunks.count(coords) < 1) {
-            seedY--;
-            createChunks();
-            terrains[current]->Init(512, terrain_perlins[current - 1]->getHeightTexId(), 20.f, terrains[current - 1]->minX_, terrains[current - 1]->minY_ - terrains[current - 1]->size_);
-            waters[current]->Init(waterReflexion_id, water_wave_tex_id, 512, 20.0f, waters[current - 1]->minX_, waters[current - 1]->minY_ - waters[current - 1]->size_);
-            chunks[coords] = terrains.size() - 1;
-        } else {
-            current = chunks.at(coords);
-        }
-        y--;
-    }
-    cout << "CURRENT " << current << endl;
-
+    //cout << "CURRENT " << current << endl;
     glViewport(0, 0, window_width, window_height);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -261,21 +257,21 @@ void Display() {
 
     // mirror the camera position
 
-    /*
     mat4 mirror_view = camera.getReversedViewMatrix(water_height);
 
     waterReflexion.Bind();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        //skybox.Draw(scale, mirror_view, projection);
+        skybox.Draw(scale, mirror_view, projection);
+        /*
         for (size_t i = 0; i < terrains.size(); ++i) {
             terrains[i]->Draw(IDENTITY_MATRIX, mirror_view, projection, water_height);
         }
+        */
  
         //terrain.Draw(IDENTITY_MATRIX, mirror_view, projection, water_height);
     waterReflexion.Unbind();
-    */ 
 
-    // skybox.Draw(cube_scale, view, projection);
+    //skybox.Draw(cube_scale, view, projection);
     // water.Draw(trackball_matrix * quad_model_matrix, view, projection, water_height);
 
     glDisable(GL_DEPTH_TEST);
