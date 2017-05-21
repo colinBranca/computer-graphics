@@ -37,7 +37,6 @@ map<pair<int, int>, int> chunks;
 float chunk_size = 20.0f;
 int grid_resolution = 512;
 
-
 ScreenQuad screenquad;
 
 Skybox skybox;
@@ -222,6 +221,12 @@ void checkChunk() {
     ChunkRelativePosition position = getChunkCoordinates();
     gridCoords = getCoefs(position) + gridCoords;
     if (chunks.count(gridCoords) < 1) {
+        if (position == C_RIGHT || position == C_LEFT) {
+            seedX++; 
+        }
+        if (position == C_UP || position == C_DOWN) {
+            seedY++;
+        }
         current = createChunk(position);
         chunks[gridCoords] = current;
     } else {
@@ -350,7 +355,7 @@ int main(int argc, char *argv[]) {
     // initialize our OpenGL program
     Init();
     int movement = 0;
-    float velocity = 0.05f;
+    float velocity = 0.1f;
 
     // render loop
     while(!glfwWindowShouldClose(window)){
@@ -397,13 +402,6 @@ int main(int argc, char *argv[]) {
         water_perlins[i]->Cleanup();
         delete water_perlins[i];
     }
-    /*
-    terrain_perlin.Cleanup();
-    water_perlin.Cleanup();
-    terrain.Cleanup();
-    skybox.Cleanup();
-    water.Cleanup();
-    */
 
     // close OpenGL window and terminate GLFW
     glfwDestroyWindow(window);

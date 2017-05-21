@@ -17,23 +17,23 @@ float fade(float t) { return t * t * t * (t * (t * 6 - 15) + 10); }
 float lerp(float t, float a, float b) { return a + t * (b - a); }
 
 float grad(int hash, float x, float y) {
-      int h = hash & 15;                      // CONVERT LO 4 BITS OF HASH CODE
-      float u = h<8 ? x : y,                 // INTO 12 GRADIENT DIRECTIONS.
+      int h = hash & 15;
+      float u = h<8 ? x : y,
              v = h<4 ? y : h==12||h==14 ? x : 0;
       return ((h&1) == 0 ? u : -u) + ((h&2) == 0 ? v : -v);
 }
 
 float noise(float x, float y) {
-      int X = int(floor(x)) & 255;                  // FIND UNIT CUBE THAT
-      int Y = int(floor(y)) & 255;                  // CONTAINS POINT.
-      x -= floor(x);                                // FIND RELATIVE X,Y,Z
-      y -= floor(y);                                // OF POINT IN CUBE.
-      float u = fade(x);                            // COMPUTE FADE CURVES
-      float v = fade(y);                            // FOR EACH OF X,Y,Z.
-      int A = p[X] + Y;                             // HASH COORDINATES
-      int B = p[X + 1] + Y;                         // OF 4 SQUARE CORNERS
+      int X = int(floor(x)) & 255;
+      int Y = int(floor(y)) & 255;
+      x -= floor(x);
+      y -= floor(y);
+      float u = fade(x);
+      float v = fade(y);
+      int A = p[X] + Y;
+      int B = p[X + 1] + Y;
 
-      return lerp(v, // ADD AND BELND RESULTS FROM CORNERS OF SQUARE
+      return lerp(v,
                   lerp(u, grad(p[A], x, y), grad(p[B], x-1, y)),
                   lerp(u, grad(p[A+1], x, y -1), grad(p[B+1], x-1, y-1)));
    }
