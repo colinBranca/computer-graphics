@@ -7,6 +7,9 @@ uniform float water_height;
 uniform sampler2D height_tex;
 
 in vec2 position;
+uniform float size;
+uniform float minX;
+uniform float minY;
 
 uniform vec3 light_pos;
 
@@ -19,7 +22,7 @@ out vec2 uv;
 flat out int isVisible; //higher than water or not
 
 vec2 getTexCoord(vec2 position) {
-    return (position + vec2(10.0f, 10.0f)) * 0.05f;
+    return (position + vec2(size + minX, size + minY)) / size;
 }
 
 void main() {

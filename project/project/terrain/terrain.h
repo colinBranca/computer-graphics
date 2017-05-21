@@ -30,7 +30,7 @@ struct Material {
 
 class Terrain: public Light, Material  {
 
-    private:
+    public:
         GLuint vertex_array_id_;                // vertex array object
         GLuint vertex_buffer_object_position_;  // memory buffer for positions
         GLuint vertex_buffer_object_index_;     // memory buffer for indices
@@ -41,6 +41,9 @@ class Terrain: public Light, Material  {
         GLuint M_id_;                           // model matrix ID
         GLuint V_id_;                           // proj matrix ID
         GLuint P_id_;                           // view matrix ID
+        float size_;
+        float minX_;
+        float minY_;
 
         GLuint ground_texture;
         GLuint grass_texture;
@@ -77,7 +80,7 @@ class Terrain: public Light, Material  {
         }
 
     public:
-        void Init(size_t grid_dim, GLuint elevation_texture_id) {
+        void Init(size_t grid_dim, GLuint elevation_texture_id, float size = 20.0f, float minX = -10.0f, float minY = -10.0f) {
             // compile the shaders.
             program_id_ = icg_helper::LoadShaders("terrain_vshader.glsl",
                                                   "terrain_fshader.glsl");
@@ -85,6 +88,10 @@ class Terrain: public Light, Material  {
             if(!program_id_) {
                 exit(EXIT_FAILURE);
             }
+
+            size_ = size;
+            minX_ = minX;
+            minY_ = minY;
 
             glUseProgram(program_id_);
 
@@ -98,11 +105,11 @@ class Terrain: public Light, Material  {
                 std::vector<GLfloat> vertices;
 
                 // Generate vertices coordinates
-                float factor = 20.0f / ((float) grid_dim);
+                float factor = size / ((float) grid_dim);
                 for (size_t row = 0; row < grid_dim; ++row) {
-                        float yCoord = factor * row -10.0f;
+                        float yCoord = factor * row + minY;
                         for (size_t col = 0; col < grid_dim; ++col) {
-                                vertices.push_back(factor * col - 10.0f);
+                                vertices.push_back(factor * col + minX);
                                 vertices.push_back(yCoord);
                         }
                 }
@@ -212,6 +219,11 @@ class Terrain: public Light, Material  {
             //setup water_height
             GLuint WaterHeight_id = glGetUniformLocation(program_id_, "water_height");
             glUniform1f(WaterHeight_id, water_height);
+
+            // Dimensions
+            glUniform1f(glGetUniformLocation(program_id_, "size"), size_);
+            glUniform1f(glGetUniformLocation(program_id_, "minX"), minX_);
+            glUniform1f(glGetUniformLocation(program_id_, "minY"), minY_);
 
             // height
             glActiveTexture(GL_TEXTURE0);

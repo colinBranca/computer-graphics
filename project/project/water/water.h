@@ -4,7 +4,7 @@
 
 class Water {
 
-    private:
+    public:
         GLuint vertex_array_id_;        // vertex array object
         GLuint program_id_;             // GLSL shader program ID
         GLuint vertex_buffer_object_;   // memory buffer
@@ -16,13 +16,21 @@ class Water {
                 return dim * i + j;
         }
         GLuint num_indices_;
+        float size_;
+        float minX_;
+        float minY_;
+
 
 
     public:
-        void Init(GLuint tex_mirror = -1, GLuint tex_wave = -1, size_t grid_dim = 1024) {
+        void Init(GLuint tex_mirror = -1, GLuint tex_wave = -1, size_t grid_dim = 1024, float size = 20.0f, float minX = -10.0f, float minY = -10.0f) {
             // compile the shaders
             program_id_ = icg_helper::LoadShaders("water_vshader.glsl",
                                                   "water_fshader.glsl");
+            size_ = size;
+            minX_ = minX;
+            minY_ = minY;
+
             if(!program_id_) {
                 exit(EXIT_FAILURE);
             }
@@ -38,11 +46,11 @@ class Water {
                 std::vector<GLfloat> vertices;
 
                 // Generate vertices coordinates
-                float factor = 20.0f / ((float) grid_dim);
+                float factor = size_ / ((float) grid_dim);
                 for (size_t row = 0; row < grid_dim; ++row) {
-                        float yCoord = factor * row -10.0f;
+                        float yCoord = factor * row + minY;
                         for (size_t col = 0; col < grid_dim; ++col) {
-                                vertices.push_back(factor * col - 10.0f);
+                                vertices.push_back(factor * col + minX);
                                 vertices.push_back(yCoord);
                         }
                 }
@@ -178,6 +186,11 @@ class Water {
             //setup water_height
             GLuint WaterHeight_id = glGetUniformLocation(program_id_, "water_height");
             glUniform1f(WaterHeight_id, water_height);
+
+            glUniform1f(glGetUniformLocation(program_id_, "size"), size_);
+            glUniform1f(glGetUniformLocation(program_id_, "minX"), minX_);
+            glUniform1f(glGetUniformLocation(program_id_, "minY"), minY_);
+
 
             // draw
             glDrawElements(GL_TRIANGLES, num_indices_, GL_UNSIGNED_INT, 0);

@@ -3,11 +3,16 @@ uniform mat4 MVP;
 uniform float water_height;
 uniform float time;
 uniform sampler2D wave_tex;
+
+uniform float size;
+uniform float minX;
+uniform float minY;
+
 in vec2 position;
 out vec2 uv;
 
 vec2 getTexCoord(vec2 position) {
-    return (position + vec2(1.0f, 10.0f)) * 0.05f;
+    return (position + vec2(size + minX, size + minY)) / size;
 }
 
 void main() {
