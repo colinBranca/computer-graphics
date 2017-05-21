@@ -7,6 +7,8 @@ uniform int octaves;
 uniform float frequencyX;
 uniform float frequencyY;
 uniform float amplitude;
+uniform float seedX;
+uniform float seedY;
 
 out float color;
 
@@ -42,7 +44,7 @@ void main() {
 	float a = amplitude;
 
 	for (int i = 0; i < octaves; ++i) {
-		sum += a * noise(pos.x * frequencyX, pos.y * frequencyY);
+		sum += a * noise(seedX * pos.x * frequencyX, seedY * pos.y * frequencyY);
 		pos *= 2.0f;
 		a *= 0.5f;
 	}

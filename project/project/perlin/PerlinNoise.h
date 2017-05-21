@@ -120,7 +120,7 @@ class PerlinNoise {
             return height_tex_id;
         }
 
-        void Compute() {
+        void Compute(float seedX = 1.0f, float seedY = 1.0f) {
                 glViewport(0,0, width_, height_);
                 glBindFramebuffer(GL_FRAMEBUFFER, fb_id);
                 const GLenum buffers[] = {GL_COLOR_ATTACHMENT0};
@@ -140,6 +140,10 @@ class PerlinNoise {
                         noiseFreqX);
                 glUniform1f(glGetUniformLocation(program_id_, "frequencyY"),
                         noiseFreqY);
+                glUniform1f(glGetUniformLocation(program_id_, "seedX"),
+                        seedX);
+                glUniform1f(glGetUniformLocation(program_id_, "seedY"),
+                        seedY);
 
                 glBindVertexArray(vertex_array_id);
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
