@@ -23,8 +23,9 @@
 using namespace glm;
 
 vector<Terrain*> terrains;
-vector<Water*> waters;
-vector<PerlinNoise*> terrain_perlins;
+//vector<Water*> waters;
+//vector<PerlinNoise*> terrain_perlins;
+PerlinNoise terrain_perlin;
 PerlinNoise water_perlin;
 
 int current = 0;
@@ -138,14 +139,16 @@ void Init() {
     water_wave_tex_id = water_perlin.Init(grid_resolution, grid_resolution, 1, 1.0);
     water_perlin.Compute();
 
-    terrain_perlins.push_back(new PerlinNoise());
-    terrain_perlins[current]->Init(grid_resolution, grid_resolution, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
-    terrain_perlins[current]->Compute();
+    //terrain_perlins.push_back(new PerlinNoise());
+    //terrain_perlins[current]->Init(grid_resolution, grid_resolution, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
+    //terrain_perlins[current]->Compute();
+    terrain_perlin.Init(grid_resolution * 10, grid_resolution * 10, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
+    terrain_perlin.Compute();
 
     waterReflexion_id = waterReflexion.Init(window_width, window_height);
 
-    waters.push_back(new Water());
-    waters[current]->Init(waterReflexion_id, water_wave_tex_id);
+    //waters.push_back(new Water());
+    //waters[current]->Init(waterReflexion_id, water_wave_tex_id);
 
     chunks[{0, 0}] = 0;
 
@@ -153,10 +156,8 @@ void Init() {
     //screenquad.Init(window_width, window_height, height_map_tex_id);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
     terrains.push_back(new Terrain());
-    terrains[0]->Init(512, terrain_perlins[current]->getHeightTexId());
-
+    terrains[0]->Init(grid_resolution, terrain_perlin.getHeightTexId(), chunk_size, -10.0, -10.0);
 }
 
 enum ChunkRelativePosition {C_LEFT, C_RIGHT, C_UP, C_DOWN, C_STILL};
@@ -177,18 +178,18 @@ pair<int, int> getCoefs(ChunkRelativePosition pos) {
 }
 
 int createChunk(ChunkRelativePosition pos) {
-    terrain_perlins.push_back(new PerlinNoise());
-    terrain_perlins.back()->Init(grid_resolution, grid_resolution, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
-    terrain_perlins.back()->Compute(seedX, seedY);
+    //terrain_perlins.push_back(new PerlinNoise());
+    //terrain_perlins.back()->Init(grid_resolution, grid_resolution, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
+    //terrain_perlins.back()->Compute(seedX, seedY);
 
     terrains.push_back(new Terrain());
-    waters.push_back(new Water());
+    //waters.push_back(new Water());
 
     pair<int, int> coefs = getCoefs(pos);
 
-    terrains.back()->Init(grid_resolution, terrain_perlins.back()->getHeightTexId(), 20.f, terrains[current]->minX_ + coefs.first * chunk_size, terrains[current]->minY_ + coefs.second * chunk_size);
-    waters.back()->Init(waterReflexion_id, water_wave_tex_id, grid_resolution, 20.0f, waters[current]->minX_ + coefs.first * chunk_size, waters[current]->minY_ + coefs.second * chunk_size);
-
+    terrains.back()->Init(grid_resolution, terrain_perlin.getHeightTexId(), 20.f, terrains[current]->minX_ + coefs.first * chunk_size, terrains[current]->minY_ + coefs.second * chunk_size);
+    //terrains.back()->Init(grid_resolution, terrain_perlins.back()->getHeightTexId(), 20.f, terrains[current]->minX_ + coefs.first * chunk_size, terrains[current]->minY_ + coefs.second * chunk_size);
+    //waters.back()->Init(waterReflexion_id, water_wave_tex_id, grid_resolution, 20.0f, waters[current]->minX_ + coefs.first * chunk_size, waters[current]->minY_ + coefs.second * chunk_size);
     return terrains.size() - 1;
 }
 
@@ -219,10 +220,10 @@ void checkChunk() {
     gridCoords = getCoefs(position) + gridCoords;
     if (chunks.count(gridCoords) < 1) {
         if (position == C_RIGHT || position == C_LEFT) {
-            seedX++;
+            seedX += 0.1;
         }
         if (position == C_UP || position == C_DOWN) {
-            seedY++;
+            seedY += 0.1;
         }
         current = createChunk(position);
         chunks[gridCoords] = current;
@@ -251,7 +252,7 @@ void Display() {
     view = camera.getViewMatrix();
 
     for (size_t i = 0; i < terrains.size(); ++i) {
-        waters[i]->Draw(IDENTITY_MATRIX, view, projection, water_height, time);
+        //waters[i]->Draw(IDENTITY_MATRIX, view, projection, water_height, time);
         terrains[i]->Draw(IDENTITY_MATRIX, view, projection, water_height);
     }
     //water.Draw(IDENTITY_MATRIX, view, projection, water_height, time);
@@ -353,13 +354,14 @@ int main(int argc, char *argv[]) {
     Init();
     int movement = 0;
     int lastMovement = 0;
-    float velocity = 0.05f;
+    float velocity = 1.00f;
 
     // render loop
     while(!glfwWindowShouldClose(window)){
 
         //GLfloat terrain_height = terrain_perlin.getTerrainHeight(camera.position_.x, camera.position_.z);
-        GLfloat terrain_height = terrain_perlins[current]->getTerrainHeight(camera.position_.x, camera.position_.z);
+        //GLfloat terrain_height = terrain_perlins[current]->getTerrainHeight(camera.position_.x, camera.position_.z);
+        GLfloat terrain_height = 5.0f;
 
         glfwPollEvents();
 
@@ -397,12 +399,12 @@ int main(int argc, char *argv[]) {
     }
 
     for (size_t i = 0; i < terrains.size(); ++i) {
-        waters[i]->Cleanup();
-        delete waters[i];
+        //waters[i]->Cleanup();
+        //delete waters[i];
         terrains[i]->Cleanup();
         delete terrains[i];
-        terrain_perlins[i]->Cleanup();
-        delete terrain_perlins[i];
+        //terrain_perlins[i]->Cleanup();
+        //delete terrain_perlins[i];
     }
 
     // close OpenGL window and terminate GLFW
