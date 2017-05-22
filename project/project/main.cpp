@@ -121,44 +121,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mod)
     }
 }
 
-void Init() {
-    // sets background color
-    glClearColor(0, 0, 0 /*gray*/, 1.0 /*solid*/);
 
-    skybox.Init();
-
-    // enable depth test.
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_MULTISAMPLE);
-
-    water_height = 0.0f;
-
-    quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.25f, 0.0f));
-
-
-    water_wave_tex_id = water_perlin.Init(grid_resolution, grid_resolution, 1, 1.0);
-    water_perlin.Compute();
-
-    //terrain_perlins.push_back(new PerlinNoise());
-    //terrain_perlins[current]->Init(grid_resolution, grid_resolution, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
-    //terrain_perlins[current]->Compute();
-    terrain_perlin.Init(grid_resolution * 10, grid_resolution * 10, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
-    terrain_perlin.Compute();
-
-    waterReflexion_id = waterReflexion.Init(window_width, window_height);
-
-    //waters.push_back(new Water());
-    //waters[current]->Init(waterReflexion_id, water_wave_tex_id);
-
-    chunks[{0, 0}] = 0;
-
-
-    //screenquad.Init(window_width, window_height, height_map_tex_id);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    terrains.push_back(new Terrain());
-    terrains[0]->Init(grid_resolution, terrain_perlin.getHeightTexId(), chunk_size, -10.0, -10.0);
-}
 
 enum ChunkRelativePosition {C_LEFT, C_RIGHT, C_UP, C_DOWN, C_STILL};
 
@@ -230,6 +193,62 @@ void checkChunk() {
     } else {
         current = chunks[gridCoords];
     }
+}
+
+void Init() {
+    // sets background color
+    glClearColor(0, 0, 0 /*gray*/, 1.0 /*solid*/);
+
+    skybox.Init();
+
+    // enable depth test.
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
+
+    water_height = 0.0f;
+
+    quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.25f, 0.0f));
+
+
+    water_wave_tex_id = water_perlin.Init(grid_resolution, grid_resolution, 1, 1.0);
+    water_perlin.Compute();
+
+    //terrain_perlins.push_back(new PerlinNoise());
+    //terrain_perlins[current]->Init(grid_resolution, grid_resolution, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
+    //terrain_perlins[current]->Compute();
+    terrain_perlin.Init(grid_resolution * 10, grid_resolution * 10, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
+    terrain_perlin.Compute();
+
+    waterReflexion_id = waterReflexion.Init(window_width, window_height);
+
+    //waters.push_back(new Water());
+    //waters[current]->Init(waterReflexion_id, water_wave_tex_id);
+
+    chunks[{0, 0}] = 0;
+
+
+    //screenquad.Init(window_width, window_height, height_map_tex_id);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    terrains.push_back(new Terrain());
+    // terrains[0]->Init(grid_resolution, terrain_perlin.getHeightTexId(), chunk_size, -10.0, -10.0);
+    terrains[0]->Init(grid_resolution, terrain_perlin.getHeightTexId(), chunk_size, -20.0, -20.0);
+    int size = createChunk(C_RIGHT);
+    current ++;
+    size = createChunk(C_RIGHT);
+    current ++;
+    size = createChunk(C_UP);
+    current ++;
+    size = createChunk(C_LEFT);
+    current ++;
+    size = createChunk(C_LEFT);
+    current ++;
+    size = createChunk(C_UP);
+    current ++;
+    size = createChunk(C_RIGHT);
+    current ++;
+    size = createChunk(C_RIGHT);
+    current ++;
 }
 
 void Display() {
