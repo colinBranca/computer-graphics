@@ -6,7 +6,7 @@ class Water {
 
     public:
         GLuint vertex_array_id_;        // vertex array object
-        GLuint program_id_;             // GLSL shader program ID
+        static int program_id_;             // GLSL shader program ID
         GLuint vertex_buffer_object_;   // memory buffer
         GLuint texture_id_;             // texture ID
         GLuint texture_mirror_id_;      // texture mirror ID
@@ -25,8 +25,10 @@ class Water {
     public:
         void Init(GLuint tex_mirror = -1, GLuint tex_wave = -1, size_t grid_dim = 1024, float size = 20.0f, float minX = -10.0f, float minY = -10.0f) {
             // compile the shaders
-            program_id_ = icg_helper::LoadShaders("water_vshader.glsl",
-                                                  "water_fshader.glsl");
+            if (program_id_ < 0) {
+                program_id_ = icg_helper::LoadShaders("water_vshader.glsl",
+                                                      "water_fshader.glsl");
+            }
             size_ = size;
             minX_ = minX;
             minY_ = minY;
@@ -199,3 +201,5 @@ class Water {
             glUseProgram(0);
         }
 };
+
+int Water::program_id_ = -1;

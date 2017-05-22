@@ -34,7 +34,7 @@ class Terrain: public Light, Material  {
         GLuint vertex_array_id_;                // vertex array object
         GLuint vertex_buffer_object_position_;  // memory buffer for positions
         GLuint vertex_buffer_object_index_;     // memory buffer for indices
-        GLuint program_id_;                     // GLSL shader program ID
+        static int program_id_;                     // GLSL shader program ID
         GLuint height_texture_id_;              // texture ID
         GLuint colormap_texture_id_;            // texture ID
         GLuint num_indices_;                    // number of vertices to render
@@ -82,8 +82,10 @@ class Terrain: public Light, Material  {
     public:
         void Init(size_t grid_dim, GLuint elevation_texture_id, float size = 20.0f, float minX = -10.0f, float minY = -10.0f) {
             // compile the shaders.
-            program_id_ = icg_helper::LoadShaders("terrain_vshader.glsl",
-                                                  "terrain_fshader.glsl");
+            if (program_id_ < 0) {
+                program_id_ = icg_helper::LoadShaders("terrain_vshader.glsl",
+                                                      "terrain_fshader.glsl");
+            }
             this->height_texture_id_ = elevation_texture_id;
             if(!program_id_) {
                 exit(EXIT_FAILURE);
@@ -250,3 +252,5 @@ class Terrain: public Light, Material  {
             glBindVertexArray(0);
         }
 };
+
+int Terrain::program_id_ = -1;

@@ -6,7 +6,7 @@ class PerlinNoise {
         int width_, height_;
         GLuint vertex_buffer_object_;
         GLuint vertex_array_id;
-        int program_id_;
+        static int program_id_;
         int p[512];
         int octaves;
         GLuint height_tex_id;
@@ -55,8 +55,10 @@ class PerlinNoise {
             this->noiseFreqY = noiseFreqY;
             generateP();
 
-           program_id_ = icg_helper::LoadShaders("perlin_vshader.glsl",
-                                                  "perlin_fshader.glsl");
+           if (program_id_ < 0) {
+                program_id_ = icg_helper::LoadShaders("perlin_vshader.glsl",
+                                                      "perlin_fshader.glsl");
+           }
 
             if (!program_id_) exit(EXIT_FAILURE);
             glUseProgram(program_id_);
@@ -190,3 +192,5 @@ class PerlinNoise {
                 return this->height_tex_id;
         }
 };
+
+int PerlinNoise::program_id_ = -1;
