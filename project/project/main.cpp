@@ -25,7 +25,7 @@ using namespace glm;
 vector<Terrain*> terrains;
 vector<Water*> waters;
 vector<PerlinNoise*> terrain_perlins;
-vector<PerlinNoise*> water_perlins;
+PerlinNoise water_perlin;
 
 int current = 0;
 int seedX = 1;
@@ -134,9 +134,9 @@ void Init() {
 
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.25f, 0.0f));
 
-    water_perlins.push_back(new PerlinNoise());
-    water_perlins[current]->Init(grid_resolution, grid_resolution, 1, 1.0);
-    water_perlins[current]->Compute();
+
+    water_wave_tex_id = water_perlin.Init(grid_resolution, grid_resolution, 1, 1.0);
+    water_perlin.Compute();
 
     terrain_perlins.push_back(new PerlinNoise());
     terrain_perlins[current]->Init(grid_resolution, grid_resolution, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
@@ -180,9 +180,6 @@ int createChunk(ChunkRelativePosition pos) {
     terrain_perlins.push_back(new PerlinNoise());
     terrain_perlins.back()->Init(grid_resolution, grid_resolution, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
     terrain_perlins.back()->Compute(seedX, seedY);
-    water_perlins.push_back(new PerlinNoise());
-    water_perlins.back()->Init(grid_resolution, grid_resolution, 1, 1.0);
-    water_perlins.back()->Compute();
 
     terrains.push_back(new Terrain());
     waters.push_back(new Water());
@@ -207,7 +204,7 @@ ChunkRelativePosition getChunkCoordinates() {
     }
     else if (camera.position_.z < terrains[current]->minY_){
         return C_DOWN;
-    } 
+    }
     else {
         return C_STILL;
     }
@@ -222,7 +219,7 @@ void checkChunk() {
     gridCoords = getCoefs(position) + gridCoords;
     if (chunks.count(gridCoords) < 1) {
         if (position == C_RIGHT || position == C_LEFT) {
-            seedX++; 
+            seedX++;
         }
         if (position == C_UP || position == C_DOWN) {
             seedY++;
@@ -272,7 +269,7 @@ void Display() {
             terrains[i]->Draw(IDENTITY_MATRIX, mirror_view, projection, water_height);
         }
         */
- 
+
         //terrain.Draw(IDENTITY_MATRIX, mirror_view, projection, water_height);
     waterReflexion.Unbind();
 
@@ -406,8 +403,6 @@ int main(int argc, char *argv[]) {
         delete terrains[i];
         terrain_perlins[i]->Cleanup();
         delete terrain_perlins[i];
-        water_perlins[i]->Cleanup();
-        delete water_perlins[i];
     }
 
     // close OpenGL window and terminate GLFW
