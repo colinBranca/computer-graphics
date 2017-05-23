@@ -65,6 +65,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             skybox.Cleanup();
             skybox.Init(key - 48);
             break;
+        case GLFW_KEY_C:
+            camera.printCameraPosition();
+            cout << "texture height: " << infiniteTerrain.getCurrentPerlin().getTerrainHeight(camera.position_.x, camera.position_.z, infiniteTerrain.getCurrentChunkCoordinates()) << endl;
+            break;
         }
     } else if (action == GLFW_RELEASE) {
         camera.keys_[key] = false;
@@ -242,8 +246,9 @@ int main(int argc, char *argv[]) {
     while(!glfwWindowShouldClose(window)){
 
         //GLfloat terrain_height = terrain_perlin.getTerrainHeight(camera.position_.x, camera.position_.z);
-        //GLfloat terrain_height = terrain_perlins[current]->getTerrainHeight(camera.position_.x, camera.position_.z);
-        GLfloat terrain_height = 5.0f;
+        // GLfloat terrain_height = terrai_perlins[current]->getTerrainHeight(camera.position_.x, camera.position_.z);
+        // GLfloat terrain_height = 5.0f;
+        GLfloat terrain_height = infiniteTerrain.getCurrentPerlin().getTerrainHeight(camera.position_.x, camera.position_.z, infiniteTerrain.getCurrentChunkCoordinates());
 
         glfwPollEvents();
 

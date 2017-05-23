@@ -1,5 +1,6 @@
 #pragma once
 #include "icg_helper.h"
+#include <cmath>
 
 class PerlinNoise {
     private:
@@ -38,6 +39,11 @@ class PerlinNoise {
                         p[256+i] = v;
                         p[i] = v;
                 }
+        }
+
+        float positiveModulo(float dividend, float quotient) const {
+            float rem = fmod(dividend, quotient);
+            return rem < 0.0 ? rem + quotient : rem;
         }
 
     public:
@@ -161,17 +167,14 @@ class PerlinNoise {
                 glUseProgram(0);
         }
 
-        GLfloat getTerrainHeight(int x, int y)
+        GLfloat getTerrainHeight(float x, float z)
         {
-            // TODO: convert to terrain coordinates
 
-            float xp = floor(x + 5.0f * 51.2);
-            float yp = floor(y + 5.0f * 51.2);
-            //size_t index = (size_t) floor( * width_) * hwidth_ + floor(x * height_);
-            size_t index = yp * width_ + xp;
-            //cout << "CCC " << index << " against tot = " << width_ * height_ << endl;
-            return img_[index] ;
-            //return index >= width_ * height_ ? 0.0f : img_[index];
+            size_t xp = floor(positiveModulo((x + 10.0f), 20.0) * 51.2); // TODO: get size from chunk
+            size_t zp = floor(positiveModulo((z + 10.0f), 20.0) * 51.2);
+            // cout << "DDD " << xp << " " << zp << endl;
+            size_t index = zp * width_ + xp;
+            return img_[index];
         }
 
         void Cleanup() {

@@ -38,6 +38,7 @@ private:
 	pair<int, int> gridCoords = {0, 0};
 
 	map<pair<int, int>, int> chunks;
+	pair<int, int> current_chunk_coordinates;
 
 	float chunk_size = 20.0f;
 	int grid_resolution = 512;
@@ -107,6 +108,8 @@ public:
 	    } else {
 	        current = chunks[gridCoords];
 	    }
+	    current_chunk_coordinates = gridCoords;
+	    // cout << "i: " << current_chunk_coordinates.first << ", j: " << current_chunk_coordinates.second << endl;
 	}
 
 	void Init(int window_width, int window_height) {
@@ -173,5 +176,13 @@ public:
 
         //terrain_perlins[i]->Cleanup();
         //delete terrain_perlins[i];
+	}
+
+	PerlinNoise &getCurrentPerlin() {
+		return terrain_perlin;
+	}
+
+	pair<int, int> &getCurrentChunkCoordinates() {
+		return current_chunk_coordinates;
 	}
 };

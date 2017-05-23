@@ -173,6 +173,10 @@ public:
         return glm::vec2(position_.x, position_.z);
     }
 
+    void printCameraPosition() {
+        cout << "x = " << this->position_.x << ", y = " << this->position_.y << ", z = " << this->position_.z << endl;
+    }
+
 private:
     void updateCameraVectors()
     {
@@ -221,9 +225,8 @@ private:
         }
 
         if (mode_ == FIRST_PERSON) {
-            cout << "x= " << this->position_.x << " y= " << this->position_.y << endl;
-
-            this->position_.z = terrain_height > 0 ? terrain_height : 0; /*+ 2.0f*/; // TODO: replace by height of terrain + offset for pos of head
+            this->position_.y = terrain_height /*+ 0.15f*/;
+            printCameraPosition();
         }
     }
 };
