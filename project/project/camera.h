@@ -169,6 +169,10 @@ public:
         mode_ = mode_ == NORMAL ? FIRST_PERSON : NORMAL;
     }
 
+    glm::vec2 get2dCoords() {
+        return glm::vec2(position_.x, position_.z);
+    }
+
 private:
     void updateCameraVectors()
     {
