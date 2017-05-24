@@ -106,7 +106,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mod)
 
 void Init() {
     // sets background color
-    // glClearColor(0.937, 0.937, 0.937 /*gray*/, 1.0 /*solid*/);
     glClearColor(0, 0, 0 /*gray*/, 1.0 /*solid*/);
 
     skybox.Init();

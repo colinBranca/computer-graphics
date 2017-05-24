@@ -20,7 +20,8 @@ enum Camera_Movement {
 
 enum Camera_Mode {
     NORMAL,
-    FIRST_PERSON
+    FIRST_PERSON,
+    BEZIER
 };
 
 const GLfloat YAW = -90.0f;
@@ -72,15 +73,10 @@ public:
         glm::vec3 pos = glm::vec3(this->position_.x, 2.0f * water_height - this->position_.y, this->position_.z);
         glm::vec3 center = this->position_ + this->front_;
         center.y = 2.0f*water_height - center.y;
-        //pos.z = 2.0f * water_height - pos.z;
         return glm::lookAt(pos, center, this->up_);
     }
 
     void accelerate(int movement, GLfloat velocity, GLfloat terrain_height) {
-      // if (movement == 1) processKeyboard(FORWARD, velocity, terrain_height);
-      // else if (movement == -1) processKeyboard(BACKWARD, velocity, terrain_height);
-      // else if (movement == 2) processKeyboard(RIGHT, velocity, terrain_height);
-      // else if (movement == -2) processKeyboard(LEFT, velocity, terrain_height);
       switch (movement) {
         case 1:
             processKeyboard(FORWARD, velocity, terrain_height);
