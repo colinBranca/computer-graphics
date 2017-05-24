@@ -154,6 +154,8 @@ public:
 	    chunks[{5, 6}] = current;
 	    current = createChunk(C_RIGHT);
 	    chunks[{6, 6}] = current;
+
+		current = 0;
      /*
 	    current = createChunk(C_RIGHT);
 	    chunks[{1, 0}] = current;
