@@ -23,7 +23,7 @@ flat out int isVisible; //higher than water or not
 
 vec2 getTexCoord(vec2 position) {
     // return (position + vec2(size + minX, size + minY)) / (size * 10.0f);
-    return position / (size * 10.0f);
+    return (position+vec2(size / 2)) / (size * 10.0f);
 }
 
 void main() {

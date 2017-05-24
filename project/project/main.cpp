@@ -22,7 +22,7 @@ ScreenQuad screenquad;
 
 Skybox skybox;
 
-Camera camera(vec3(0.0f, 5.0f, 0.0f));
+Camera camera(vec3(90.0f, 10.0f, 90.0f));
 
 int window_width = 1200;
 int window_height = 800;
@@ -66,8 +66,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             skybox.Init(key - 48);
             break;
         case GLFW_KEY_C:
-            camera.printCameraPosition();
-            cout << "texture height: " << infiniteTerrain.getCurrentPerlin().getTerrainHeight(camera.position_.x, camera.position_.z, infiniteTerrain.getCurrentChunkCoordinates()) << endl;
+            //camera.printCameraPosition();
+            //cout << "texture height: " << infiniteTerrain.getCurrentPerlin().getTerrainHeight(camera.position_.x, camera.position_.z, infiniteTerrain.getCurrentChunkCoordinates()) << endl;
             break;
         }
     } else if (action == GLFW_RELEASE) {
@@ -128,7 +128,6 @@ void Init() {
 
 void Display() {
 
-    infiniteTerrain.checkChunk(camera.get2dCoords());
     const float time = glfwGetTime();
     //cout << "CURRENT " << current << endl;
     glViewport(0, 0, window_width, window_height);
@@ -247,8 +246,8 @@ int main(int argc, char *argv[]) {
 
         //GLfloat terrain_height = terrain_perlin.getTerrainHeight(camera.position_.x, camera.position_.z);
         // GLfloat terrain_height = terrai_perlins[current]->getTerrainHeight(camera.position_.x, camera.position_.z);
-        // GLfloat terrain_height = 5.0f;
-        GLfloat terrain_height = infiniteTerrain.getCurrentPerlin().getTerrainHeight(camera.position_.x, camera.position_.z, infiniteTerrain.getCurrentChunkCoordinates());
+         GLfloat terrain_height = 5.0f;
+        //GLfloat terrain_height = infiniteTerrain.getCurrentPerlin().getTerrainHeight(camera.position_.x, camera.position_.z, infiniteTerrain.getCurrentChunkCoordinates());
 
         glfwPollEvents();
 
@@ -279,6 +278,7 @@ int main(int argc, char *argv[]) {
             // else if(camera.keys_[GLFW_KEY_A]) movement = 4;
 
             camera.update(velocity, terrain_height);
+            infiniteTerrain.checkChunk(camera.get2dCoords());
         }
 
         Display();

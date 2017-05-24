@@ -35,7 +35,7 @@ private:
 	int current = 0;
 	int seedX = 1;
 	int seedY = 1;
-	pair<int, int> gridCoords = {0, 0};
+	pair<int, int> gridCoords = {5, 5};
 
 	map<pair<int, int>, int> chunks;
 	pair<int, int> current_chunk_coordinates;
@@ -64,7 +64,7 @@ private:
 	}
 
 	int createChunk(ChunkRelativePosition pos) {
-	    cout << "There are now " << terrains.size() << " chunks" << endl;
+	    cout << "There are now " << terrains.size() << " chunks " << " in " << gridCoords.first << " " << gridCoords.second << endl;
 	    //terrain_perlins.push_back(new PerlinNoise());
 	    //terrain_perlins.back()->Init(grid_resolution, grid_resolution, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
 	    //terrain_perlins.back()->Compute(seedX, seedY);
@@ -98,10 +98,15 @@ private:
 	    }
 	}
 	
+pair<int, int> before = {5,5};
 public:
 	void checkChunk(glm::vec2 pos) {
 	    ChunkRelativePosition position = getChunkCoordinates(pos);
 	    gridCoords = getCoefs(position) + gridCoords;
+		if (gridCoords != before) {
+			cout << "in chunk " << gridCoords.first << " " << gridCoords.second << endl;
+			before = gridCoords;
+		}
 	    if (chunks.count(gridCoords) < 1) {
 	        current = createChunk(position);
 	        chunks[gridCoords] = current;
@@ -121,7 +126,7 @@ public:
 	    //terrain_perlins.push_back(new PerlinNoise());
 	    //terrain_perlins[current]->Init(grid_resolution, grid_resolution, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
 	    //terrain_perlins[current]->Compute();
-	    terrain_perlin.Init(grid_resolution * 10, grid_resolution * 10, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
+	    terrain_perlin.Init(grid_resolution * 11, grid_resolution * 11, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
 	    terrain_perlin.Compute();
 	    terrains.push_back(new Terrain());
 	    // terrains[0]->Init(grid_resolution, terrain_perlin.getHeightTexId(), chunk_size, -10.0, -10.0);
@@ -129,9 +134,27 @@ public:
 	    //waters.push_back(new Water());
     	//waters[current]->Init(waterReflexion_id, water_wave_tex_id);
 	    // FIRST
-	    terrains[0]->Init(grid_resolution, terrain_perlin.getHeightTexId(), chunk_size, -chunk_size / 2.0, -chunk_size / 2.0);
-	    chunks[{0, 0}] = 0;
+	    terrains[0]->Init(grid_resolution, terrain_perlin.getHeightTexId(), chunk_size, 80, 80);//-chunk_size / 2.0, -chunk_size / 2.0);
+	    chunks[{5, 5}] = 0;
+		gridCoords = {5, 5};
 	    // SURROUNDING
+		current = createChunk(C_RIGHT);
+	    chunks[{6, 5}] = current;
+	    current = createChunk(C_DOWN);
+	    chunks[{6, 4}] = current;
+	    current = createChunk(C_LEFT);
+	    chunks[{5, 4}] = current;
+	    current = createChunk(C_LEFT);
+	    chunks[{4, 4}] = current;
+	    current = createChunk(C_UP);
+	    chunks[{4, 5}] = current;
+	    current = createChunk(C_UP);
+	    chunks[{4, 6}] = current;
+	    current = createChunk(C_RIGHT);
+	    chunks[{5, 6}] = current;
+	    current = createChunk(C_RIGHT);
+	    chunks[{6, 6}] = current;
+     /*
 	    current = createChunk(C_RIGHT);
 	    chunks[{1, 0}] = current;
 	    current = createChunk(C_DOWN);
@@ -148,7 +171,7 @@ public:
 	    chunks[{0, 1}] = current;
 	    current = createChunk(C_RIGHT);
 	    chunks[{1, 1}] = current;
-
+		*/
 	}
 
 	void Draw(const glm::mat4 &model,
