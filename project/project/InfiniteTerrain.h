@@ -27,7 +27,7 @@ class InfiniteTerrain {
 
 private:
 	vector<Terrain*> terrains;
-	//vector<Water*> waters;
+	vector<Water*> waters;
 	//vector<PerlinNoise*> terrain_perlins;
 	PerlinNoise terrain_perlin;
 	PerlinNoise water_perlin;
@@ -70,13 +70,12 @@ private:
 	    //terrain_perlins.back()->Compute(seedX, seedY);
 
 	    terrains.push_back(new Terrain());
-	    //waters.push_back(new Water());
+	    waters.push_back(new Water());
 
 	    pair<int, int> coefs = getCoefs(pos);
 
-	    terrains.back()->Init(grid_resolution, terrain_perlin.getHeightTexId(), 20.f, terrains[current]->minX_ + coefs.first * chunk_size, terrains[current]->minY_ + coefs.second * chunk_size);
-	    //terrains.back()->Init(grid_resolution, terrain_perlins.back()->getHeightTexId(), 20.f, terrains[current]->minX_ + coefs.first * chunk_size, terrains[current]->minY_ + coefs.second * chunk_size);
-	    //waters.back()->Init(waterReflexion_id, water_wave_tex_id, grid_resolution, 20.0f, waters[current]->minX_ + coefs.first * chunk_size, waters[current]->minY_ + coefs.second * chunk_size);
+	    terrains.back()->Init(grid_resolution, terrain_perlin.getHeightTexId(), chunk_size, terrains[current]->minX_ + coefs.first * chunk_size, terrains[current]->minY_ + coefs.second * chunk_size);
+	    waters.back()->Init(waterReflexion_id, water_wave_tex_id, grid_resolution, chunk_size, waters[current]->minX_ + coefs.first * chunk_size, waters[current]->minY_ + coefs.second * chunk_size);
 	    return terrains.size() - 1;
 	}
 
@@ -120,7 +119,7 @@ public:
 	void Init(int window_width, int window_height) {
     	waterReflexion_id = waterReflexion.Init(window_width, window_height);
 
-		water_wave_tex_id = water_perlin.Init(grid_resolution, grid_resolution, 1, 1.0);
+		water_wave_tex_id = water_perlin.Init(grid_resolution * 11, grid_resolution * 11, 1, 1.0);
 	    water_perlin.Compute();
 
 	    //terrain_perlins.push_back(new PerlinNoise());
@@ -131,8 +130,8 @@ public:
 	    terrains.push_back(new Terrain());
 	    // terrains[0]->Init(grid_resolution, terrain_perlin.getHeightTexId(), chunk_size, -10.0, -10.0);
 
-	    //waters.push_back(new Water());
-    	//waters[current]->Init(waterReflexion_id, water_wave_tex_id);
+	    waters.push_back(new Water());
+    	waters[0]->Init(waterReflexion_id, water_wave_tex_id, grid_resolution, chunk_size, 80, 80);
 	    // FIRST
 	    terrains[0]->Init(grid_resolution, terrain_perlin.getHeightTexId(), chunk_size, 80, 80);//-chunk_size / 2.0, -chunk_size / 2.0);
 	    chunks[{5, 5}] = 0;
@@ -156,24 +155,6 @@ public:
 	    chunks[{6, 6}] = current;
 
 		current = 0;
-     /*
-	    current = createChunk(C_RIGHT);
-	    chunks[{1, 0}] = current;
-	    current = createChunk(C_DOWN);
-	    chunks[{1, -1}] = current;
-	    current = createChunk(C_LEFT);
-	    chunks[{0, -1}] = current;
-	    current = createChunk(C_LEFT);
-	    chunks[{-1, -1}] = current;
-	    current = createChunk(C_UP);
-	    chunks[{-1, 0}] = current;
-	    current = createChunk(C_UP);
-	    chunks[{-1, 1}] = current;
-	    current = createChunk(C_RIGHT);
-	    chunks[{0, 1}] = current;
-	    current = createChunk(C_RIGHT);
-	    chunks[{1, 1}] = current;
-		*/
 	}
 
 	void Draw(const glm::mat4 &model,
@@ -181,7 +162,7 @@ public:
         const glm::mat4 &projection,
         float water_height = -10.0f) {
 			for (size_t i = 0; i < terrains.size(); ++i) {
-        	//waters[i]->Draw(IDENTITY_MATRIX, view, projection, water_height, time);
+				waters[i]->Draw(IDENTITY_MATRIX, view, projection, water_height, glfwGetTime());
        			terrains[i]->Draw(IDENTITY_MATRIX, view, projection, water_height);
     		}
    		//water.Draw(IDENTITY_MATRIX, view, projection, water_height, time);
@@ -193,6 +174,8 @@ public:
 		for (size_t i = 0; i < terrains.size(); ++i) {
 			terrains[i]->Cleanup();
     	    delete terrains[i];
+			waters[i]->Cleanup();
+			delete waters[i];
     	}
         terrain_perlin.Cleanup();
         water_perlin.Cleanup();
