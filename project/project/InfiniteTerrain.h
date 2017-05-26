@@ -161,13 +161,16 @@ public:
         const glm::mat4 &view,
         const glm::mat4 &projection,
         float water_height = -10.0f) {
-			for (size_t i = 0; i < terrains.size(); ++i) {
-				waters[i]->Draw(IDENTITY_MATRIX, view, projection, water_height, glfwGetTime());
-       			terrains[i]->Draw(IDENTITY_MATRIX, view, projection, water_height);
-    		}
-   		//water.Draw(IDENTITY_MATRIX, view, projection, water_height, time);
-    	//terrain.Draw(IDENTITY_MATRIX, view, projection, water_height);
-    	// mirror the camera position
+        // Only draw chunks around current one.
+		for (int y = -1; y <= 1; ++y) {
+			for (int x = -1; x <= 1; ++x) {
+				pair<int, int> relativeOffset = {x, y};
+				pair<int, int> toDraw = relativeOffset + gridCoords;
+				size_t index_to_draw = chunks[toDraw];
+				waters[index_to_draw]->Draw(IDENTITY_MATRIX, view, projection, water_height, glfwGetTime());
+       			terrains[index_to_draw]->Draw(IDENTITY_MATRIX, view, projection, water_height);
+			}
+		}
 	}
 
 	void Cleanup() {
