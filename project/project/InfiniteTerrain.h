@@ -1,13 +1,8 @@
 #pragma once
 
-#include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
-#include <GLFW/glfw3.h>
-
-// contains helper functions such as shader compiler
-#include "icg_helper.h"
 
 #include "perlin/PerlinNoise.h"
 #include "terrain/terrain.h"
@@ -71,7 +66,6 @@ private:
 	    w->Init(waterReflexion_id, water_wave_tex_id, grid_resolution, chunk_size, chunks[previous].second->minX_ + coefs.first * chunk_size, chunks[previous].second->minY_ + coefs.second * chunk_size);
 
 		chunks[coefs + previous] = {t, w};
-	    cout << "There are now " << chunks.size() << " chunks " << " in " << gridCoords.first << " " << gridCoords.second << endl;
 	}
 
 	ChunkRelativePosition getChunkRelativePosition(glm::vec2 coords2d, pair<int, int> chunk) {
