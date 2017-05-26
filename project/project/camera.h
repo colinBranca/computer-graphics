@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
+#include "bezier.h"
 
 enum Camera_Movement {
     FORWARD,
@@ -23,6 +24,8 @@ enum Camera_Mode {
     FIRST_PERSON,
     BEZIER
 };
+
+Bezier bezier;
 
 const GLfloat YAW = -90.0f;
 const GLfloat PITCH = 0.0f;
@@ -74,6 +77,15 @@ public:
         glm::vec3 center = this->position_ + this->front_;
         center.y = 2.0f*water_height - center.y;
         return glm::lookAt(pos, center, this->up_);
+    }
+
+    void updateCameraPosition(float t) {
+      if(mode_ == BEZIER) this->position_ = bezier.bezierPosition(t);
+    }
+
+    void RecordPoint() {
+      std::cout << "add pos: " << this->position_.x << "  " << this->position_.y << "  "<< this->position_.z << '\n';
+      bezier.addPoint(this->position_);
     }
 
     void accelerate(int movement, GLfloat velocity, GLfloat terrain_height) {
@@ -162,7 +174,19 @@ public:
 
     void switchCameraMode()
     {
-        mode_ = mode_ == NORMAL ? FIRST_PERSON : NORMAL;
+        //mode_ = mode_ == NORMAL ? FIRST_PERSON : NORMAL;
+        switch(mode_) {
+          case NORMAL:
+              mode_ = FIRST_PERSON;
+              break;
+          case FIRST_PERSON:
+              mode_ = BEZIER;
+              bezier.Init();
+              break;
+          case BEZIER:
+              mode_ = NORMAL;
+              break;
+        }
     }
 
 private:

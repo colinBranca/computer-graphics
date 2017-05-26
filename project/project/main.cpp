@@ -37,6 +37,7 @@ bool firstMouse = true;
 int mouse_input_mode = GLFW_CURSOR_DISABLED;
 
 GLfloat last_frame = 0.0f;
+GLfloat delta_time = 0.0f;
 
 mat4 quad_model_matrix;
 
@@ -59,6 +60,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             break;
         case GLFW_KEY_F3:
             camera.switchCameraMode();
+            break;
+        case GLFW_KEY_R:
+            camera.RecordPoint();
             break;
         case GLFW_KEY_0:
         case GLFW_KEY_1:
@@ -138,6 +142,9 @@ void Init() {
 // gets called for every frame.
 void Display() {
     const float time = glfwGetTime();
+    delta_time = time - last_frame;
+    last_frame = time;
+    camera.updateCameraPosition(delta_time);
 
     glViewport(0, 0, window_width, window_height);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
