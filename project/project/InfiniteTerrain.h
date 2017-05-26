@@ -58,17 +58,20 @@ private:
 	}
 
 	void createChunk(ChunkRelativePosition pos, pair<int, int> previous) {
-	    cout << "There are now " << chunks.size() << " chunks " << " in " << gridCoords.first << " " << gridCoords.second << endl;
+	    pair<int, int> coefs = getCoefs(pos);
+
+		if (chunks.count(coefs + previous) > 0) {
+			return;
+		}
 
 		Terrain* t = new Terrain();
 		Water* w = new Water();
-
-	    pair<int, int> coefs = getCoefs(pos);
 
 	    t->Init(grid_resolution, terrain_perlin.getHeightTexId(), chunk_size, chunks[previous].first->minX_ + coefs.first * chunk_size, chunks[previous].first->minY_ + coefs.second * chunk_size);
 	    w->Init(waterReflexion_id, water_wave_tex_id, grid_resolution, chunk_size, chunks[previous].second->minX_ + coefs.first * chunk_size, chunks[previous].second->minY_ + coefs.second * chunk_size);
 
 		chunks[coefs + previous] = {t, w};
+	    cout << "There are now " << chunks.size() << " chunks " << " in " << gridCoords.first << " " << gridCoords.second << endl;
 	}
 
 	ChunkRelativePosition getChunkRelativePosition(glm::vec2 coords2d, pair<int, int> chunk) {
@@ -88,19 +91,30 @@ private:
 	        return C_STILL;
 	    }
 	}
-	
 
 public:
 	void checkChunk(glm::vec2 pos) {
-	    ChunkRelativePosition position = getChunkRelativePosition(pos, gridCoords);
-	    pair<int, int> newCoords = getCoefs(position) + gridCoords;
+	    ChunkRelativePosition relPos = getChunkRelativePosition(pos, gridCoords);
+	    pair<int, int> newCoords = getCoefs(relPos) + gridCoords;
 		if (newCoords != gridCoords) {
 			cout << "in chunk " << newCoords.first << " " << newCoords.second << endl;
 		}
-	    if (chunks.count(newCoords) < 1) {
-			cout << "Creating chunk" << endl;
-	        createChunk(position, gridCoords);
-	    }
+
+		createChunk(relPos, newCoords);
+		switch (relPos) {
+			case C_RIGHT:
+				createChunk(C_UP, newCoords + getCoefs(C_RIGHT));
+				createChunk(C_DOWN, newCoords + getCoefs(C_RIGHT));
+			case C_LEFT:
+				createChunk(C_UP, newCoords + getCoefs(C_LEFT));
+				createChunk(C_DOWN, newCoords + getCoefs(C_LEFT));
+			case C_UP:
+				createChunk(C_LEFT, newCoords + getCoefs(C_UP));
+				createChunk(C_RIGHT, newCoords + getCoefs(C_UP));
+			case C_DOWN:
+				createChunk(C_LEFT, newCoords + getCoefs(C_DOWN));
+				createChunk(C_RIGHT, newCoords + getCoefs(C_DOWN));
+		}
 		gridCoords = newCoords;
 	}
 
