@@ -278,9 +278,9 @@ int main(int argc, char *argv[]) {
             // else if(camera.keys_[GLFW_KEY_A]) movement = 4;
 
             camera.update(velocity, terrain_height);
-            infiniteTerrain.checkChunk(camera.get2dCoords());
         }
 
+        infiniteTerrain.checkChunk(camera.get2dCoords());
         Display();
         glfwSwapBuffers(window);
     }
