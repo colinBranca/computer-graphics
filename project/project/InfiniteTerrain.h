@@ -24,8 +24,6 @@ private:
 	PerlinNoise terrain_perlin;
 	PerlinNoise water_perlin;
 
-	int seedX = 1;
-	int seedY = 1;
 	pair<int, int> gridCoords;
 	map<pair<int, int>, pair<Terrain*, Water*>> chunks;
 
@@ -35,7 +33,6 @@ private:
 	FrameBuffer waterReflexion;
 	GLuint waterReflexion_id;
 	GLuint water_wave_tex_id;
-
 
 	pair<int, int> getCoefs(ChunkRelativePosition pos) {
 	    switch (pos) {
@@ -62,8 +59,17 @@ private:
 		Terrain* t = new Terrain();
 		Water* w = new Water();
 
-	    t->Init(grid_resolution, terrain_perlin.getHeightTexId(), chunk_size, chunks[previous].first->minX_ + coefs.first * chunk_size, chunks[previous].first->minY_ + coefs.second * chunk_size);
-	    w->Init(waterReflexion_id, water_wave_tex_id, grid_resolution, chunk_size, chunks[previous].second->minX_ + coefs.first * chunk_size, chunks[previous].second->minY_ + coefs.second * chunk_size);
+	    t->Init(grid_resolution,
+				terrain_perlin.getHeightTexId(),
+				chunk_size,
+				chunks[previous].first->minX_ + coefs.first * chunk_size,
+				chunks[previous].first->minY_ + coefs.second * chunk_size);
+	    w->Init(waterReflexion_id,
+			    water_wave_tex_id,
+				grid_resolution,
+				chunk_size,
+				chunks[previous].second->minX_ + coefs.first * chunk_size,
+				chunks[previous].second->minY_ + coefs.second * chunk_size);
 
 		chunks[coefs + previous] = {t, w};
 	}
@@ -90,9 +96,10 @@ public:
 	void checkChunk(glm::vec2 pos) {
 	    ChunkRelativePosition relPos = getChunkRelativePosition(pos, gridCoords);
 	    pair<int, int> newCoords = getCoefs(relPos) + gridCoords;
-		if (newCoords != gridCoords) {
-			cout << "in chunk " << newCoords.first << " " << newCoords.second << endl;
-		}
+
+		if (newCoords == gridCoords) return;
+
+		cout << "in chunk " << newCoords.first << " " << newCoords.second << endl;
 
 		createChunk(relPos, newCoords);
 		switch (relPos) {
