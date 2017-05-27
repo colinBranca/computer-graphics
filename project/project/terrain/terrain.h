@@ -107,7 +107,7 @@ class Terrain: public Light, Material  {
                 std::vector<GLfloat> vertices;
 
                 // Generate vertices coordinates
-                float factor = size / ((float) grid_dim);
+                float factor = size / ((float) grid_dim - 1);
                 for (size_t row = 0; row < grid_dim; ++row) {
                         float yCoord = factor * row + minY;
                         for (size_t col = 0; col < grid_dim; ++col) {
