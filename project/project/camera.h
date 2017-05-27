@@ -253,7 +253,7 @@ private:
 
         if (mode_ == FIRST_PERSON) {
             this->position_.y = terrain_height /*+ 0.15f*/;
-            printCameraPosition();
+            //printCameraPosition();
         }
     }
 };

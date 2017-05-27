@@ -169,12 +169,17 @@ class PerlinNoise {
 
         GLfloat getTerrainHeight(float x, float z)
         {
+            size_t cx = (size_t) floor(((x + 10.0f) / (20.0f * 11.0f)) * 5120.0f);
+            size_t cy = (size_t) floor(((z + 10.0f) / (20.0f * 11.0f)) * 5120.0f);
+            size_t index = cy * 5120 + cx;
 
+            /*
             size_t xp = floor(positiveModulo((x + 10.0f), 20.0) * 51.2); // TODO: get size from chunk
             size_t zp = floor(positiveModulo((z + 10.0f), 20.0) * 51.2);
             // cout << "DDD " << xp << " " << zp << endl;
             size_t index = zp * width_ + xp;
-            return img_[index];
+            */
+            return img_[index] + 3.0f;
         }
 
         void Cleanup() {
@@ -192,7 +197,7 @@ class PerlinNoise {
         }
 
         GLuint getHeightTexId() {
-                return this->height_tex_id;
+            return this->height_tex_id;
         }
 };
 

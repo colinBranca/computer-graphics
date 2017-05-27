@@ -242,8 +242,8 @@ int main(int argc, char *argv[]) {
    // render loop
     while(!glfwWindowShouldClose(window)){
 
-        //GLfloat terrain_height = infiniteTerrain.getCurrentPerlin().getTerrainHeight(camera.position_.x, camera.position_.z, infiniteTerrain.getCurrentChunkCoordinates());
-        GLfloat terrain_height = 5.0f;
+        GLfloat terrain_height = infiniteTerrain.getCurrentPerlin().getTerrainHeight(camera.position_.x, camera.position_.z);
+        //GLfloat terrain_height = 5.0f;
 
         glfwPollEvents();
 
