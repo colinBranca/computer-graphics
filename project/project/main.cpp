@@ -15,7 +15,6 @@
 #include "framebuffer.h"
 
 #include "InfiniteTerrain.h"
-#include "bezier.h"
 
 using namespace glm;
 
@@ -38,7 +37,6 @@ mat4 quad_model_matrix;
 
 float water_height;
 InfiniteTerrain infiniteTerrain;
-BezierCurve b;
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
@@ -107,14 +105,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mod)
 }
 
 void Init() {
-    vector<vec3> ps = {
-        vec3(80.0, 6, 80.0f),
-        vec3(80.0, 6, 100.0),
-        vec3(100.0, 6, 100.0),
-    };
-    b.Init(1000, ps);
-
-    // sets background color
+   // sets background color
     glClearColor(0, 0, 0 /*gray*/, 1.0 /*solid*/);
 
     skybox.Init();
@@ -137,7 +128,6 @@ void Init() {
 void Display() {
 
     const float time = glfwGetTime();
-    //cout << "CURRENT " << current << endl;
     glViewport(0, 0, window_width, window_height);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -249,9 +239,7 @@ int main(int argc, char *argv[]) {
     int lastMovement = 0;
     float velocity = 1.00f;
 
-    vector<vec3> path = b.getPath();
-    size_t cu = 0;
-    // render loop
+   // render loop
     while(!glfwWindowShouldClose(window)){
 
         //GLfloat terrain_height = infiniteTerrain.getCurrentPerlin().getTerrainHeight(camera.position_.x, camera.position_.z, infiniteTerrain.getCurrentChunkCoordinates());
@@ -287,9 +275,6 @@ int main(int argc, char *argv[]) {
 
             camera.update(velocity, terrain_height);
         }
-
-        camera.position_ = path[cu++];
-        if (cu == path.size()) cu = 0;
 
         infiniteTerrain.checkChunk(camera.get2dCoords());
         //camera.printCameraPosition();

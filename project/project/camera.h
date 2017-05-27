@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
+#include "bezier.h"
 
 enum Camera_Movement {
     FORWARD,
@@ -20,7 +21,8 @@ enum Camera_Movement {
 
 enum Camera_Mode {
     NORMAL,
-    FIRST_PERSON
+    FIRST_PERSON,
+    BEZIER
 };
 
 const GLfloat YAW = -90.0f;
@@ -48,6 +50,9 @@ public:
     // Mode
     Camera_Mode mode_;
     bool keys_[1024];
+    
+    vector<glm::vec3> bezierPath;
+    size_t cu = 0; // Position in path
 
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
            glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
@@ -60,6 +65,14 @@ public:
         this->yaw_ = yaw;
         this->pitch_ = pitch;
         this->updateCameraVectors();
+        BezierCurve b;
+        vector<glm::vec3> ps = {
+            glm::vec3(80.0, 6, 80.0f),
+            glm::vec3(80.0, 6, 100.0),
+            glm::vec3(100.0, 6, 100.0)
+        };
+        b.Init(1000, ps);
+        bezierPath = b.getPath();
     }
 
     glm::mat4 getViewMatrix()
@@ -129,6 +142,10 @@ public:
         if (keys_[GLFW_KEY_RIGHT]) {
             processKeyboard(YAW_RIGHT, velocity, terrain_height);
         }
+        if (mode_ == BEZIER) {
+            position_ = bezierPath[cu++];
+            cu = cu == bezierPath.size() ? 0 : cu;
+        }
     }
 
     void processMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrain_pitch = true)
@@ -166,7 +183,17 @@ public:
 
     void switchCameraMode()
     {
-        mode_ = mode_ == NORMAL ? FIRST_PERSON : NORMAL;
+        switch (mode_) {
+            case NORMAL:
+                mode_ = FIRST_PERSON;
+                break;
+            case FIRST_PERSON:
+                mode_ = BEZIER;
+                break;
+            case BEZIER:
+                mode_ = NORMAL;
+                break;
+        }
     }
 
     glm::vec2 get2dCoords() {
