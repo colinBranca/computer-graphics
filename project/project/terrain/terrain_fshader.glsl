@@ -21,7 +21,7 @@ in vec4 vpoint_mv;
 in vec3 normal;
 
 vec3 texMix(float height) {
-    vec3 grass = texture(grass_tex, 100.0f * uv).rgb;
+    vec3 grass = texture(grass_tex, 1000.0f * uv).rgb;
     vec3 ground = texture(ground_tex, 10.0f * uv).rgb;
     vec3 snow = texture(snow_tex, 30.0f * uv).rgb;
     vec3 sand = texture(sand_tex, 60.0f * uv).rgb;
@@ -37,11 +37,11 @@ vec3 texMix(float height) {
     vec3 tmpColor;
     if(height < water_height - 0.5f) tmpColor = sand;
     else if(height < water_height + 0.5f) tmpColor = mix(sand, grass, height - water_height + 0.5f);
-    else if(height < water_height + 1.5f) tmpColor = mix(grass, snow, height - water_height - 0.5f);
+    else if(height < water_height + 4.0f) tmpColor = grass;
+    else if(height < water_height + 5.0f) tmpColor = mix(grass, snow, height - water_height - 4.0f);
     else tmpColor = snow;
 
     return mix(tmpColor, ground, alpha);
-    //return mix( mix(snow, grass, 1.5f - height), mix(sand, grass, 0.2 - height), height - 1);
 }
 
 void main() {
@@ -60,7 +60,6 @@ void main() {
     if (colorT == vec3(0,0,0)) color = vec3(0,1,0);
 
 
-    //color = colorT;
     if(isVisible == 0) {
       discard;
     }

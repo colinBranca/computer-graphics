@@ -166,7 +166,7 @@ void Init() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
 
-    water_height = 0.0f;
+    water_height = -3.0f;
 
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.25f, 0.0f));
 

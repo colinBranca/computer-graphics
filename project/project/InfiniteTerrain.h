@@ -32,7 +32,7 @@ private:
 
   float frequency = 400.0f;
   float amplitude = 7.0f;
-  int octaves = 6;
+  int octaves = 7;
 
 	FrameBuffer waterReflexion;
 	GLuint waterReflexion_id;
