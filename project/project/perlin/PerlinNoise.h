@@ -1,6 +1,7 @@
 #pragma once
 #include "icg_helper.h"
 #include <cmath>
+#include "BlurringFilters.h"
 
 class PerlinNoise {
     private:
@@ -160,6 +161,7 @@ class PerlinNoise {
                 img_ = (GLfloat*) calloc(width_ * height_, sizeof(GLfloat));
  
                 glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, img_);
+                BlurringFilters::blur(img_, width_, height_);
                 glBindTexture(GL_TEXTURE_2D, 0);
                 
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
