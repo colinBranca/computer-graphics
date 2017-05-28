@@ -42,12 +42,16 @@ void main() {
 	vec2 pos = uv;
 	float sum = 0.0f;
 	float a = amplitude;
+      float freqX = frequencyX;
+      float freqY = frequencyY;
+      float fact = 1.7;
 
 	for (int i = 0; i < octaves; ++i) {
-		sum += a * noise(pos.x * frequencyX, pos.y * frequencyY);
-		pos *= 2.0f;
+		sum += a * noise(pos.x * freqX, pos.y * freqY);
+            freqX *= fact;
+            freqY *= fact;
 		a *= 0.5f;
 	}
 
-        color = sum + 0.5f;
+        color = sum; //+ 0.5f;
 }
