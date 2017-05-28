@@ -301,8 +301,10 @@ int main(int argc, char *argv[]) {
         else if(camera.keys_[GLFW_KEY_S]) movement = 2;
         else if(camera.keys_[GLFW_KEY_D]) movement = 3;
         else if(camera.keys_[GLFW_KEY_A]) movement = 4;
+        else if (camera.keys_[GLFW_KEY_UP] || camera.keys_[GLFW_KEY_DOWN]
+          || camera.keys_[GLFW_KEY_LEFT] || camera.keys_[GLFW_KEY_RIGHT]) movement = -1;
 
-        if (movement != 0 && movement == lastMovement) {
+        if (movement > 0 && movement == lastMovement) {
             if (camera.keys_[GLFW_KEY_W] || camera.keys_[GLFW_KEY_S] || camera.keys_[GLFW_KEY_D] || camera.keys_[GLFW_KEY_A]) {
               //std::cout << "accelerate   " << velocity <<'\n';
               velocity = std::min(velocity + 0.002f, 0.05f);
