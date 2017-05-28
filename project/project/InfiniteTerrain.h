@@ -125,7 +125,7 @@ public:
 		water_wave_tex_id = water_perlin.Init(grid_resolution * 11, grid_resolution * 11, 1, 1.0);
 	    water_perlin.Compute();
 
-	    terrain_perlin.Init(grid_resolution * 11, grid_resolution * 11, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
+	    terrain_perlin.Init(grid_resolution * 11, grid_resolution * 11, 6, 4.0f, 1 / 800.0f, 1 / 800.0f);
 	    terrain_perlin.Compute();
 
 		Terrain* t = new Terrain();
