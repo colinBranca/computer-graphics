@@ -35,6 +35,11 @@ GLfloat last_frame = 0.0f;
 
 mat4 quad_model_matrix;
 
+mat4 skyScale = mat4(20.0f, 0.0f, 0.0f, 0.0f,
+                      0.0f, 20.0f, 0.0f, 0.0f,
+                      0.0f, 0.0f, 20.0f, 0.0f,
+                      0.0f, 0.0f, 0.0f, 1.0f);
+
 float water_height;
 InfiniteTerrain infiniteTerrain;
 
@@ -56,6 +61,53 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         case GLFW_KEY_F3:
             camera.switchCameraMode();
             break;
+        // case GLFW_KEY_F4: {
+        //     mat4 v = camera.getViewMatrix();
+        //     mat4 p = camera.getProjectionMatrix(window_width, window_height);
+        //     infiniteTerrain.changePerlin(1, true, window_width, window_height, v, p, water_height);
+        //     break;
+        //   }
+        // case GLFW_KEY_F5: {
+        //     mat4 v = camera.getViewMatrix();
+        //     mat4 p = camera.getProjectionMatrix(window_width, window_height);
+        //     infiniteTerrain.changePerlin(1, false, window_width, window_height, v, p, water_height);
+        //     break;
+        //   }
+        // case GLFW_KEY_F6: {
+        //     mat4 v = camera.getViewMatrix();
+        //     mat4 p = camera.getProjectionMatrix(window_width, window_height);
+        //     infiniteTerrain.changePerlin(2, true, window_width, window_height, v, p, water_height);
+        //     break;
+        //   }
+        // case GLFW_KEY_F7: {
+        //     mat4 v = camera.getViewMatrix();
+        //     mat4 p = camera.getProjectionMatrix(window_width, window_height);
+        //     infiniteTerrain.changePerlin(2, false, window_width, window_height, v, p, water_height);
+        //     break;
+        //   }
+        // case GLFW_KEY_F8: {
+        //     mat4 v = camera.getViewMatrix();
+        //     mat4 p = camera.getProjectionMatrix(window_width, window_height);
+        //     infiniteTerrain.changePerlin(3, true, window_width, window_height, v, p, water_height);
+        //     break;
+        // }
+        // case GLFW_KEY_F9: {
+        //    mat4 v = camera.getViewMatrix();
+        //    mat4 p = camera.getProjectionMatrix(window_width, window_height);
+        //    infiniteTerrain.changePerlin(3, false, window_width, window_height, v, p, water_height);
+        //    break;
+        // }
+        case GLFW_KEY_F4:
+        case GLFW_KEY_F5:
+        case GLFW_KEY_F6:
+        case GLFW_KEY_F7:
+        case GLFW_KEY_F8:
+        case GLFW_KEY_F9: {
+            mat4 v = camera.getViewMatrix();
+            mat4 p = camera.getProjectionMatrix(window_width, window_height);
+            infiniteTerrain.changePerlin(key - 293, window_width, window_height, v, p, water_height);
+            break;
+          }
         case GLFW_KEY_0:
         case GLFW_KEY_1:
         case GLFW_KEY_2:
@@ -133,15 +185,13 @@ void Display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
-    mat4 view = mat4(mat3(camera.getViewMatrix()));
-    mat4 projection = perspective(camera.zoom_, (float) window_width / (float) window_height, 0.1f, 100.0f);
-    mat4 scale = mat4(20.0f);
-    scale[3][3] = 1.0f;
+    mat4 view = camera.getViewMatrix();
+    mat4 projection = camera.getProjectionMatrix(window_width, window_height);
 
-    skybox.Draw(scale, view, projection);
-
-    view = camera.getViewMatrix();
     infiniteTerrain.Draw(IDENTITY_MATRIX, view, projection, water_height);
+
+    view = mat4(mat3(view));
+    skybox.Draw(skyScale, view, projection);
 
     mat4 mirror_view = camera.getReversedViewMatrix(water_height);
 
