@@ -30,6 +30,10 @@ private:
 	float chunk_size = 20.0f;
 	int grid_resolution = 512;
 
+  float frequency = 400.0f;
+  float amplitude = 7.0f;
+  int octaves = 6;
+
 	FrameBuffer waterReflexion;
 	GLuint waterReflexion_id;
 	GLuint water_wave_tex_id;
@@ -119,13 +123,44 @@ public:
 		gridCoords = newCoords;
 	}
 
+  void changePerlin(int param, int window_width, int window_height, glm::mat4 v, glm::mat4 p, float water_height) {
+    switch (param) {
+      case 0:
+          amplitude += 1.0f;
+          break;
+      case 1:
+          amplitude -= 1.0f;
+          break;
+      case 2:
+          frequency += 10.0f;
+          break;
+      case 3:
+          frequency -= 10.0f;
+          break;
+      case 4:
+          octaves += 1;
+          break;
+      case 5:
+          octaves -= 1;
+          break;
+    }
+    GLuint newTex = terrain_perlin.Init(grid_resolution * 11, grid_resolution * 11, octaves, amplitude, 1/frequency, 1/frequency);
+    terrain_perlin.Compute();
+
+    for (pair<pair<int, int>, pair<Terrain*, Water*>> chunk : chunks) {
+      chunk.second.first->height_texture_id_ = newTex;
+    }
+    //Init(window_width, window_height);
+    Draw(IDENTITY_MATRIX, v, p, water_height);
+  }
+
 	void Init(int window_width, int window_height) {
     	waterReflexion_id = waterReflexion.Init(window_width, window_height);
 
 		water_wave_tex_id = water_perlin.Init(grid_resolution * 11, grid_resolution * 11, 1, 1.0);
 	    water_perlin.Compute();
 
-	    terrain_perlin.Init(grid_resolution * 11, grid_resolution * 11, 7, 3.5f, 1 / 400.0f, 1 / 400.0f);
+	    terrain_perlin.Init(grid_resolution * 11, grid_resolution * 11, octaves, amplitude, 1/frequency, 1/frequency);
 	    terrain_perlin.Compute();
 
 		Terrain* t = new Terrain();

@@ -50,7 +50,7 @@ public:
     // Mode
     Camera_Mode mode_;
     bool keys_[1024];
-    
+
     vector<glm::vec3> bezierPath;
     size_t cu = 0; // Position in path
 
@@ -87,6 +87,10 @@ public:
         center.y = 2.0f*water_height - center.y;
         //pos.z = 2.0f * water_height - pos.z;
         return glm::lookAt(pos, center, this->up_);
+    }
+
+    glm::mat4 getProjectionMatrix(int window_width, int window_height) {
+      return glm::perspective(this->zoom_, (float) window_width / (float) window_height, 0.1f, 100.0f);
     }
 
     void accelerate(int movement, GLfloat velocity, GLfloat terrain_height) {
