@@ -51,6 +51,9 @@ class Skybox {
         }
 
     public:
+        GLuint getTexture() {
+            return cubemap_texture_;
+        }
         void Init(int skybox_id = 0) {
             // compile the shaders.
             program_id_ = icg_helper::LoadShaders("skybox_vshader.glsl",

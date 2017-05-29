@@ -61,43 +61,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         case GLFW_KEY_F3:
             camera.switchCameraMode();
             break;
-        // case GLFW_KEY_F4: {
-        //     mat4 v = camera.getViewMatrix();
-        //     mat4 p = camera.getProjectionMatrix(window_width, window_height);
-        //     infiniteTerrain.changePerlin(1, true, window_width, window_height, v, p, water_height);
-        //     break;
-        //   }
-        // case GLFW_KEY_F5: {
-        //     mat4 v = camera.getViewMatrix();
-        //     mat4 p = camera.getProjectionMatrix(window_width, window_height);
-        //     infiniteTerrain.changePerlin(1, false, window_width, window_height, v, p, water_height);
-        //     break;
-        //   }
-        // case GLFW_KEY_F6: {
-        //     mat4 v = camera.getViewMatrix();
-        //     mat4 p = camera.getProjectionMatrix(window_width, window_height);
-        //     infiniteTerrain.changePerlin(2, true, window_width, window_height, v, p, water_height);
-        //     break;
-        //   }
-        // case GLFW_KEY_F7: {
-        //     mat4 v = camera.getViewMatrix();
-        //     mat4 p = camera.getProjectionMatrix(window_width, window_height);
-        //     infiniteTerrain.changePerlin(2, false, window_width, window_height, v, p, water_height);
-        //     break;
-        //   }
-        // case GLFW_KEY_F8: {
-        //     mat4 v = camera.getViewMatrix();
-        //     mat4 p = camera.getProjectionMatrix(window_width, window_height);
-        //     infiniteTerrain.changePerlin(3, true, window_width, window_height, v, p, water_height);
-        //     break;
-        // }
-        // case GLFW_KEY_F9: {
-        //    mat4 v = camera.getViewMatrix();
-        //    mat4 p = camera.getProjectionMatrix(window_width, window_height);
-        //    infiniteTerrain.changePerlin(3, false, window_width, window_height, v, p, water_height);
-        //    break;
-        // }
-        case GLFW_KEY_F4:
         case GLFW_KEY_F5:
         case GLFW_KEY_F6:
         case GLFW_KEY_F7:
@@ -171,7 +134,7 @@ void Init() {
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.25f, 0.0f));
 
 
-    infiniteTerrain.Init(window_width, window_height);
+    infiniteTerrain.Init(window_width, window_height, skybox.getTexture());
 
     //screenquad.Init(window_width, window_height, height_map_tex_id);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -188,7 +151,7 @@ void Display() {
     mat4 view = camera.getViewMatrix();
     mat4 projection = camera.getProjectionMatrix(window_width, window_height);
 
-    infiniteTerrain.Draw(IDENTITY_MATRIX, view, projection, water_height);
+    infiniteTerrain.Draw(IDENTITY_MATRIX, view, projection, camera.position_, water_height);
 
     view = mat4(mat3(view));
     skybox.Draw(skyScale, view, projection);

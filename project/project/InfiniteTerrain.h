@@ -30,6 +30,8 @@ private:
 	float chunk_size = 20.0f;
 	int grid_resolution = 512;
 
+	GLuint skybox;
+
   float frequency = 400.0f;
   float amplitude = 7.0f;
   int octaves = 7;
@@ -68,7 +70,8 @@ private:
 				chunk_size,
 				chunks[previous].first->minX_ + coefs.first * chunk_size,
 				chunks[previous].first->minY_ + coefs.second * chunk_size);
-	    w->Init(waterReflexion_id,
+	    w->Init(skybox,
+				waterReflexion_id,
 			    water_wave_tex_id,
 				grid_resolution,
 				chunk_size,
@@ -151,10 +154,11 @@ public:
       chunk.second.first->height_texture_id_ = newTex;
     }
     //Init(window_width, window_height);
-    Draw(IDENTITY_MATRIX, v, p, water_height);
+    Draw(IDENTITY_MATRIX, v, p, glm::vec3(0,0,0), water_height);
   }
 
-	void Init(int window_width, int window_height) {
+	void Init(int window_width, int window_height, GLuint skybox_tex) {
+        skybox = skybox_tex;
     	waterReflexion_id = waterReflexion.Init(window_width, window_height);
 
 		water_wave_tex_id = water_perlin.Init(grid_resolution * 11, grid_resolution * 11, 1, 1.0);
@@ -167,7 +171,7 @@ public:
         Water* w = new Water();
 
 	    // FIRST
-    	w->Init(waterReflexion_id, water_wave_tex_id, grid_resolution, chunk_size, 80, 80);
+    	w->Init(skybox, waterReflexion_id, water_wave_tex_id, grid_resolution, chunk_size, 80, 80);
 	    t->Init(grid_resolution, terrain_perlin.getHeightTexId(), chunk_size, 80, 80);//-chunk_size / 2.0, -chunk_size / 2.0);
 
 	    chunks[{5, 5}] = {t, w};
@@ -186,6 +190,7 @@ public:
 	void Draw(const glm::mat4 &model,
         const glm::mat4 &view,
         const glm::mat4 &projection,
+		const glm::vec3 &camera_position,
         float water_height = -10.0f) {
         // Only draw chunks around current one.
 		for (int y = -1; y <= 1; ++y) {
@@ -194,7 +199,7 @@ public:
 				pair<int, int> toDraw = relativeOffset + gridCoords;
 				if (chunks.count(toDraw) > 0) {
 					chunks[toDraw].first->Draw(IDENTITY_MATRIX, view, projection, water_height);
-					chunks[toDraw].second->Draw(IDENTITY_MATRIX, view, projection, water_height, glfwGetTime());
+					chunks[toDraw].second->Draw(camera_position, IDENTITY_MATRIX, view, projection, water_height, glfwGetTime());
 				}
 			}
 		}

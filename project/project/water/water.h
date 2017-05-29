@@ -19,11 +19,16 @@ class Water {
         float size_;
         float minX_;
         float minY_;
-
-
+        GLuint skybox;
 
     public:
-        void Init(GLuint tex_mirror = -1, GLuint tex_wave = -1, size_t grid_dim = 1024, float size = 20.0f, float minX = -10.0f, float minY = -10.0f) {
+        void Init(GLuint skybox,
+                  GLuint tex_mirror = -1,
+                  GLuint tex_wave = -1,
+                  size_t grid_dim = 1024,
+                  float size = 20.0f,
+                  float minX = -10.0f,
+                  float minY = -10.0f) {
             // compile the shaders
             if (program_id_ < 0) {
                 program_id_ = icg_helper::LoadShaders("water_vshader.glsl",
@@ -48,7 +53,8 @@ class Water {
                 std::vector<GLfloat> vertices;
 
                 // Generate vertices coordinates
-                float factor = size_ / ((float) grid_dim - 10.0);
+                float factor = size_ / ((float) grid_dim);// - 10.0);
+                glUniform1f(glGetUniformLocation(program_id_, "cell_size"), factor);
                 for (size_t row = 0; row < grid_dim; ++row) {
                         float yCoord = factor * row + minY;
                         for (size_t col = 0; col < grid_dim; ++col) {
@@ -101,34 +107,6 @@ class Water {
             }
 
             {
-                // // load texture
-                // int width;
-                // int height;
-                // int nb_component;
-                // string filename = "floor_texture.tga";
-                // // set stb_image to have the same coordinates as OpenGL
-                // stbi_set_flip_vertically_on_load(1);
-                // unsigned char* image = stbi_load(filename.c_str(), &width,
-                //                                  &height, &nb_component, 0);
-                //
-                // if(image == nullptr) {
-                //     throw(string("Failed to load texture"));
-                // }
-                //
-                // glGenTextures(1, &texture_id_);
-                // glBindTexture(GL_TEXTURE_2D, texture_id_);
-                // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                //
-                // if(nb_component == 3) {
-                //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
-                //                  GL_RGB, GL_UNSIGNED_BYTE, image);
-                // } else if(nb_component == 4) {
-                //     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,
-                //                  GL_RGBA, GL_UNSIGNED_BYTE, image);
-                // }
-
-
                 texture_mirror_id_ = (tex_mirror==-1)? texture_id_ : tex_mirror;
 
                 // texture uniforms
@@ -157,7 +135,8 @@ class Water {
             glDeleteTextures(1, &texture_mirror_id_);
         }
 
-        void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
+        void Draw(const glm::vec3 &camera_position,
+                  const glm::mat4 &model = IDENTITY_MATRIX,
                   const glm::mat4 &view = IDENTITY_MATRIX,
                   const glm::mat4 &projection = IDENTITY_MATRIX,
                   float water_height = 0.0f, float time = 1.0f) {
@@ -181,6 +160,10 @@ class Water {
             glActiveTexture(GL_TEXTURE3);
             glBindTexture(GL_TEXTURE_2D, texture_wave_id_);
 
+            glActiveTexture(GL_TEXTURE4);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
+
+            glUniformMatrix4fv(glGetUniformLocation(program_id_, "model"), 1, GL_FALSE, value_ptr(model));
             // setup MVP
             GLuint MVP_id = glGetUniformLocation(program_id_, "MVP");
             glUniformMatrix4fv(MVP_id, 1, GL_FALSE, value_ptr(MVP));
@@ -189,9 +172,12 @@ class Water {
             GLuint WaterHeight_id = glGetUniformLocation(program_id_, "water_height");
             glUniform1f(WaterHeight_id, water_height);
 
+            glUniform3f(glGetUniformLocation(program_id_, "camera_position"), camera_position.x, camera_position.y, camera_position.z);
+
             glUniform1f(glGetUniformLocation(program_id_, "size"), size_);
             glUniform1f(glGetUniformLocation(program_id_, "minX"), minX_);
             glUniform1f(glGetUniformLocation(program_id_, "minY"), minY_);
+            glUniform1i(glGetUniformLocation(program_id_, "skybox"), GL_TEXTURE4);
 
 
             // draw
