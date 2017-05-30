@@ -61,6 +61,6 @@ void main() {
 
 
     if(isVisible == 0) {
-      discard;
+        discard;
     }
 }

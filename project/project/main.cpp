@@ -36,15 +36,14 @@ GLfloat last_frame = 0.0f;
 mat4 quad_model_matrix;
 
 mat4 skyScale = mat4(20.0f, 0.0f, 0.0f, 0.0f,
-                      0.0f, 20.0f, 0.0f, 0.0f,
-                      0.0f, 0.0f, 20.0f, 0.0f,
-                      0.0f, 0.0f, 0.0f, 1.0f);
+                     0.0f, 20.0f, 0.0f, 0.0f,
+                     0.0f, 0.0f, 20.0f, 0.0f,
+                     0.0f, 0.0f, 0.0f, 1.0f);
 
 float water_height;
 InfiniteTerrain infiniteTerrain;
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
-{
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
     if (action == GLFW_PRESS) {
         camera.keys_[key] = true;
 
@@ -70,7 +69,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             mat4 p = camera.getProjectionMatrix(window_width, window_height);
             infiniteTerrain.changePerlin(key - 293, window_width, window_height, v, p, water_height);
             break;
-          }
+        }
         case GLFW_KEY_0:
         case GLFW_KEY_1:
         case GLFW_KEY_2:
@@ -89,13 +88,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 }
 
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     camera.processMouseScroll(yoffset);
 }
 
-void mouse_movement_callback(GLFWwindow* window, double xpos, double ypos)
-{
+void mouse_movement_callback(GLFWwindow* window, double xpos, double ypos) {
     if (firstMouse) {
         lastX = xpos;
         lastY = ypos;
@@ -111,8 +108,7 @@ void mouse_movement_callback(GLFWwindow* window, double xpos, double ypos)
     camera.processMouseMovement(xoffset, yoffset);
 }
 
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mod)
-{
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mod) {
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         mouse_input_mode = mouse_input_mode == GLFW_CURSOR_NORMAL ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL;
         glfwSetInputMode(window, GLFW_CURSOR, mouse_input_mode);
@@ -120,7 +116,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mod)
 }
 
 void Init() {
-   // sets background color
+    // sets background color
     glClearColor(0, 0, 0 /*gray*/, 1.0 /*solid*/);
 
     skybox.Init();
@@ -161,13 +157,13 @@ void Display() {
     //waterReflexion.Bind();
     //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //    skybox.Draw(scale, mirror_view, projection);
-        /*
-        for (size_t i = 0; i < terrains.size(); ++i) {
-            terrains[i]->Draw(IDENTITY_MATRIX, mirror_view, projection, water_height);
-        }
-        */
+    /*
+    for (size_t i = 0; i < terrains.size(); ++i) {
+        terrains[i]->Draw(IDENTITY_MATRIX, mirror_view, projection, water_height);
+    }
+    */
 
-        //terrain.Draw(IDENTITY_MATRIX, mirror_view, projection, water_height);
+    //terrain.Draw(IDENTITY_MATRIX, mirror_view, projection, water_height);
     //waterReflexion.Unbind();
 
     //skybox.Draw(cube_scale, view, projection);
@@ -252,8 +248,8 @@ int main(int argc, char *argv[]) {
     int lastMovement = 0;
     float velocity = 1.00f;
 
-   // render loop
-    while(!glfwWindowShouldClose(window)){
+    // render loop
+    while(!glfwWindowShouldClose(window)) {
 
         GLfloat terrain_height = infiniteTerrain.getCurrentPerlin().getTerrainHeight(camera.position_.x, camera.position_.z);
         //GLfloat terrain_height = 5.0f;
@@ -265,22 +261,20 @@ int main(int argc, char *argv[]) {
         else if(camera.keys_[GLFW_KEY_D]) movement = 3;
         else if(camera.keys_[GLFW_KEY_A]) movement = 4;
         else if (camera.keys_[GLFW_KEY_UP] || camera.keys_[GLFW_KEY_DOWN]
-          || camera.keys_[GLFW_KEY_LEFT] || camera.keys_[GLFW_KEY_RIGHT]) movement = -1;
+                 || camera.keys_[GLFW_KEY_LEFT] || camera.keys_[GLFW_KEY_RIGHT]) movement = -1;
 
         if (movement > 0 && movement == lastMovement) {
             if (camera.keys_[GLFW_KEY_W] || camera.keys_[GLFW_KEY_S] || camera.keys_[GLFW_KEY_D] || camera.keys_[GLFW_KEY_A]) {
-              //std::cout << "accelerate   " << velocity <<'\n';
-              velocity = std::min(velocity + 0.002f, 0.05f);
-              camera.accelerate(movement, velocity, terrain_height);
+                //std::cout << "accelerate   " << velocity <<'\n';
+                velocity = std::min(velocity + 0.002f, 0.05f);
+                camera.accelerate(movement, velocity, terrain_height);
+            } else {
+                //std::cout << "decelerate   " << velocity <<'\n';
+                velocity -= 0.001f;
+                camera.accelerate(movement, velocity, terrain_height);
+                movement = (velocity <= 0.0f)? 0 : movement;
             }
-            else {
-              //std::cout << "decelerate   " << velocity <<'\n';
-              velocity -= 0.001f;
-              camera.accelerate(movement, velocity, terrain_height);
-              movement = (velocity <= 0.0f)? 0 : movement;
-            }
-        }
-        else {
+        } else {
             velocity = 0.005f;
             lastMovement = movement;
             // if(camera.keys_[GLFW_KEY_W]) movement = 1;

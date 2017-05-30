@@ -31,8 +31,7 @@ const GLfloat SPEED = 3.0f;
 const GLfloat SENSITIVTY = 0.1f;
 const GLfloat ZOOM = 45.0f;
 
-class Camera
-{
+class Camera {
 public:
     // Camera Attributes
     glm::vec3 position_;
@@ -58,8 +57,7 @@ public:
            glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
            GLfloat yaw = YAW, GLfloat pitch = PITCH)
         : front_(glm::vec3(0.0f, 0.0f, -1.0f)), movement_speed_(SPEED), mouse_sensitivity_(SENSITIVTY),
-          zoom_(ZOOM), mode_(NORMAL)
-    {
+          zoom_(ZOOM), mode_(NORMAL) {
         this->position_ = position;
         this->world_up_ = up;
         this->yaw_ = yaw;
@@ -75,13 +73,11 @@ public:
         bezierPath = b.getPath();
     }
 
-    glm::mat4 getViewMatrix()
-    {
+    glm::mat4 getViewMatrix() {
         return glm::lookAt(this->position_, this->position_ + this->front_, this->up_);
     }
 
-    glm::mat4 getReversedViewMatrix(float water_height)
-    {
+    glm::mat4 getReversedViewMatrix(float water_height) {
         glm::vec3 pos = glm::vec3(this->position_.x, 2.0f * water_height - this->position_.y, this->position_.z);
         glm::vec3 center = this->position_ + this->front_;
         center.y = 2.0f*water_height - center.y;
@@ -90,15 +86,15 @@ public:
     }
 
     glm::mat4 getProjectionMatrix(int window_width, int window_height) {
-      return glm::perspective(this->zoom_, (float) window_width / (float) window_height, 0.1f, 100.0f);
+        return glm::perspective(this->zoom_, (float) window_width / (float) window_height, 0.1f, 100.0f);
     }
 
     void accelerate(int movement, GLfloat velocity, GLfloat terrain_height) {
-      // if (movement == 1) processKeyboard(FORWARD, velocity, terrain_height);
-      // else if (movement == -1) processKeyboard(BACKWARD, velocity, terrain_height);
-      // else if (movement == 2) processKeyboard(RIGHT, velocity, terrain_height);
-      // else if (movement == -2) processKeyboard(LEFT, velocity, terrain_height);
-      switch (movement) {
+        // if (movement == 1) processKeyboard(FORWARD, velocity, terrain_height);
+        // else if (movement == -1) processKeyboard(BACKWARD, velocity, terrain_height);
+        // else if (movement == 2) processKeyboard(RIGHT, velocity, terrain_height);
+        // else if (movement == -2) processKeyboard(LEFT, velocity, terrain_height);
+        switch (movement) {
         case 1:
             processKeyboard(FORWARD, velocity, terrain_height);
             break;
@@ -111,11 +107,10 @@ public:
         case 4:
             processKeyboard(LEFT, velocity, terrain_height);
             break;
-      }
+        }
     }
 
-    void update(GLfloat velocity, GLfloat terrain_height)
-    {
+    void update(GLfloat velocity, GLfloat terrain_height) {
         if (keys_[GLFW_KEY_W]) {
             processKeyboard(FORWARD, velocity, terrain_height);
         }
@@ -152,8 +147,7 @@ public:
         }
     }
 
-    void processMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrain_pitch = true)
-    {
+    void processMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrain_pitch = true) {
         xoffset *= this->mouse_sensitivity_;
         yoffset *= this->mouse_sensitivity_;
 
@@ -172,8 +166,7 @@ public:
         this->updateCameraVectors();
     }
 
-    void processMouseScroll(GLfloat yoffset)
-    {
+    void processMouseScroll(GLfloat yoffset) {
         if (this->zoom_ >= 1.0f && this->zoom_ <= 45.0f) {
             this->zoom_ -= yoffset;
         }
@@ -185,18 +178,17 @@ public:
         }
     }
 
-    void switchCameraMode()
-    {
+    void switchCameraMode() {
         switch (mode_) {
-            case NORMAL:
-                mode_ = FIRST_PERSON;
-                break;
-            case FIRST_PERSON:
-                mode_ = BEZIER;
-                break;
-            case BEZIER:
-                mode_ = NORMAL;
-                break;
+        case NORMAL:
+            mode_ = FIRST_PERSON;
+            break;
+        case FIRST_PERSON:
+            mode_ = BEZIER;
+            break;
+        case BEZIER:
+            mode_ = NORMAL;
+            break;
         }
     }
 
@@ -209,8 +201,7 @@ public:
     }
 
 private:
-    void updateCameraVectors()
-    {
+    void updateCameraVectors() {
         glm::vec3 front;
         front.x = cos(glm::radians(this->yaw_)) * cos(glm::radians(this->pitch_));
         front.y = sin(glm::radians(this->pitch_));
@@ -220,8 +211,7 @@ private:
         this->up_ = glm::normalize(glm::cross(this->right_, this->front_));
     }
 
-    void processKeyboard(Camera_Movement direction, GLfloat velocity, GLfloat terrain_height)
-    {
+    void processKeyboard(Camera_Movement direction, GLfloat velocity, GLfloat terrain_height) {
         switch (direction) {
         case FORWARD:
             this->position_ += this->front_ * velocity;
