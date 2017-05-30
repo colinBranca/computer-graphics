@@ -42,7 +42,6 @@ private:
 public:
     void Init(size_t points_in_curve, vector<glm::vec3> ps = vector<glm::vec3>()) {
         resolution = points_in_curve;
-        cout << factorial(5) << endl;
         control_points = ps;
         computePath();
     }
