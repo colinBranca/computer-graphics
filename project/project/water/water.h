@@ -53,7 +53,7 @@ public:
             std::vector<GLfloat> vertices;
 
             // Generate vertices coordinates
-            float factor = size_ / ((float) grid_dim);// - 10.0);
+            float factor = size_ / ((float) grid_dim - 10.0);
             glUniform1f(glGetUniformLocation(program_id_, "cell_size"), factor);
             for (size_t row = 0; row < grid_dim; ++row) {
                 float yCoord = factor * row + minY;
