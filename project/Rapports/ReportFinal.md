@@ -7,6 +7,7 @@ Here is a brief recap of the features implemented for each step:
 ### Part 1
 
  - Perlin noise and fractal brownian motion for terrain rendering 
+ - Phong shading
  - BONUS: infinite terrain.
 
 ### Part 2
