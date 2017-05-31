@@ -6,7 +6,7 @@ Here is a brief recap of the features implemented for each step:
 
 ### Part 1
 
- - Perlin noise and fractal brownian motion for terrain rendering 
+ - Perlin noise and fractal brownian motion for terrain rendering
  - Phong shading
  - BONUS: infinite terrain.
 
@@ -15,8 +15,8 @@ Here is a brief recap of the features implemented for each step:
  - Blend of four textures according to height and surface normals
  - Skybox
  - BONUS: multiple skyboxes
- - BONUS: skybox reflection in water
- - BONUS: water shape and mouvement
+ - BONUS: skybox and terrain reflection in water
+ - BONUS: water shape and movement
 
 ### Part 3
 
@@ -64,9 +64,9 @@ Having many large chunks existing at the same time and being created on the fly 
 
 ### Multiple skyboxes
 
-To test the following bonus, we provide multible skyboxes. The skybox to use can be selected using the number keys 1,2,3,4.
+To test the following bonus, we provide multible skyboxes. The skybox to use can be selected using the number keys 0,1,2,3,4.
 
-### Water shape and mouvement
+### Water shape and movement
 
 We decided that water should not look like a flat blue square and we set out to bring it to life.
 
@@ -77,14 +77,18 @@ We used the time constant to animate the water and obtain a flowing look.
 
 Modifcations to the water class and its shaders were necessary.
 
-### Skybox reflection in water
+### Skybox and Terrain reflection in water
 
 Having implemented waves, we wanted our water to reflect. To do so, in each water vertex shader, we compute the surface
 normal and use it together with the `reflect` and `mix` function (and the skybox texture) to reflect the sky.
 
+To reflect the terrain, we had to use an other method.
+We first drew each chunk in a Framebuffer with a `ReversedViewMatrix` computed in class `Camera`. This argument is then passed to the `Init` function of class Water.
+
+
 Modifcations to the water class and its shaders were necessary.
 
-### Camera constrols
+### Camera controls
 
 The camera can be moved using the usual W,A,S,D keys and the mouse can be used to orient the view. Camera acceleration
 was implemented. The F3 key allows to cycle through our three different camera modes: free exploration, first person mode
@@ -132,7 +136,7 @@ schedules, midterms and various projects deadlines, resulted in tensions inside 
 
 ## Team work
 
- - Vincenzo Bazzucchi worked on infinite terrain, water reflection and on Bezier curve implementation.
- - Colin Branca worked on texture blending, water reflection and refraction, water shaping and animation, camera
+ - Vincenzo Bazzucchi (33%) worked on infinite terrain, water reflection and on Bezier curve implementation.
+ - Colin Branca (33%) worked on texture blending, water reflection and refraction, water shaping and animation, camera
  acceleration and on keyboard controls for realtime terrain modifications.
- - Nicolas Phan Van worked on reflection and refraction, multiple skyboxes and on first person exploration.
+ - Nicolas Phan Van (33%) worked on reflection and refraction, multiple skyboxes and on first person exploration.
