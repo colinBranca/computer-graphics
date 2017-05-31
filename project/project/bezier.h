@@ -60,7 +60,7 @@ private:
     }
 
 public:
-    void Init(size_t points_in_curve, vector<glm::vec3> ps = vector<glm::vec3>()) {
+    void Init(size_t points_in_curve, vector<glm::vec3> ps) {
         resolution = points_in_curve;
         control_points = ps;
         computePath();
@@ -70,7 +70,7 @@ public:
         return path;
     }
 
-    void Init() {
+    void Init(size_t resolution) {
         ifstream source("./points.txt");
         while (!source.eof()) {
             string row;
@@ -78,5 +78,6 @@ public:
             control_points.push_back(parseRow(row));
         }
         source.close();
+        Init(resolution, control_points);
     }
 };

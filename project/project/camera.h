@@ -66,7 +66,7 @@ public:
         this->pitch_ = pitch;
         this->updateCameraVectors();
         BezierCurve b;
-        b.Init();
+        b.Init(1000);
         bezierPath = b.getPath();
     }
 
