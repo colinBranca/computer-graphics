@@ -16,7 +16,7 @@ void main() {
     float window_height = float(window_dimensions.y);
 
     float u = gl_FragCoord.x / window_width ;
-    float v = 1.0f - gl_FragCoord.y-wave / window_height;
+    float v = 1.0f - gl_FragCoord.y / window_height;
 
     vec4 terrain_reflection = texture(tex_mirror, vec2(u, v));
 
