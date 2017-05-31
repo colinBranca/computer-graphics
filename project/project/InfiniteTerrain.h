@@ -102,8 +102,6 @@ public:
 
         if (newCoords == gridCoords) return;
 
-        cout << "in chunk " << newCoords.first << " " << newCoords.second << endl;
-
         createChunk(relPos, newCoords);
         switch (relPos) {
         case C_RIGHT:

@@ -47,15 +47,16 @@ private:
 
         size_t space = row.find(" ");
 
-        res.x = atof(row.substr(start, space).c_str());
+        res.x = (float) atof(row.substr(start, space).c_str());
 
         start = space;
         space = row.find(" ", start);
-        res.y = atof(row.substr(start, space).c_str());
+        res.y = (float) atof(row.substr(start, space).c_str());
 
         start = space;
-        res.z = atof(row.substr(start, row.length()).c_str());
+        res.z = (float) atof(row.substr(start, row.length()).c_str());
 
+        cout << "parsed point x= " << res.x << " y= " << res.y << " z= " << res.z << endl;
         return res;
     }
 
