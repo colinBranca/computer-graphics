@@ -164,8 +164,8 @@ public:
         Terrain* t = new Terrain();
         Water* w = new Water();
         // FIRST
-        w->Init(skybox, waterReflexion_id, water_wave_tex_id, grid_resolution, chunk_size, 80, 80);
-        t->Init(grid_resolution, terrain_perlin.getHeightTexId(), chunk_size, 80, 80);//-chunk_size / 2.0, -chunk_size / 2.0);
+        w->Init(skybox, waterReflexion_id, water_wave_tex_id, grid_resolution, chunk_size, 100, 100);
+        t->Init(grid_resolution, terrain_perlin.getHeightTexId(), chunk_size, 100, 100);//-chunk_size / 2.0, -chunk_size / 2.0);
 
         chunks[ {5, 5}] = {t, w};
         gridCoords = {5, 5};

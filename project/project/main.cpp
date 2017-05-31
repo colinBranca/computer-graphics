@@ -22,7 +22,7 @@ ScreenQuad screenquad;
 
 Skybox skybox;
 
-Camera camera(vec3(90.0f, 10.0f, 90.0f));
+Camera camera(vec3(110.0f, 10.0f, 110.0f));
 
 int window_width = 1200;
 int window_height = 800;
@@ -153,23 +153,6 @@ void Display() {
     view = mat4(mat3(view));
     skybox.Draw(skyScale, view, projection);
 
-    // mat4 mirror_view = camera.getReversedViewMatrix(water_height);
-
-    //waterReflexion.Bind();
-    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //    skybox.Draw(scale, mirror_view, projection);
-    /*
-    for (size_t i = 0; i < terrains.size(); ++i) {
-        terrains[i]->Draw(IDENTITY_MATRIX, mirror_view, projection, water_height);
-    }
-    */
-
-    //terrain.Draw(IDENTITY_MATRIX, mirror_view, projection, water_height);
-    //waterReflexion.Unbind();
-
-    //skybox.Draw(cube_scale, view, projection);
-    // water.Draw(trackball_matrix * quad_model_matrix, view, projection, water_height);
-
     glDisable(GL_DEPTH_TEST);
 }
 
@@ -180,9 +163,6 @@ void buffer_resize_callback(GLFWwindow* window, int width, int height) {
 
     cout << "Window has been resized to "
          << window_width << "x" << window_height << "." << endl;
-
-    //waterReflexion_id = waterReflexion.Init(window_width, window_height);
-    //water.Init(waterReflexion_id, water_wave_tex_id);
 
     glViewport(0, 0, window_width, window_height);
 }
@@ -251,9 +231,11 @@ int main(int argc, char *argv[]) {
 
     // render loop
     while(!glfwWindowShouldClose(window)) {
+        PerlinNoise heightmap = infiniteTerrain.getCurrentPerlin();
 
-        GLfloat terrain_height = infiniteTerrain.getCurrentPerlin().getTerrainHeight(camera.position_.x, camera.position_.z);
-        //GLfloat terrain_height = 5.0f;
+        GLfloat terrain_height = heightmap.getTerrainHeight(camera.position_.x,
+                                                            camera.position_.z,
+                                                            11, 22.0f);
 
         glfwPollEvents();
 
