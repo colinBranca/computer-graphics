@@ -277,10 +277,6 @@ int main(int argc, char *argv[]) {
         } else {
             velocity = 0.005f;
             lastMovement = movement;
-            // if(camera.keys_[GLFW_KEY_W]) movement = 1;
-            // else if(camera.keys_[GLFW_KEY_S]) movement = 2;
-            // else if(camera.keys_[GLFW_KEY_D]) movement = 3;
-            // else if(camera.keys_[GLFW_KEY_A]) movement = 4;
 
             camera.update(velocity, terrain_height);
         }
