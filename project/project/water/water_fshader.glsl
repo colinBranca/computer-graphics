@@ -18,7 +18,9 @@ void main() {
     float u = gl_FragCoord.x / window_width ;
     float v = 1.0f - gl_FragCoord.y / window_height;
 
-    vec4 terrain_reflection = texture(tex_mirror, vec2(u, v));
+    vec3 mirror_normal = vec3(0, 1, 0);
+    vec3 flat_normal = Normal - dot(Normal, mirror_normal) * mirror_normal;
+    vec4 terrain_reflection = texture(tex_mirror, vec2(u, v) + flat_normal.xz * 0.1);
 
     vec3 view_direction = normalize(Position - camera_position);
     vec3 reflection = reflect(view_direction, normalize(Normal));
@@ -27,10 +29,14 @@ void main() {
 
     vec4 water_color = vec4(100.0/255.0, 149.0/255.0, 237.0/255.0, 1.0f);
 
-    if(terrain_reflection.x <= 0.1f && terrain_reflection.y <= 0.1f && terrain_reflection.z <= 0.1f) {
-      color = mix(water_color, sky_reflection, vec4(0.4f));
-    }
-    else {
-      color = mix(water_color, terrain_reflection, vec4(0.4f));
-    }
+    color = mix(mix(water_color, sky_reflection, vec4(0.8f)), terrain_reflection, vec4(0.5));
+
+    // vec4 reflection_color = terrain_reflection.xyz != vec3(0.0f) ? terrain_reflection : sky_reflection;
+    // color = mix(water_color, reflection_color, vec4(0.8f));
+    
+    // if (terrain_reflection.x <= 0.1f && terrain_reflection.y <= 0.1f && terrain_reflection.z <= 0.1f) {
+    //   color = mix(water_color, sky_reflection, vec4(0.8f));
+    // } else {
+    //   color = mix(water_color, terrain_reflection, vec4(0.4f));
+    // }
 }
