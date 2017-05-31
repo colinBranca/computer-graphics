@@ -173,17 +173,20 @@ public:
         glUseProgram(0);
     }
 
-    GLfloat getTerrainHeight(float x, float z) {
-        float factor = 5632.0f / 220.0f;
-        size_t cx = floor(positiveModulo(x, 220.0f) * factor);
-        size_t cy = floor(positiveModulo(z, 220.0f) * factor);
+    GLfloat getTerrainHeight(float x, float z, size_t chunks, float chunk_size) {
+        size_t square_size = width_;
+        float total_size = chunks * chunk_size;
+        float factor = square_size / total_size;
 
-        float up = img_[(cy + 1) * 5632 + cx];
-        float down = img_[(cy - 1) * 5632 + cx];
-        float right = img_[cy * 5632 + cx + 1];
-        float left = img_[cy * 5632 + cx - 1];
+        size_t cx = floor(positiveModulo(x, total_size) * factor);
+        size_t cy = floor(positiveModulo(z, total_size) * factor);
 
-        return (up + down + left + right) / 4.0f + 0.5;
+        float up = img_[(cy + 1) * square_size + cx];
+        float down = img_[(cy - 1) * square_size + cx];
+        float right = img_[cy * square_size + cx + 1];
+        float left = img_[cy * square_size + cx - 1];
+
+        return (up + down + left + right) / 4.0f + 0.3;
     }
 
     void Cleanup() {
