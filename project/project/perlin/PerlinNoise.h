@@ -174,17 +174,16 @@ public:
     }
 
     GLfloat getTerrainHeight(float x, float z) {
-        float cx = ((x + 10.0f) / (20.0f * 11.0f)) * 5632.0f;
-        float cy = ((z + 10.0f) / (20.0f * 11.0f)) * 5632.0f;
-        size_t index = (size_t) floor(cy * 5632.0 + cx);
+        float factor = 5632.0f / 220.0f;
+        size_t cx = floor(positiveModulo(x, 220.0f) * factor);
+        size_t cy = floor(positiveModulo(z, 220.0f) * factor);
 
-        /*
-        size_t xp = floor(positiveModulo((x + 10.0f), 20.0) * 51.2); // TODO: get size from chunk
-        size_t zp = floor(positiveModulo((z + 10.0f), 20.0) * 51.2);
-        // cout << "DDD " << xp << " " << zp << endl;
-        size_t index = zp * width_ + xp;
-        */
-        return img_[index];
+        float up = img_[(cy + 1) * 5632 + cx];
+        float down = img_[(cy - 1) * 5632 + cx];
+        float right = img_[cy * 5632 + cx + 1];
+        float left = img_[cy * 5632 + cx - 1];
+
+        return (up + down + left + right) / 4.0f + 0.5;
     }
 
     void Cleanup() {

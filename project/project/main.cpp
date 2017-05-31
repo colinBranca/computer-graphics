@@ -22,7 +22,7 @@ ScreenQuad screenquad;
 
 Skybox skybox;
 
-Camera camera(vec3(90.0f, 10.0f, 90.0f));
+Camera camera(vec3(110.0f, 10.0f, 110.0f));
 
 int window_width = 1200;
 int window_height = 800;
@@ -80,7 +80,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             skybox.Init(key - 48);
             break;
         case GLFW_KEY_C:
-            //camera.printCameraPosition();
+            camera.printCameraPosition();
             //cout << "texture height: " << infiniteTerrain.getCurrentPerlin().getTerrainHeight(camera.position_.x, camera.position_.z, infiniteTerrain.getCurrentChunkCoordinates()) << endl;
             break;
         }
