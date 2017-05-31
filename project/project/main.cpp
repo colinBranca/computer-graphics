@@ -163,6 +163,7 @@ void buffer_resize_callback(GLFWwindow* window, int width, int height) {
 
     cout << "Window has been resized to "
          << window_width << "x" << window_height << "." << endl;
+    infiniteTerrain.resize_callback(window_width, window_height);
 
     glViewport(0, 0, window_width, window_height);
 }

@@ -180,6 +180,10 @@ public:
         createChunk(C_RIGHT, {5, 6});
     }
 
+    void resize_callback(int window_width, int window_height) {
+        waterReflexion_id = waterReflexion.Init(window_width, window_height);
+    }
+
     void Draw(const glm::mat4 &model,
               const glm::mat4 &view,
               const glm::mat4 &projection,
@@ -197,8 +201,6 @@ public:
                         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                         chunks[toDraw].first->Draw(IDENTITY_MATRIX, mirror_view, projection, water_height, 1);
                     waterReflexion.Unbind();
-
-
                     chunks[toDraw].second->Draw(camera_position, IDENTITY_MATRIX, view, projection, water_height, glfwGetTime());
                 }
             }
