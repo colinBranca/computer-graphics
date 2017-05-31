@@ -206,7 +206,8 @@ public:
     void Draw(const glm::mat4 &model = IDENTITY_MATRIX,
               const glm::mat4 &view = IDENTITY_MATRIX,
               const glm::mat4 &projection = IDENTITY_MATRIX,
-              float water_height = -10.0f) {
+              float water_height = -10.0f,
+              int reflectionRefraction = 0) {
         glUseProgram(program_id_);
         glBindVertexArray(vertex_array_id_);
 
@@ -221,6 +222,10 @@ public:
         //setup water_height
         GLuint WaterHeight_id = glGetUniformLocation(program_id_, "water_height");
         glUniform1f(WaterHeight_id, water_height);
+
+        //setup isReflection
+        GLuint reflect_id = glGetUniformLocation(program_id_, "isReflection");
+        glUniform1i(reflect_id, reflectionRefraction);
 
         // Dimensions
         glUniform1f(glGetUniformLocation(program_id_, "size"), size_);

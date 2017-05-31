@@ -20,14 +20,15 @@ void main() {
 
     vec3 view_direction = normalize(Position - camera_position);
     vec3 reflection = reflect(view_direction, normalize(Normal));
-    //float ratio = 1.00f / 1.33f;
-    //vec3 refraction = refract(view_direction, normalize(Normal), ration);
 
-    vec4 reflection_color = texture(skybox, reflection);
-    //vec4 refraction_color = texture(skybox, refraction);
+    vec4 sky_reflection = texture(skybox, reflection);
+     vec4 terrain_reflection = texture(tex_mirror, vec2(u, v));
 
     vec4 water_color = vec4(100.0/255.0, 149.0/255.0, 237.0/255.0, 1.0f);
-    vec3 color_from_mirror = texture(tex_mirror, vec2(u, v)).rgb;
 
-    color = mix(water_color, reflection_color, vec4(.8));
+    vec4 color_reflection = terrain_reflection;
+    if(terrain_reflection.x <= 0.1f && terrain_reflection.y <= 0.1f && terrain_reflection.z <= 0.1f) {
+      color_reflection = sky_reflection;
+    }
+    color = mix(water_color, color_reflection, vec4(0.4f));
 }

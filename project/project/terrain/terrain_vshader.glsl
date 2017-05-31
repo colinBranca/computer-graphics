@@ -5,6 +5,7 @@ uniform mat4 V;
 uniform mat4 P;
 uniform float water_height;
 uniform sampler2D height_tex;
+uniform int isReflection;
 
 in vec2 position;
 uniform float size;
@@ -52,6 +53,6 @@ void main() {
     light_dir = normalize((M * vec4(light_pos, 1.0f)).xyz - vpoint_mv.xyz);
     view_dir = normalize(- vpoint_mv.xyz);
 
-    //isVisible = (pos_3d.y >= water_height)? 1 : 0;
-    isVisible = 1;
+    isVisible = (isReflection == 1 && pos_3d.y <= water_height)? 0 : 1;
+    //isVisible = 1;
 }

@@ -67,7 +67,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         case GLFW_KEY_F9: {
             mat4 v = camera.getViewMatrix();
             mat4 p = camera.getProjectionMatrix(window_width, window_height);
-            infiniteTerrain.changePerlin(key - 293, window_width, window_height, v, p, water_height);
+            mat4 mir = camera.getReversedViewMatrix(water_height);
+            infiniteTerrain.changePerlin(key - 293, window_width, window_height, v, p, mir, water_height);
             break;
         }
         case GLFW_KEY_0:
@@ -146,13 +147,14 @@ void Display() {
 
     mat4 view = camera.getViewMatrix();
     mat4 projection = camera.getProjectionMatrix(window_width, window_height);
+    mat4 mirror_view = camera.getReversedViewMatrix(water_height);
 
-    infiniteTerrain.Draw(IDENTITY_MATRIX, view, projection, camera.position_, water_height);
+    infiniteTerrain.Draw(IDENTITY_MATRIX, view, projection, mirror_view, camera.position_, water_height);
 
     view = mat4(mat3(view));
     skybox.Draw(skyScale, view, projection);
 
-    mat4 mirror_view = camera.getReversedViewMatrix(water_height);
+    // mat4 mirror_view = camera.getReversedViewMatrix(water_height);
 
     //waterReflexion.Bind();
     //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -122,7 +122,7 @@ public:
         gridCoords = newCoords;
     }
 
-    void changePerlin(int param, int window_width, int window_height, glm::mat4 v, glm::mat4 p, float water_height) {
+    void changePerlin(int param, int window_width, int window_height, glm::mat4 v, glm::mat4 p, glm::mat4 mir, float water_height) {
         switch (param) {
         case 0:
             amplitude += 1.0f;
@@ -150,7 +150,7 @@ public:
             chunk.second.first->height_texture_id_ = newTex;
         }
         //Init(window_width, window_height);
-        Draw(IDENTITY_MATRIX, v, p, glm::vec3(0,0,0), water_height);
+        Draw(IDENTITY_MATRIX, v, p, mir, glm::vec3(0,0,0), water_height);
     }
 
     void Init(int window_width, int window_height, GLuint skybox_tex) {
@@ -165,7 +165,6 @@ public:
 
         Terrain* t = new Terrain();
         Water* w = new Water();
-
         // FIRST
         w->Init(skybox, waterReflexion_id, water_wave_tex_id, grid_resolution, chunk_size, 80, 80);
         t->Init(grid_resolution, terrain_perlin.getHeightTexId(), chunk_size, 80, 80);//-chunk_size / 2.0, -chunk_size / 2.0);
@@ -186,6 +185,7 @@ public:
     void Draw(const glm::mat4 &model,
               const glm::mat4 &view,
               const glm::mat4 &projection,
+              const glm::mat4 &mirror_view,
               const glm::vec3 &camera_position,
               float water_height = -10.0f) {
         // Only draw chunks around current one.
@@ -195,6 +195,12 @@ public:
                 pair<int, int> toDraw = relativeOffset + gridCoords;
                 if (chunks.count(toDraw) > 0) {
                     chunks[toDraw].first->Draw(IDENTITY_MATRIX, view, projection, water_height);
+                    waterReflexion.Bind();
+                        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                        chunks[toDraw].first->Draw(IDENTITY_MATRIX, mirror_view, projection, water_height, 1);
+                    waterReflexion.Unbind();
+
+
                     chunks[toDraw].second->Draw(camera_position, IDENTITY_MATRIX, view, projection, water_height, glfwGetTime());
                 }
             }
