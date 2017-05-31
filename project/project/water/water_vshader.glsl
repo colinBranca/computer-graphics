@@ -35,9 +35,7 @@ vec3 computeNormal(float x, float z) {
 
 void main() {
     uv = getTexCoord(position);
-    //vec2 uvWave = uv;
-    //uvWave.x = 0.1f*time+uvWave.x;
-    //float wave = texture(wave_tex, uvWave).x / 10.0f ;
+    
     float wave = computeHeight(uv.x, uv.y);
 
     vec3 pos_3d = vec3(position.x, water_height + wave, position.y);
