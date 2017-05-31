@@ -21,8 +21,8 @@ vec2 getTexCoord(vec2 position) {
 }
 
 float computeHeight(float x, float z) {
-    x = 0.1f * time + x;
-    return texture(wave_tex, vec2(x, z)).x / 10.0f;
+    x = 0.05f * time + x;
+    return texture(wave_tex, vec2(2*x, 2*z)).x / 10.0f;
 }
 
 vec3 computeNormal(float x, float z) {

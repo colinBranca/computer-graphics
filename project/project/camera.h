@@ -31,6 +31,8 @@ const GLfloat SPEED = 3.0f;
 const GLfloat SENSITIVTY = 0.1f;
 const GLfloat ZOOM = 45.0f;
 
+int bezierAcceleration = 1;
+
 class Camera {
 public:
     // Camera Attributes
@@ -76,7 +78,7 @@ public:
         glm::vec3 pos = glm::vec3(this->position_.x, 2.0f * water_height - this->position_.y, this->position_.z);
         glm::vec3 center = this->position_ + this->front_;
         center.y = 2.0f*water_height - center.y;
-        //pos.z = 2.0f * water_height - pos.z;
+
         return glm::lookAt(pos, center, this->up_);
     }
 
@@ -85,10 +87,7 @@ public:
     }
 
     void accelerate(int movement, GLfloat velocity, GLfloat terrain_height) {
-        // if (movement == 1) processKeyboard(FORWARD, velocity, terrain_height);
-        // else if (movement == -1) processKeyboard(BACKWARD, velocity, terrain_height);
-        // else if (movement == 2) processKeyboard(RIGHT, velocity, terrain_height);
-        // else if (movement == -2) processKeyboard(LEFT, velocity, terrain_height);
+        if (mode_ == BEZIER) return;
         switch (movement) {
         case 1:
             processKeyboard(FORWARD, velocity, terrain_height);
@@ -106,39 +105,42 @@ public:
     }
 
     void update(GLfloat velocity, GLfloat terrain_height) {
-        if (keys_[GLFW_KEY_W]) {
-            processKeyboard(FORWARD, velocity, terrain_height);
-        }
-        if (keys_[GLFW_KEY_S]) {
-            processKeyboard(BACKWARD, velocity, terrain_height);
-        }
-        if (keys_[GLFW_KEY_A]) {
-            processKeyboard(LEFT, velocity, terrain_height);
-        }
-        if (keys_[GLFW_KEY_D]) {
-            processKeyboard(RIGHT, velocity, terrain_height);
-        }
-        if (keys_[GLFW_KEY_Q]) {
-            processKeyboard(DOWN, velocity, terrain_height);
-        }
-        if (keys_[GLFW_KEY_E]) {
-            processKeyboard(UP, velocity, terrain_height);
-        }
-        if (keys_[GLFW_KEY_UP]) {
-            processKeyboard(PITCH_UP, velocity, terrain_height);
-        }
-        if (keys_[GLFW_KEY_DOWN]) {
-            processKeyboard(PITCH_DOWN, velocity, terrain_height);
-        }
-        if (keys_[GLFW_KEY_LEFT]) {
-            processKeyboard(YAW_LEFT, velocity, terrain_height);
-        }
-        if (keys_[GLFW_KEY_RIGHT]) {
-            processKeyboard(YAW_RIGHT, velocity, terrain_height);
-        }
         if (mode_ == BEZIER) {
-            position_ = bezierPath[cu++];
-            cu = cu == bezierPath.size() ? 0 : cu;
+            if (keys_[GLFW_KEY_W]) updateBezier(1);
+            else if (keys_[GLFW_KEY_S]) updateBezier(-1);
+            else updateBezier(0);
+        }
+        else {
+            if (keys_[GLFW_KEY_W]) {
+                processKeyboard(FORWARD, velocity, terrain_height);
+            }
+            if (keys_[GLFW_KEY_S]) {
+                processKeyboard(BACKWARD, velocity, terrain_height);
+            }
+            if (keys_[GLFW_KEY_A]) {
+                processKeyboard(LEFT, velocity, terrain_height);
+            }
+            if (keys_[GLFW_KEY_D]) {
+                processKeyboard(RIGHT, velocity, terrain_height);
+            }
+            if (keys_[GLFW_KEY_Q]) {
+                processKeyboard(DOWN, velocity, terrain_height);
+            }
+            if (keys_[GLFW_KEY_E]) {
+                processKeyboard(UP, velocity, terrain_height);
+            }
+            if (keys_[GLFW_KEY_UP]) {
+                processKeyboard(PITCH_UP, velocity, terrain_height);
+            }
+            if (keys_[GLFW_KEY_DOWN]) {
+                processKeyboard(PITCH_DOWN, velocity, terrain_height);
+            }
+            if (keys_[GLFW_KEY_LEFT]) {
+                processKeyboard(YAW_LEFT, velocity, terrain_height);
+            }
+            if (keys_[GLFW_KEY_RIGHT]) {
+                processKeyboard(YAW_RIGHT, velocity, terrain_height);
+            }
         }
     }
 
@@ -244,5 +246,12 @@ private:
             this->position_.y = terrain_height /*+ 0.15f*/;
             //printCameraPosition();
         }
+    }
+
+    void updateBezier(int acceleration = 0) {
+      bezierAcceleration = glm::clamp(bezierAcceleration + acceleration, 1, 5);
+      cu += bezierAcceleration;
+      cu = cu >= bezierPath.size() ? 0 : cu;
+      position_ = bezierPath[cu];
     }
 };
