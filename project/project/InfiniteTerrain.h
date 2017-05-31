@@ -28,13 +28,13 @@ private:
     map<pair<int, int>, pair<Terrain*, Water*>> chunks;
 
     float chunk_size = 20.0f;
-    int grid_resolution = 512;
+    int grid_resolution = 200;
 
     GLuint skybox;
 
-    float frequency = 400.0f;
-    float amplitude = 7.0f;
-    int octaves = 7;
+    float frequency = 270.0f;
+    float amplitude = 10.0f;
+    int octaves = 8;
 
     FrameBuffer waterReflexion;
     GLuint waterReflexion_id;
@@ -124,21 +124,27 @@ public:
         switch (param) {
         case 0:
             amplitude += 1.0f;
+            cout << "New amplitude " << amplitude << endl;
             break;
         case 1:
             amplitude -= 1.0f;
+            cout << "New amplitude " << amplitude << endl;
             break;
         case 2:
             frequency += 10.0f;
+            cout << "New frequency " << frequency << endl;
             break;
         case 3:
             frequency -= 10.0f;
+            cout << "New frequency " << frequency << endl;
             break;
         case 4:
             octaves += 1;
+            cout << "New number of octaves " << octaves << endl;
             break;
         case 5:
             octaves -= 1;
+            cout << "New number of octaves " << octaves << endl;
             break;
         }
         GLuint newTex = terrain_perlin.Init(grid_resolution * 11, grid_resolution * 11, octaves, amplitude, 1/frequency, 1/frequency);
@@ -147,7 +153,6 @@ public:
         for (pair<pair<int, int>, pair<Terrain*, Water*>> chunk : chunks) {
             chunk.second.first->height_texture_id_ = newTex;
         }
-        //Init(window_width, window_height);
         Draw(IDENTITY_MATRIX, v, p, mir, glm::vec3(0,0,0), water_height);
     }
 
@@ -180,6 +185,10 @@ public:
         createChunk(C_RIGHT, {5, 6});
     }
 
+    void resize_callback(int window_width, int window_height) {
+        waterReflexion_id = waterReflexion.Init(window_width, window_height);
+    }
+
     void Draw(const glm::mat4 &model,
               const glm::mat4 &view,
               const glm::mat4 &projection,
@@ -197,8 +206,6 @@ public:
                         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                         chunks[toDraw].first->Draw(IDENTITY_MATRIX, mirror_view, projection, water_height, 1);
                     waterReflexion.Unbind();
-
-
                     chunks[toDraw].second->Draw(camera_position, IDENTITY_MATRIX, view, projection, water_height, glfwGetTime());
                 }
             }

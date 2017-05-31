@@ -66,7 +66,11 @@ public:
         this->pitch_ = pitch;
         this->updateCameraVectors();
         BezierCurve b;
-        b.Init(1000);
+        vector<glm::vec3> v = {glm::vec3(90, 10, 10), glm::vec3(79.1844, 4.429621, 71.1),
+                               glm::vec3(74.4177, 5.88337, 52.0015), glm::vec3(73.4158, 1.0124063, 39.9451),
+                               glm::vec3(78.3972, 9.39166, 26.2307), glm::vec3(82.7383, 4.53701, 16.2617),
+                               glm::vec3(77.9093, 6.567705, 7.12833), glm::vec3(66.0981, 0.101448, -2.27427)};
+        b.Init(3000, v);
         bezierPath = b.getPath();
     }
 
@@ -194,7 +198,7 @@ public:
     }
 
     void printCameraPosition() {
-        cout << "x = " << this->position_.x << ", y = " << this->position_.y << ", z = " << this->position_.z << endl;
+        cout << this->position_.x << ", " << this->position_.y << ", " << this->position_.z << endl;
     }
 
 private:

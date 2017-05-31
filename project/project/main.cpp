@@ -60,6 +60,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         case GLFW_KEY_F3:
             camera.switchCameraMode();
             break;
+        case GLFW_KEY_F4:
         case GLFW_KEY_F5:
         case GLFW_KEY_F6:
         case GLFW_KEY_F7:
@@ -81,7 +82,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             break;
         case GLFW_KEY_C:
             camera.printCameraPosition();
-            //cout << "texture height: " << infiniteTerrain.getCurrentPerlin().getTerrainHeight(camera.position_.x, camera.position_.z, infiniteTerrain.getCurrentChunkCoordinates()) << endl;
             break;
         }
     } else if (action == GLFW_RELEASE) {
@@ -126,7 +126,7 @@ void Init() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
 
-    water_height = -3.0f;
+    water_height = 0.0f;
 
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.25f, 0.0f));
 
@@ -154,23 +154,6 @@ void Display() {
     view = mat4(mat3(view));
     skybox.Draw(skyScale, view, projection);
 
-    // mat4 mirror_view = camera.getReversedViewMatrix(water_height);
-
-    //waterReflexion.Bind();
-    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //    skybox.Draw(scale, mirror_view, projection);
-    /*
-    for (size_t i = 0; i < terrains.size(); ++i) {
-        terrains[i]->Draw(IDENTITY_MATRIX, mirror_view, projection, water_height);
-    }
-    */
-
-    //terrain.Draw(IDENTITY_MATRIX, mirror_view, projection, water_height);
-    //waterReflexion.Unbind();
-
-    //skybox.Draw(cube_scale, view, projection);
-    // water.Draw(trackball_matrix * quad_model_matrix, view, projection, water_height);
-
     glDisable(GL_DEPTH_TEST);
 }
 
@@ -181,9 +164,7 @@ void buffer_resize_callback(GLFWwindow* window, int width, int height) {
 
     cout << "Window has been resized to "
          << window_width << "x" << window_height << "." << endl;
-
-    //waterReflexion_id = waterReflexion.Init(window_width, window_height);
-    //water.Init(waterReflexion_id, water_wave_tex_id);
+    infiniteTerrain.resize_callback(window_width, window_height);
 
     glViewport(0, 0, window_width, window_height);
 }
@@ -252,9 +233,11 @@ int main(int argc, char *argv[]) {
 
     // render loop
     while(!glfwWindowShouldClose(window)) {
+        PerlinNoise heightmap = infiniteTerrain.getCurrentPerlin();
 
-        GLfloat terrain_height = infiniteTerrain.getCurrentPerlin().getTerrainHeight(camera.position_.x, camera.position_.z);
-        //GLfloat terrain_height = 5.0f;
+        GLfloat terrain_height = heightmap.getTerrainHeight(camera.position_.x,
+                                                            camera.position_.z,
+                                                            11, 22.0f);
 
         glfwPollEvents();
 
