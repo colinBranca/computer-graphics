@@ -60,6 +60,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         case GLFW_KEY_F3:
             camera.switchCameraMode();
             break;
+        case GLFW_KEY_F4:
         case GLFW_KEY_F5:
         case GLFW_KEY_F6:
         case GLFW_KEY_F7:
@@ -125,7 +126,7 @@ void Init() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
 
-    water_height = -3.0f;
+    water_height = 0.0f;
 
     quad_model_matrix = translate(mat4(1.0f), vec3(0.0f, 0.25f, 0.0f));
 
@@ -163,6 +164,7 @@ void buffer_resize_callback(GLFWwindow* window, int width, int height) {
 
     cout << "Window has been resized to "
          << window_width << "x" << window_height << "." << endl;
+    infiniteTerrain.resize_callback(window_width, window_height);
 
     glViewport(0, 0, window_width, window_height);
 }
