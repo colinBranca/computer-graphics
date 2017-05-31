@@ -54,6 +54,7 @@ public:
              float noiseFreqX = 1.0f / 400.0f,
              float noiseFreqY = 1.0f / 300.0f) {
         // set screenquad size
+        img_ = nullptr;
         this->width_ = width;
         this->height_ = height;
         this->octaves = octaves;
@@ -132,6 +133,7 @@ public:
     }
 
     void Compute(float seedX = 1.0f, float seedY = 1.0f) {
+        free(img_);
         glViewport(0,0, width_, height_);
         glBindFramebuffer(GL_FRAMEBUFFER, fb_id);
         const GLenum buffers[] = {GL_COLOR_ATTACHMENT0};
