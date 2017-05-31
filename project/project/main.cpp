@@ -80,8 +80,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             skybox.Init(key - 48);
             break;
         case GLFW_KEY_C:
-            //camera.printCameraPosition();
-            //cout << "texture height: " << infiniteTerrain.getCurrentPerlin().getTerrainHeight(camera.position_.x, camera.position_.z, infiniteTerrain.getCurrentChunkCoordinates()) << endl;
+            camera.printCameraPosition();
             break;
         }
     } else if (action == GLFW_RELEASE) {

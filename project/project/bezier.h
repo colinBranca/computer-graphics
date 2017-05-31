@@ -71,14 +71,14 @@ public:
         return path;
     }
 
-    void Init(size_t resolution) {
-        ifstream source("./points.txt");
-        while (!source.eof()) {
-            string row;
-            getline(source, row);
-            control_points.push_back(parseRow(row));
-        }
-        source.close();
-        Init(resolution, control_points);
-    }
+    // void Init(size_t resolution) {
+    //     ifstream source("./points.txt");
+    //     while (!source.eof()) {
+    //         string row;
+    //         getline(source, row);
+    //         control_points.push_back(parseRow(row));
+    //     }
+    //     source.close();
+    //     Init(resolution, control_points);
+    // }
 };
