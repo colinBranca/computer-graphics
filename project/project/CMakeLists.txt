@@ -12,6 +12,8 @@ file(GLOB TEXTURES
     terrain/*.png)
 copy_files_once(${TEXTURES})
 
+file(COPY points.txt DESTINATION build/project/points.txt)
+
 # list all the files you want to copy everytime
 # you build (ie, you want the shaders there)
 file(GLOB SHADERS

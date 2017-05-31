@@ -1,3 +1,5 @@
+#include <iostream>
+#include <fstream>
 
 class BezierCurve {
 private:
@@ -39,6 +41,24 @@ private:
         }
     }
 
+    glm::vec3 parseRow(string row) {
+        glm::vec3 res;
+        size_t start = 0;
+
+        size_t space = row.find(" ");
+
+        res.x = atof(row.substr(start, space).c_str());
+
+        start = space;
+        space = row.find(" ", start);
+        res.y = atof(row.substr(start, space).c_str());
+
+        start = space;
+        res.z = atof(row.substr(start, row.length()).c_str());
+
+        return res;
+    }
+
 public:
     void Init(size_t points_in_curve, vector<glm::vec3> ps = vector<glm::vec3>()) {
         resolution = points_in_curve;
@@ -48,5 +68,15 @@ public:
 
     vector<glm::vec3> getPath() const {
         return path;
+    }
+
+    void Init() {
+        ifstream source("./points.txt");
+        while (!source.eof()) {
+            string row;
+            getline(source, row);
+            control_points.push_back(parseRow(row));
+        }
+        source.close();
     }
 };

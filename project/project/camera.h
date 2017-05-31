@@ -64,12 +64,7 @@ public:
         this->pitch_ = pitch;
         this->updateCameraVectors();
         BezierCurve b;
-        vector<glm::vec3> ps = {
-            glm::vec3(80.0, 6, 80.0f),
-            glm::vec3(80.0, 6, 100.0),
-            glm::vec3(100.0, 6, 100.0)
-        };
-        b.Init(1000, ps);
+        b.Init();
         bezierPath = b.getPath();
     }
 
