@@ -60,6 +60,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         case GLFW_KEY_F3:
             camera.switchCameraMode();
             break;
+        case GLFW_KEY_F4:
         case GLFW_KEY_F5:
         case GLFW_KEY_F6:
         case GLFW_KEY_F7:

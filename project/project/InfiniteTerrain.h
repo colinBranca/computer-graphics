@@ -28,7 +28,7 @@ private:
     map<pair<int, int>, pair<Terrain*, Water*>> chunks;
 
     float chunk_size = 20.0f;
-    int grid_resolution = 512;
+    int grid_resolution = 200;
 
     GLuint skybox;
 

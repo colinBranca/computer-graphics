@@ -33,10 +33,10 @@ void main() {
     float leftEl = textureOffset(height_tex, uv, ivec2(-1, 0)).x;
     float upEl = textureOffset(height_tex, uv, ivec2(0, 1)).x;
 
-    vec3 right = vec3(uv.x + 1.0f / 512.0f, rightEl, uv.y);
-    vec3 left = vec3(uv.x - 1.0f / 512.0f, leftEl, uv.y);
-    vec3 up = vec3(uv.x, upEl, uv.y + 1.0f / 512.0f);
-    vec3 down = vec3(uv.x, downEl, uv.y - 1.0f / 512.0f);
+    vec3 right = vec3(uv.x + 1.0f / 200.0f, rightEl, uv.y);
+    vec3 left = vec3(uv.x - 1.0f / 200.0f, leftEl, uv.y);
+    vec3 up = vec3(uv.x, upEl, uv.y + 1.0f / 200.0f);
+    vec3 down = vec3(uv.x, downEl, uv.y - 1.0f /200.0f);
     vec3 b1 = right - left;
     vec3 b2 = down - up;
 
