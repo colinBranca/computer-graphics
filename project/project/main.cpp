@@ -35,9 +35,9 @@ GLfloat last_frame = 0.0f;
 
 mat4 quad_model_matrix;
 
-mat4 skyScale = mat4(20.0f, 0.0f, 0.0f, 0.0f,
-                     0.0f, 20.0f, 0.0f, 0.0f,
-                     0.0f, 0.0f, 20.0f, 0.0f,
+mat4 skyScale = mat4(50.0f, 0.0f, 0.0f, 0.0f,
+                     0.0f, 50.0f, 0.0f, 0.0f,
+                     0.0f, 0.0f, 50.0f, 0.0f,
                      0.0f, 0.0f, 0.0f, 1.0f);
 
 float water_height;
@@ -149,7 +149,7 @@ void Display() {
     mat4 projection = camera.getProjectionMatrix(window_width, window_height);
     mat4 mirror_view = camera.getReversedViewMatrix(water_height);
 
-    infiniteTerrain.Draw(IDENTITY_MATRIX, view, projection, mirror_view, camera.position_, water_height);
+    infiniteTerrain.Draw(IDENTITY_MATRIX, view, projection, mirror_view, camera.position_, camera.pitch_, water_height);
 
     view = mat4(mat3(view));
     skybox.Draw(skyScale, view, projection);

@@ -194,6 +194,7 @@ public:
               const glm::mat4 &projection,
               const glm::mat4 &mirror_view,
               const glm::vec3 &camera_position,
+              GLfloat camera_pitch,
               float water_height = -10.0f) {
         // Only draw chunks around current one.
         for (int y = -1; y <= 1; ++y) {
@@ -204,7 +205,9 @@ public:
                     chunks[toDraw].first->Draw(IDENTITY_MATRIX, view, projection, water_height);
                     waterReflexion.Bind();
                         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                        chunks[toDraw].first->Draw(IDENTITY_MATRIX, mirror_view, projection, water_height, 1);
+                        if (camera_pitch > -45.0) {
+                            chunks[toDraw].first->Draw(IDENTITY_MATRIX, mirror_view, projection, water_height, 1);
+                        }
                     waterReflexion.Unbind();
                     chunks[toDraw].second->Draw(camera_position, IDENTITY_MATRIX, view, projection, water_height, glfwGetTime());
                 }
